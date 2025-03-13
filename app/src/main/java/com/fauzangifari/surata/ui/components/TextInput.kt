@@ -1,73 +1,114 @@
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.focus.onFocusChanged
+import com.fauzangifari.surata.ui.theme.Blue800
+import com.fauzangifari.surata.ui.theme.Grey900
+import com.fauzangifari.surata.ui.theme.PlusJakartaSans
+import com.fauzangifari.surata.R
+import com.fauzangifari.surata.ui.theme.Grey500
 
 @Composable
 fun TextInput(
     label: String,
     value: String,
+    placeholder: String = "",
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     onValueChange: (String) -> Unit,
     isPassword: Boolean = false,
-    isEnabled: Boolean = true
+    isEnabled: Boolean = true,
+    singleLine: Boolean = true,
+    trailingIconClick: (() -> Unit)? = null
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
+    var isFocused by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier.padding(7.dp)
-    ) {
-        Text(text = label, fontSize = 14.sp, color = Color.Black, modifier = Modifier.padding(bottom = 4.dp))
+    val borderColor by animateColorAsState(if (isFocused) Blue800 else Grey900, label = "BorderColor")
+
+    Column(modifier = Modifier) {
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            color = Color.Black,
+            modifier = Modifier.padding(bottom = 7.dp),
+            fontFamily = PlusJakartaSans
+        )
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
             enabled = isEnabled,
+            singleLine = singleLine,
+            textStyle = TextStyle(
+                fontSize = 16.sp,
+                color = Color.Black,
+                fontFamily = PlusJakartaSans
+            ),
             visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
             leadingIcon = leadingIcon,
-            trailingIcon = trailingIcon ?: if (isPassword) {
-                {
+            trailingIcon = {
+                if (isPassword) {
                     IconButton(onClick = { passwordVisible = !passwordVisible }) {
                         Icon(
-                            painter = painterResource(id = android.R.drawable.ic_menu_view),
-                            contentDescription = "Toggle Password"
+                            painter = painterResource(
+                                id = if (passwordVisible) R.drawable.ic_outline_visibility_off_24 else R.drawable.ic_outline_visibility_24
+                            ),
+                            contentDescription = "Toggle Password",
+                            tint = Grey500
+                        )
+                    }
+                } else if (value.isNotEmpty()) {
+                    IconButton(onClick = { onValueChange("") }) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_close_24),
+                            contentDescription = "Clear Text",
+                            tint = Grey500
                         )
                     }
                 }
-            } else null,
+            },
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(8.dp))
-                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
-                .background(if (isEnabled) Color.White else Color.LightGray)
+                .onFocusChanged { isFocused = it.isFocused },
+            placeholder = { Text(text = placeholder, fontSize = 16.sp, color = Color.Gray, fontFamily = PlusJakartaSans) },
+            colors = TextFieldDefaults.colors(
+                disabledContainerColor = Color.LightGray,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                disabledIndicatorColor = borderColor,
+                unfocusedIndicatorColor = borderColor,
+                focusedIndicatorColor = borderColor
+            )
         )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-fun TextInputPreview() {
-    var text by remember { mutableStateOf("Fauzan Gifari") }
+fun PasswordInputPreview() {
+    var password by remember { mutableStateOf("") }
     TextInput(
-        label = "Email",
-        value = text,
-        onValueChange = { text = it },
+        label = "Password",
+        value = password,
+        placeholder = "Masukkan Password",
+        onValueChange = { password = it },
+        isPassword = true,
         leadingIcon = {
-            Icon(painter = painterResource(id = android.R.drawable.ic_menu_info_details), contentDescription = "Info Icon")
+            Icon(
+                painter = painterResource(id = R.drawable.ic_outline_lock_24),
+                contentDescription = "Lock Icon",
+                tint = Grey500
+            )
         }
     )
 }
