@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -47,7 +48,7 @@ fun ButtonCustom(
                 onClick = onClick,
                 colors = ButtonDefaults.buttonColors(containerColor = backgroundColor),
                 shape = shape,
-                modifier = modifier.height(48.dp)
+                modifier = modifier.height(40.dp)
             ) {
                 ButtonContent(value, leadingIcon, trailingIcon, fontSize, textColor)
             }
@@ -58,7 +59,7 @@ fun ButtonCustom(
                 onClick = onClick,
                 shape = shape,
                 border = BorderStroke(2.dp, borderColor),
-                modifier = modifier.height(48.dp),
+                modifier = modifier.height(40.dp),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = textColor)
             ) {
                 ButtonContent(value, leadingIcon, trailingIcon, fontSize, textColor)

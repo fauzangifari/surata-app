@@ -20,6 +20,8 @@ import com.fauzangifari.surata.ui.theme.Blue800
 import com.fauzangifari.surata.ui.theme.GreenDark
 import com.fauzangifari.surata.ui.theme.GreenLight
 import com.fauzangifari.surata.ui.theme.Grey300
+import com.fauzangifari.surata.ui.theme.Grey500
+import com.fauzangifari.surata.ui.theme.Grey900
 import com.fauzangifari.surata.ui.theme.PlusJakartaSans
 import com.fauzangifari.surata.ui.theme.RedDark
 import com.fauzangifari.surata.ui.theme.RedLight
@@ -30,7 +32,7 @@ import java.util.*
 
 @Composable
 fun CardSurat(
-    title: String = "Surat Dispensasi",
+    title: String = "Default",
     status: String = "Menunggu",
     onDetailClick: () -> Unit
 ) {
@@ -40,10 +42,9 @@ fun CardSurat(
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(4.dp),
+        elevation = CardDefaults.cardElevation(2.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -54,7 +55,7 @@ fun CardSurat(
                 Text(
                     text = title,
                     fontWeight = FontWeight.Bold,
-                    fontSize = 18.sp,
+                    fontSize = 16.sp,
                     fontFamily = PlusJakartaSans
                 )
                 ButtonCustom(
@@ -62,14 +63,14 @@ fun CardSurat(
                     buttonType = ButtonType.PILL,
                     onClick = onDetailClick,
                     fontSize = 12,
-                    modifier = Modifier.height(36.dp),
+                    modifier = Modifier.height(36.dp).wrapContentWidth(),
                     buttonStyle = ButtonStyle.OUTLINED,
                     textColor = Blue800,
                     trailingIcon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_outline_email_24),
                             contentDescription = "Detail Surat",
-                            tint = Blue800
+                            tint = Blue800,
                         )
                     }
                 )
@@ -88,7 +89,7 @@ fun CardSurat(
                         fontFamily = PlusJakartaSans,
                         fontWeight = FontWeight.Bold,
                         fontSize = 10.sp,
-                        color = Color.Gray,
+                        color = Grey500,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
                     Box(
@@ -120,7 +121,7 @@ fun CardSurat(
                     Text(
                         text = "Tanggal",
                         fontSize = 10.sp,
-                        color = Color.Gray,
+                        color = Grey500,
                         fontWeight = FontWeight.Bold,
                         fontFamily = PlusJakartaSans,
                     )
@@ -129,7 +130,7 @@ fun CardSurat(
 
                     Text(
                         text = currentDate,
-                        fontSize = 12.sp,
+                        fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = PlusJakartaSans
                     )
@@ -141,19 +142,19 @@ fun CardSurat(
 
 fun getStatusColor(status: String): Color {
     return when (status.lowercase(Locale.ROOT)) {
-        "menunggu" -> YellowLight
+        "diproses" -> YellowLight
         "disetujui" -> GreenLight
         "ditolak" -> RedLight
-        else -> Color.LightGray
+        else -> Grey500
     }
 }
 
 fun getStatusTextcolor(status: String): Color {
     return when (status.lowercase(Locale.ROOT)) {
-        "menunggu" -> YellowDark
+        "diproses" -> YellowDark
         "disetujui" -> GreenDark
         "ditolak" -> RedDark
-        else -> Color.Gray
+        else -> Grey900
     }
 }
 
@@ -165,10 +166,12 @@ fun getCurrentDate(): String {
 @Preview(showBackground = true)
 @Composable
 fun SuratDispensasiCardPreview() {
-    Column {
-        CardSurat(status = "Menunggu", onDetailClick = {})
-        CardSurat(status = "Disetujui", onDetailClick = {})
-        CardSurat(status = "Ditolak", onDetailClick = {})
-        CardSurat(status = "Belum diproses", onDetailClick = {})
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        CardSurat(title = "Surat Izin Sakit", status = "Diproses", onDetailClick = {})
+        CardSurat(title = "Surat Dispensasi", status = "Disetujui", onDetailClick = {})
+        CardSurat(title = "Surat Rekomendasi", status = "Ditolak", onDetailClick = {})
+        CardSurat(title = "Surat Tugas", status = "Belum diproses", onDetailClick = {})
     }
 }
