@@ -29,3 +29,15 @@ val Grey600 = Color(0xFF8D96A7)
 val Grey700 = Color(0xFF6E7582)
 val Grey800 = Color(0xFF555B65)
 val Grey900 = Color(0xFF41454D)
+
+// Green
+val GreenLight = Color(0xFFB2F2BB)
+val GreenDark = Color(0xFF00A152)
+
+// Yellow
+val YellowLight = Color(0xFFFFF0B3)
+val YellowDark = Color(0xFFE6B800)
+
+// Red
+val RedLight = Color(0xFFF5B7B1)
+val RedDark = Color(0xFFD32F2F)
