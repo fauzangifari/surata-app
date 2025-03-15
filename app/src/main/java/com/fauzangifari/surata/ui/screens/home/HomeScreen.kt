@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,11 +19,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,13 +43,13 @@ import androidx.navigation.compose.composable
 import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.components.BottomBar
 import com.fauzangifari.surata.ui.components.CardSurat
+import com.fauzangifari.surata.ui.components.TopBar
 import com.fauzangifari.surata.ui.navigation.Screen
 import com.fauzangifari.surata.ui.screens.notification.NotificationScreen
 import com.fauzangifari.surata.ui.screens.profile.ProfileScreen
 import com.fauzangifari.surata.ui.theme.Blue800
 import com.fauzangifari.surata.ui.theme.Grey500
 import com.fauzangifari.surata.ui.theme.Grey700
-import com.fauzangifari.surata.ui.theme.Grey800
 import com.fauzangifari.surata.ui.theme.Grey900
 import com.fauzangifari.surata.ui.theme.PlusJakartaSans
 
@@ -55,6 +59,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier
 ) {
     Scaffold(
+        topBar = { TopBar() },
         bottomBar = { BottomBar(navController = navController) }
     ) { innerPadding ->
         NavHost(
@@ -77,29 +82,11 @@ fun HomeScreen(
 
 @Composable
 fun HomeContent() {
-    Column(modifier = Modifier.fillMaxSize().padding(32.dp)) {
-        // Top Bar
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.surata_logo_2),
-                contentDescription = "Logo Surata",
-                modifier = Modifier.size(80.dp)
-            )
-            Row {
-                IconButton(onClick = { /* TODO: Handle notifications */ }) {
-                    Icon(painter = painterResource(id = R.drawable.ic_outline_notifications_24), contentDescription = "Notifikasi", tint = Grey700)
-                }
-                IconButton(onClick = { /* TODO: Handle settings */ }) {
-                    Icon(painter = painterResource(id = R.drawable.ic_outline_settings_24), contentDescription = "Pengaturan", tint = Grey700)
-                }
-            }
-        }
-        Spacer(modifier = Modifier.height(8.dp))
-
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(bottom = 0.dp, end = 32.dp, start = 32.dp, top = 16.dp)
+    ) {
         Column {
             Text(
                 text = "Halo,",
@@ -148,14 +135,15 @@ fun HomeContent() {
             fontWeight = FontWeight.Bold,
             fontFamily = PlusJakartaSans,
             color = Grey900,
-            modifier = Modifier.padding(bottom = 16.dp),
+            modifier = Modifier.padding(bottom = 8.dp),
         )
 
         LazyColumn(
             modifier = Modifier
-                .weight(1f)
+                .weight(2f)
                 .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(bottom = 16.dp, top = 8.dp)
         ) {
             val statusList = listOf("Disetujui", "Ditolak", "Diproses", "Belum diproses")
 
@@ -168,8 +156,8 @@ fun HomeContent() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.BottomEnd
+            .padding(bottom = 0.dp, end = 16.dp, start = 16.dp, top = 16.dp),
+        contentAlignment = Alignment.BottomEnd,
     ) {
         FloatingActionButton(
             onClick = { /* TODO: Handle new surat */ },

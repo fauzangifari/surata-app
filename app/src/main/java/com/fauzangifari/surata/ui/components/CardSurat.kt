@@ -25,6 +25,7 @@ import com.fauzangifari.surata.ui.theme.Grey900
 import com.fauzangifari.surata.ui.theme.PlusJakartaSans
 import com.fauzangifari.surata.ui.theme.RedDark
 import com.fauzangifari.surata.ui.theme.RedLight
+import com.fauzangifari.surata.ui.theme.White
 import com.fauzangifari.surata.ui.theme.YellowDark
 import com.fauzangifari.surata.ui.theme.YellowLight
 import java.text.SimpleDateFormat
@@ -34,15 +35,16 @@ import java.util.*
 fun CardSurat(
     title: String = "Default",
     status: String = "Menunggu",
-    onDetailClick: () -> Unit
+    onDetailClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val statusColor = getStatusColor(status)
     val currentDate = getCurrentDate()
 
     Card(
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(2.dp),
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(10.dp),
         modifier = Modifier
             .fillMaxWidth()
     ) {
