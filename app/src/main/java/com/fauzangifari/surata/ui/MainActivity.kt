@@ -27,6 +27,7 @@ class MainActivity : ComponentActivity() {
                     HomeScreen(
                         navController = navController
                     )
+//                    LoginScreen()
                 }
             }
         }
