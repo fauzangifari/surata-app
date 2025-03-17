@@ -25,6 +25,8 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -36,6 +38,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -62,6 +65,7 @@ import com.fauzangifari.surata.ui.navigation.Screen
 import com.fauzangifari.surata.ui.screens.notification.NotificationScreen
 import com.fauzangifari.surata.ui.screens.profile.ProfileScreen
 import com.fauzangifari.surata.ui.theme.Blue800
+import com.fauzangifari.surata.ui.theme.Blue900
 import com.fauzangifari.surata.ui.theme.Grey500
 import com.fauzangifari.surata.ui.theme.Grey900
 import com.fauzangifari.surata.ui.theme.PlusJakartaSans
@@ -203,9 +207,10 @@ fun HomeContent() {
 
 @Composable
 fun Form(onClose: () -> Unit) {
-
     val context = LocalContext.current
     var description by remember { mutableStateOf("") }
+    var selectedSurat by remember { mutableStateOf("") }
+    var isChecked by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -223,48 +228,52 @@ fun Form(onClose: () -> Unit) {
             label = "Jenis Surat",
             items = listOf("Surat Dispensasi", "Surat Rekomendasi", "Surat Keterangan Aktif", "Surat Tugas"),
             placeHolder = "Pilih Jenis Surat",
-            onItemSelected = {}
+            onItemSelected = { selectedSurat = it }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        DateInput(
-            label = "Tanggal Mulai",
-            onDateSelected = {
+        when (selectedSurat) {
+            "Surat Dispensasi", "Surat Tugas" -> {
+                DateInput(
+                    label = "Tanggal Mulai",
+                    onDateSelected = {},
+                    placeholder = "Pilih Tanggal Mulai",
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-            },
-            placeholder = "Pilih Tanggal Mulai",
-            modifier = Modifier.fillMaxWidth()
-        )
+                Spacer(modifier = Modifier.height(8.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
+                DateInput(
+                    label = "Tanggal Berakhir",
+                    onDateSelected = {},
+                    placeholder = "Pilih Tanggal Berakhir",
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-        DateInput(
-            label = "Tanggal Berakhir",
-            onDateSelected = {},
-            placeholder = "Pilih Tanggal Berakhir",
-            modifier = Modifier.fillMaxWidth()
-        )
+                Spacer(modifier = Modifier.height(8.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
+                if (selectedSurat == "Surat Dispensasi") {
+                    TimeInput(
+                        context = context,
+                        label = "Waktu Mulai",
+                        placeHolder = "Pilih Waktu Mulai",
+                        onTimeSelected = {},
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-        TimeInput(
-            context =  context,
-            label = "Waktu Mulai",
-            placeHolder = "Pilih Waktu Mulai",
-            onTimeSelected = {},
-            modifier = Modifier.fillMaxWidth()
-        )
+                    Spacer(modifier = Modifier.height(8.dp))
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        TimeInput(
-            context =  context,
-            label = "Waktu Selesai",
-            placeHolder = "Pilih Waktu Selesai",
-            onTimeSelected = {},
-            modifier = Modifier.fillMaxWidth()
-        )
+                    TimeInput(
+                        context = context,
+                        label = "Waktu Selesai",
+                        placeHolder = "Pilih Waktu Selesai",
+                        onTimeSelected = {},
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(8.dp))
 
@@ -278,9 +287,32 @@ fun Form(onClose: () -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        FileUpload (
-            onFileSelected = {}
-        )
+        FileUpload(onFileSelected = {})
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+
+        ) {
+            Text(
+                text = "Ambil Surat di Tempat",
+                fontSize = 14.sp,
+                fontFamily = PlusJakartaSans,
+                color = Grey900,
+            )
+            Switch(
+                modifier = Modifier.scale(0.75f),
+                checked = isChecked,
+                onCheckedChange = { isChecked = it },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Blue900,
+                    uncheckedThumbColor = Grey500
+                )
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -291,11 +323,12 @@ fun Form(onClose: () -> Unit) {
             buttonStyle = ButtonStyle.FILLED,
             backgroundColor = Blue800,
             textColor = White,
-            onClick = {onClose},
+            onClick = onClose,
             modifier = Modifier.fillMaxWidth().height(50.dp)
         )
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fauzangifari.surata.R
+import com.fauzangifari.surata.ui.theme.Black
 import com.fauzangifari.surata.ui.theme.Blue800
 import com.fauzangifari.surata.ui.theme.Grey500
 import com.fauzangifari.surata.ui.theme.Grey800
@@ -60,20 +61,21 @@ fun FileUpload(modifier: Modifier = Modifier, onFileSelected: (Uri?) -> Unit) {
             Image(
                 painter = painterResource(id = R.drawable.ic_upload_file_24),
                 contentDescription = "Upload Icon",
-                modifier = Modifier.size(40.dp)
+                modifier = Modifier.size(40.dp),
+                colorFilter = ColorFilter.tint(Grey500)
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "Tekan sini untuk upload",
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Bold,
-                color = Grey500,
+                color = Grey900,
                 fontFamily = PlusJakartaSans
             )
             Text(
                 text = "dokumen pendukung",
                 fontSize = 14.sp,
-                color = Grey500,
+                color = Grey900,
                 fontFamily = PlusJakartaSans
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -98,7 +100,7 @@ fun FileUpload(modifier: Modifier = Modifier, onFileSelected: (Uri?) -> Unit) {
                     text = it,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Medium,
-                    color = Color.Black,
+                    color = Black,
                     fontFamily = PlusJakartaSans
                 )
             }

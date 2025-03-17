@@ -1,3 +1,5 @@
+package com.fauzangifari.surata.ui.components
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

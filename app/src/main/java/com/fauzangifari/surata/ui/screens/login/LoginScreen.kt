@@ -1,6 +1,5 @@
 package com.fauzangifari.surata.ui.screens.login
 
-import TextInput
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -26,6 +25,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.components.ButtonCustom
 import com.fauzangifari.surata.ui.components.ButtonType
+import com.fauzangifari.surata.ui.components.TextInput
 import com.fauzangifari.surata.ui.theme.*
 
 @Composable
