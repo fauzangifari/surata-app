@@ -3,6 +3,8 @@ package com.fauzangifari.surata.ui.components
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,19 +15,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fauzangifari.surata.R
+import com.fauzangifari.surata.ui.theme.Grey500
+import com.fauzangifari.surata.ui.theme.Grey900
+import com.fauzangifari.surata.ui.theme.PlusJakartaSans
+import com.fauzangifari.surata.ui.theme.White
 
 @Composable
-fun Collapse(modifier: Modifier = Modifier) {
+fun Collapse(
+    modifier: Modifier = Modifier,
+    label: String?,
+) {
     var expanded by remember { mutableStateOf(false) }
 
-    Column(modifier = modifier.padding(16.dp)) {
+    Column {
         Card(
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFFF7F8FC))
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+            colors = CardDefaults.cardColors(containerColor = White)
         ) {
             Row(
                 modifier = Modifier
@@ -36,7 +47,7 @@ fun Collapse(modifier: Modifier = Modifier) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Data Surat",
+                    text = label.toString(),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -55,10 +66,10 @@ fun Collapse(modifier: Modifier = Modifier) {
             Card(
                 modifier = Modifier.padding(top = 8.dp),
                 shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                 colors = CardDefaults.cardColors(containerColor = Color.White)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Data Surat", fontSize = 18.sp, fontWeight = FontWeight.Bold)
                     Spacer(modifier = Modifier.height(12.dp))
 
                     InfoRow(iconRes = R.drawable.ic_outline_person_24, label = "Nama Pembuat", value = "Muhammad Fauzan Gifari Dzul Fahmi")
@@ -66,18 +77,43 @@ fun Collapse(modifier: Modifier = Modifier) {
                     InfoRow(iconRes = R.drawable.ic_outline_email_24, label = "Jenis Surat", value = "Surat Dispensasi")
 
                     Text("Dokumen Pendukung", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.Gray, modifier = Modifier.padding(top = 12.dp))
+
                     Card(
-                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 8.dp)
+                            .border(
+                                width = 1.dp,
+                                color = Grey500,
+                                shape = RoundedCornerShape(8.dp)
+                        ),
                         shape = RoundedCornerShape(8.dp),
-                        colors = CardDefaults.cardColors(containerColor = Color(0xFFE57373))
+                        colors = CardDefaults.cardColors(containerColor = White)
                     ) {
                         Row(
-                            modifier = Modifier.padding(12.dp),
+                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text("PDF", color = Color.White, fontWeight = FontWeight.Bold)
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("SP Lomba HUT SMA Negeri 3 Samarinda 2024.pdf", color = Color.White)
+                            Box(
+                                modifier = Modifier
+                                    .background(Color(0xFFE57373), shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
+                                    .padding(horizontal = 12.dp, vertical = 18.dp)
+                            ) {
+                                Text("PDF", color = Color.White, fontWeight = FontWeight.Bold)
+                            }
+
+                            Text(
+                                text = "SP Lomba HUT SMA Negeri 3 Samarinda 2024.pdf",
+                                fontSize = 12.sp,
+                                color = Grey900,
+                                fontFamily = PlusJakartaSans,
+                                fontWeight = FontWeight.Bold,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier
+                                    .padding(horizontal = 12.dp, vertical = 8.dp)
+                                    .fillMaxWidth()
+                            )
                         }
                     }
                 }
@@ -100,7 +136,9 @@ fun InfoRow(iconRes: Int, label: String, value: String) {
 @Preview(showBackground = true)
 @Composable
 fun CollapsePreview() {
-    Collapse()
+    Collapse(
+        label = "Data Surat"
+    )
 }
 
 

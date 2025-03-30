@@ -1,40 +1,14 @@
 package com.fauzangifari.surata.ui.screens.home
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
-import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
-import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -47,166 +21,108 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.fauzangifari.surata.R
-import com.fauzangifari.surata.ui.components.BottomBar
-import com.fauzangifari.surata.ui.components.ButtonCustom
-import com.fauzangifari.surata.ui.components.ButtonStyle
-import com.fauzangifari.surata.ui.components.ButtonType
-import com.fauzangifari.surata.ui.components.CardSurat
-import com.fauzangifari.surata.ui.components.DateInput
-import com.fauzangifari.surata.ui.components.DescriptionInput
-import com.fauzangifari.surata.ui.components.DropdownField
-import com.fauzangifari.surata.ui.components.FileUpload
-import com.fauzangifari.surata.ui.components.TimeInput
-import com.fauzangifari.surata.ui.components.TopBar
+import com.fauzangifari.surata.ui.components.*
 import com.fauzangifari.surata.ui.navigation.Screen
-import com.fauzangifari.surata.ui.screens.notification.NotificationScreen
-import com.fauzangifari.surata.ui.screens.profile.ProfileScreen
-import com.fauzangifari.surata.ui.theme.Blue800
-import com.fauzangifari.surata.ui.theme.Blue900
-import com.fauzangifari.surata.ui.theme.Grey500
-import com.fauzangifari.surata.ui.theme.Grey900
-import com.fauzangifari.surata.ui.theme.PlusJakartaSans
-import com.fauzangifari.surata.ui.theme.White
-
-@Composable
-fun HomeScreen(
-    navController: NavHostController,
-    modifier: Modifier = Modifier
-) {
-    Scaffold(
-        topBar = { TopBar() },
-        bottomBar = { BottomBar(navController = navController) }
-    ) { innerPadding ->
-        NavHost(
-            navController = navController,
-            startDestination = Screen.Home.route,
-            modifier = Modifier.padding(innerPadding)
-        ) {
-            composable(Screen.Home.route) {
-                HomeContent()
-            }
-            composable(Screen.Notification.route) {
-                NotificationScreen()
-            }
-            composable(Screen.Profile.route) {
-                ProfileScreen()
-            }
-        }
-    }
-}
+import com.fauzangifari.surata.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeContent() {
+fun HomeScreen(navController: NavHostController, modifier: Modifier = Modifier) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    val coroutineScope = rememberCoroutineScope()
     var showSheet by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = 0.dp, end = 32.dp, start = 32.dp, top = 16.dp)
-    ) {
-        Column {
-            Text(
-                text = "Halo,",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = PlusJakartaSans,
-                color = Grey900,
-                modifier = Modifier.padding(bottom = 4.dp)
-            )
-            Text(
-                text = "Muhammad Fauzan Gifari",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = PlusJakartaSans,
-                color = Grey900
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Profile Card
-        Card(
-            shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(containerColor = Blue800),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 16.dp)
-        ) {
-            Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(CircleShape)
-                        .background(Grey500)
+    Scaffold(
+        topBar = { TopBar() },
+        bottomBar = { BottomBar(navController) },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { showSheet = true },
+                containerColor = Blue800,
+                shape = RoundedCornerShape(50.dp)
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_add_24),
+                    contentDescription = "Tambah Surat",
+                    tint = Color.White,
+                    modifier = Modifier.size(44.dp)
                 )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(text = "Siswa Aktif", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp, fontFamily = PlusJakartaSans)
-                    Text(text = "fauzan@sman1samarinda.sch.id", color = Color.White, fontSize = 12.sp, fontFamily = PlusJakartaSans)
+            }
+        }
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(horizontal = 32.dp)
+        ) {
+            Text("Halo,", fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = PlusJakartaSans, color = Grey900)
+            Text("Muhammad Fauzan Gifari", fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = PlusJakartaSans, color = Grey900)
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            ProfileCard()
+
+            SuratSection(navController)
+
+            if (showSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = { showSheet = false },
+                    sheetState = sheetState,
+                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                ) {
+                    SuratForm(onClose = { showSheet = false })
                 }
             }
-        }
-
-        // Riwayat Surat
-        Text(
-            text = "Riwayat Surat",
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            fontFamily = PlusJakartaSans,
-            color = Grey900,
-            modifier = Modifier.padding(bottom = 8.dp),
-        )
-
-        LazyColumn(
-            modifier = Modifier
-                .weight(2f)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            contentPadding = PaddingValues(bottom = 16.dp, top = 8.dp)
-        ) {
-            val statusList = listOf("Disetujui", "Ditolak", "Diproses", "Belum diproses")
-
-            items(10) { index ->
-                CardSurat(status = statusList[index % statusList.size], onDetailClick = {})
-            }
-        }
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(bottom = 0.dp, end = 16.dp, start = 16.dp, top = 16.dp),
-        contentAlignment = Alignment.BottomEnd,
-    ) {
-        FloatingActionButton(
-            onClick = { showSheet = true },
-            containerColor = Blue800,
-            modifier = Modifier.padding(16.dp),
-            shape = RoundedCornerShape(50.dp)
-        ) {
-            Icon(modifier = Modifier.size(44.dp), painter = painterResource(id = R.drawable.ic_add_24), contentDescription = "Tambah Surat", tint = Color.White)
-        }
-    }
-
-    if (showSheet) {
-        ModalBottomSheet(
-            onDismissRequest = { showSheet = false },
-            sheetState = sheetState,
-            shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-        ) {
-            Form(onClose = { showSheet = false })
         }
     }
 }
 
 @Composable
-fun Form(onClose: () -> Unit) {
+fun ProfileCard() {
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = Blue800),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Box(
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(Grey500)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            Column {
+                Text("Siswa Aktif", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text("fauzan@sman1samarinda.sch.id", color = Color.White, fontSize = 12.sp)
+            }
+        }
+    }
+}
+
+@Composable
+fun SuratSection(navController: NavHostController) {
+    Text("Riwayat Surat", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Grey900, modifier = Modifier.padding(vertical = 8.dp))
+
+    val statusList = listOf("Disetujui", "Ditolak", "Diproses", "Belum diproses")
+
+    LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(bottom = 16.dp)
+    ) {
+        items(10) { index ->
+            CardSurat(
+                status = statusList[index % statusList.size],
+                onDetailClick = { navController.navigate(Screen.Detail.route) }
+            )
+        }
+    }
+}
+
+@Composable
+fun SuratForm(onClose: () -> Unit) {
     val context = LocalContext.current
     var description by remember { mutableStateOf("") }
     var selectedSurat by remember { mutableStateOf("") }
@@ -235,42 +151,15 @@ fun Form(onClose: () -> Unit) {
 
         when (selectedSurat) {
             "Surat Dispensasi", "Surat Tugas" -> {
-                DateInput(
-                    label = "Tanggal Mulai",
-                    onDateSelected = {},
-                    placeholder = "Pilih Tanggal Mulai",
-                    modifier = Modifier.fillMaxWidth()
-                )
-
+                DateInput(label = "Tanggal Mulai", onDateSelected = {}, placeholder = "Pilih Tanggal Mulai", modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(8.dp))
-
-                DateInput(
-                    label = "Tanggal Berakhir",
-                    onDateSelected = {},
-                    placeholder = "Pilih Tanggal Berakhir",
-                    modifier = Modifier.fillMaxWidth()
-                )
-
+                DateInput(label = "Tanggal Berakhir", onDateSelected = {}, placeholder = "Pilih Tanggal Berakhir", modifier = Modifier.fillMaxWidth())
                 Spacer(modifier = Modifier.height(8.dp))
 
                 if (selectedSurat == "Surat Dispensasi") {
-                    TimeInput(
-                        context = context,
-                        label = "Waktu Mulai",
-                        placeHolder = "Pilih Waktu Mulai",
-                        onTimeSelected = {},
-                        modifier = Modifier.fillMaxWidth()
-                    )
-
+                    TimeInput(context = context, label = "Waktu Mulai", placeHolder = "Pilih Waktu Mulai", onTimeSelected = {}, modifier = Modifier.fillMaxWidth())
                     Spacer(modifier = Modifier.height(8.dp))
-
-                    TimeInput(
-                        context = context,
-                        label = "Waktu Selesai",
-                        placeHolder = "Pilih Waktu Selesai",
-                        onTimeSelected = {},
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    TimeInput(context = context, label = "Waktu Selesai", placeHolder = "Pilih Waktu Selesai", onTimeSelected = {}, modifier = Modifier.fillMaxWidth())
                 }
             }
         }
@@ -294,19 +183,13 @@ fun Form(onClose: () -> Unit) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(
-                text = "Ambil Surat di Tempat",
-                fontSize = 14.sp,
-                fontFamily = PlusJakartaSans,
-                color = Grey900,
-            )
+            Text("Ambil Surat di Tempat", fontSize = 14.sp, color = Grey900)
             Switch(
-                modifier = Modifier.scale(0.75f),
                 checked = isChecked,
                 onCheckedChange = { isChecked = it },
+                modifier = Modifier.scale(0.75f),
                 colors = SwitchDefaults.colors(
                     checkedThumbColor = Blue900,
                     uncheckedThumbColor = Grey500
@@ -329,9 +212,8 @@ fun Form(onClose: () -> Unit) {
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun HomePreview() {
-    Form ( onClose = {} )
+    HomeScreen(navController = rememberNavController())
 }

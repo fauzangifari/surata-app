@@ -59,4 +59,5 @@ dependencies {
 
     // Navigation
     implementation(libs.androidx.navigation.compose)
+
 }

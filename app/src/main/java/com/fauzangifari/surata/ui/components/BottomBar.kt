@@ -15,7 +15,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.fauzangifari.surata.ui.navigation.NavigationItem
 import com.fauzangifari.surata.ui.navigation.Screen
 import com.fauzangifari.surata.R
-import com.fauzangifari.surata.ui.theme.Blue100
 import com.fauzangifari.surata.ui.theme.Blue800
 import com.fauzangifari.surata.ui.theme.PlusJakartaSans
 import com.fauzangifari.surata.ui.theme.White

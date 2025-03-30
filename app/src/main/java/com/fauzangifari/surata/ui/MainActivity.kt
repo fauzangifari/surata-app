@@ -7,6 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.*
 import androidx.navigation.compose.rememberNavController
+import com.fauzangifari.surata.ui.navigation.NavigationHost
+import com.fauzangifari.surata.ui.screens.detail.DetailScreen
 import com.fauzangifari.surata.ui.screens.home.HomeScreen
 import com.fauzangifari.surata.ui.screens.login.LoginScreen
 import com.fauzangifari.surata.ui.screens.splash.SplashScreen
@@ -24,10 +26,9 @@ class MainActivity : ComponentActivity() {
                 if (showSplash) {
                     SplashScreen { showSplash = false }
                 } else {
-                    HomeScreen(
-                        navController = navController
-                    )
+                    NavigationHost(navController = navController)
 //                    LoginScreen()
+//                    DetailScreen()
                 }
             }
         }
