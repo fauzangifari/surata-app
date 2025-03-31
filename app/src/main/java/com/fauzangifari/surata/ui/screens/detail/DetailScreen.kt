@@ -15,12 +15,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.components.*
 import com.fauzangifari.surata.ui.navigation.Screen
+import com.fauzangifari.surata.ui.theme.Grey900
+import com.fauzangifari.surata.ui.theme.PlusJakartaSans
 import com.fauzangifari.surata.ui.theme.White
 import com.fauzangifari.surata.utils.openPdfWithIntent
 import com.fauzangifari.surata.utils.renderFirstPdfPage
@@ -48,7 +52,8 @@ fun DetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Detail Surat") },
+                title = {
+                    Text("Detail Surat", fontWeight = FontWeight.Medium, fontFamily = PlusJakartaSans, color = Grey900)},
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.navigate(Screen.Home.route) {

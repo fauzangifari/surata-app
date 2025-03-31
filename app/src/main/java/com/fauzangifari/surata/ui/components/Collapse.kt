@@ -49,7 +49,8 @@ fun Collapse(
                 Text(
                     text = label.toString(),
                     fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Medium,
+                    fontFamily = PlusJakartaSans
                 )
                 Icon(
                     painter = painterResource(id = if (expanded) R.drawable.ic_keyboard_arrow_up_24 else R.drawable.ic_keyboard_arrow_down_24),

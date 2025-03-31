@@ -17,8 +17,8 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         startDestination = Screen.Home.route
     ) {
         composable(Screen.Home.route) { HomeScreen(navController) }
-        composable(Screen.Notification.route) { NotificationScreen() }
-        composable(Screen.Profile.route) { ProfileScreen() }
+        composable(Screen.Notification.route) { NotificationScreen(navController) }
+        composable(Screen.Profile.route) { ProfileScreen(navController) }
         composable(Screen.Detail.route) { DetailScreen(navController) }
     }
 }
