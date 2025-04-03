@@ -20,7 +20,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fauzangifari.surata.R
+import com.fauzangifari.surata.ui.theme.Blue100
+import com.fauzangifari.surata.ui.theme.Blue900
 import com.fauzangifari.surata.ui.theme.Grey500
+import com.fauzangifari.surata.ui.theme.Grey700
 import com.fauzangifari.surata.ui.theme.Grey900
 import com.fauzangifari.surata.ui.theme.PlusJakartaSans
 import com.fauzangifari.surata.ui.theme.White
@@ -29,6 +32,11 @@ import com.fauzangifari.surata.ui.theme.White
 fun Collapse(
     modifier: Modifier = Modifier,
     label: String?,
+    namaPembuat: String,
+    tanggalSurat: String,
+    jenisSurat: String,
+    dokumenNama: String,
+    dokumenTipe: String = "PDF",
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -73,11 +81,18 @@ fun Collapse(
                 Column(modifier = Modifier.padding(16.dp)) {
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    InfoRow(iconRes = R.drawable.ic_outline_person_24, label = "Nama Pembuat", value = "Muhammad Fauzan Gifari Dzul Fahmi")
-                    InfoRow(iconRes = R.drawable.ic_calendar_month_24, label = "Tanggal Surat Dibuat", value = "15 Maret 2025")
-                    InfoRow(iconRes = R.drawable.ic_outline_email_24, label = "Jenis Surat", value = "Surat Dispensasi")
+                    InfoRow(iconRes = R.drawable.ic_outline_person_24, label = "Nama Pembuat", value = namaPembuat)
+                    InfoRow(iconRes = R.drawable.ic_calendar_month_24, label = "Tanggal Surat Dibuat", value = tanggalSurat)
+                    InfoRow(iconRes = R.drawable.ic_outline_email_24, label = "Jenis Surat", value = jenisSurat)
 
-                    Text("Dokumen Pendukung", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Color.Gray, modifier = Modifier.padding(top = 12.dp))
+                    Text(
+                        text = "Dokumen Pendukung",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        fontFamily = PlusJakartaSans,
+                        color = Grey700,
+                        modifier = Modifier.padding(top = 12.dp)
+                    )
 
                     Card(
                         modifier = Modifier
@@ -87,7 +102,7 @@ fun Collapse(
                                 width = 1.dp,
                                 color = Grey500,
                                 shape = RoundedCornerShape(8.dp)
-                        ),
+                            ),
                         shape = RoundedCornerShape(8.dp),
                         colors = CardDefaults.cardColors(containerColor = White)
                     ) {
@@ -100,11 +115,11 @@ fun Collapse(
                                     .background(Color(0xFFE57373), shape = RoundedCornerShape(topStart = 8.dp, bottomStart = 8.dp))
                                     .padding(horizontal = 12.dp, vertical = 18.dp)
                             ) {
-                                Text("PDF", color = Color.White, fontWeight = FontWeight.Bold)
+                                Text(dokumenTipe, color = Color.White, fontWeight = FontWeight.Bold)
                             }
 
                             Text(
-                                text = "SP Lomba HUT SMA Negeri 3 Samarinda 2024.pdf",
+                                text = dokumenNama,
                                 fontSize = 12.sp,
                                 color = Grey900,
                                 fontFamily = PlusJakartaSans,
@@ -123,23 +138,61 @@ fun Collapse(
     }
 }
 
+
 @Composable
 fun InfoRow(iconRes: Int, label: String, value: String) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
-        Icon(painter = painterResource(id = iconRes), contentDescription = null)
-        Column(modifier = Modifier.padding(start = 8.dp)) {
-            Text(label, fontSize = 12.sp, color = Color.Gray)
-            Text(value, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.padding(vertical = 4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .background(Blue100, shape = RoundedCornerShape(8.dp))
+                .padding(4.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter = painterResource(id = iconRes),
+                contentDescription = null,
+                tint = Blue900,
+                modifier = Modifier
+                    .size(50.dp)
+                    .padding(4.dp)
+            )
+        }
+
+        Column(modifier = Modifier.padding(start = 16.dp)) {
+            Text(
+                text = label,
+                fontSize = 12.sp,
+                color = Grey700,
+                fontFamily = PlusJakartaSans,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Text(
+                text = value,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Bold,
+                fontFamily = PlusJakartaSans
+            )
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
 fun CollapsePreview() {
     Collapse(
-        label = "Data Surat"
+        label = "Data Surat",
+        namaPembuat = "Muhammad Fauzan Gifari Dzul Fahmi",
+        tanggalSurat = "15 Maret 2025",
+        jenisSurat = "Surat Dispensasi",
+        dokumenNama = "SP Lomba HUT SMA Negeri 3 Samarinda 2024.pdf",
+        dokumenTipe = "PDF"
     )
 }
+
 
 

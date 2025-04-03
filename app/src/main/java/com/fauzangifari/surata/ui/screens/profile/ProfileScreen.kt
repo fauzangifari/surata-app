@@ -32,6 +32,5 @@ fun ProfileScreen(navController: NavHostController, modifier: Modifier = Modifie
         ){
 
         }
-
     }
 }

@@ -18,7 +18,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.components.*
@@ -83,7 +82,14 @@ fun DetailScreen(
                         .weight(1f)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    Collapse(label = "Data Surat")
+                    Collapse(
+                        label = "Data Surat",
+                        namaPembuat = "Muhammad Fauzan Gifari Dzul Fahmi",
+                        tanggalSurat = "15 Maret 2025",
+                        jenisSurat = "Surat Dispensasi",
+                        dokumenNama = "SP Lomba HUT SMA Negeri 3 Samarinda 2024.pdf",
+                        dokumenTipe = "PDF"
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
