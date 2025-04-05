@@ -12,7 +12,9 @@ import com.fauzangifari.surata.ui.screens.detail.DetailScreen
 import com.fauzangifari.surata.ui.screens.login.LoginScreen
 import com.fauzangifari.surata.ui.screens.splash.SplashScreen
 import com.fauzangifari.surata.ui.theme.SurataTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
