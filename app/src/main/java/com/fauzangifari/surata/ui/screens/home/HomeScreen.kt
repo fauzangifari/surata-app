@@ -20,12 +20,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.components.*
 import com.fauzangifari.surata.ui.navigation.Screen
 import com.fauzangifari.surata.ui.theme.*
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.foundation.lazy.items
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -103,23 +106,83 @@ fun ProfileCard() {
 }
 
 @Composable
-fun SuratSection(navController: NavHostController) {
-    Text("Riwayat Surat", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Grey900, modifier = Modifier.padding(vertical = 8.dp))
+fun SuratSection(
+    navController: NavHostController,
+    viewModel: HomeViewModel = hiltViewModel()
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
-    val statusList = listOf("Disetujui", "Ditolak", "Diproses", "Belum diproses")
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Riwayat Surat",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Grey900,
+            modifier = Modifier.padding(vertical = 8.dp)
+        )
 
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        contentPadding = PaddingValues(bottom = 16.dp)
-    ) {
-        items(10) { index ->
-            CardSurat(
-                status = statusList[index % statusList.size],
-                onDetailClick = { navController.navigate(Screen.Detail.route) }
-            )
+        when {
+            state.isLoading -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
+
+            !state.error.isNullOrBlank() -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = state.error ?: "Terjadi kesalahan",
+                        color = RedDark
+                    )
+                }
+            }
+
+            state.letters.isNotEmpty() -> {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
+                    items(state.letters) { letter ->
+                        CardSurat(
+                            tipeSurat = letter.letterType,
+                            status = letter.status,
+                            isoDateTime = letter.createdAt,
+                            onDetailClick = {
+                                navController.navigate(Screen.Detail.route)
+                            }
+                        )
+                    }
+                }
+            }
+
+            else -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 32.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Belum ada surat.",
+                        color = Grey500
+                    )
+                }
+            }
         }
     }
 }
+
+
 
 @Composable
 fun SuratForm(onClose: () -> Unit) {

@@ -1,0 +1,21 @@
+package com.fauzangifari.surata.di
+
+import com.fauzangifari.surata.data.repository.LetterRepositoryImpl
+import com.fauzangifari.surata.data.source.remote.retrofit.ApiService
+import com.fauzangifari.surata.domain.repository.LetterRepository
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object RepositoryModule {
+
+    @Singleton
+    @Provides
+    fun provideRepository(
+        apiService: ApiService
+    ) : LetterRepository = LetterRepositoryImpl(apiService = apiService)
+}

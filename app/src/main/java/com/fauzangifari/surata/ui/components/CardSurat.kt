@@ -33,20 +33,21 @@ import java.util.*
 
 @Composable
 fun CardSurat(
-    title: String = "Default",
+    tipeSurat: String = "Default",
     status: String = "Menunggu",
+    isoDateTime: String = "",
     onDetailClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val statusColor = getStatusColor(status)
-    val currentDate = getCurrentDate()
+
+    val (tanggal, waktu) = splitDateTime(isoDateTime)
 
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = White),
         elevation = CardDefaults.cardElevation(10.dp),
-        modifier = Modifier
-            .fillMaxWidth()
+        modifier = modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -55,7 +56,7 @@ fun CardSurat(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = title,
+                    text = tipeSurat,
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     fontFamily = PlusJakartaSans
@@ -80,7 +81,6 @@ fun CardSurat(
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), color = Grey300)
 
-            // Status dan Tanggal
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -119,7 +119,12 @@ fun CardSurat(
                         .width(1.dp)
                 )
 
-                Column(modifier = Modifier.weight(1f).padding(start = 8.dp), horizontalAlignment = Alignment.Start) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(start = 8.dp),
+                    horizontalAlignment = Alignment.Start
+                ) {
                     Text(
                         text = "Tanggal",
                         fontSize = 10.sp,
@@ -131,7 +136,7 @@ fun CardSurat(
                     Spacer(modifier = Modifier.padding(bottom = 4.dp))
 
                     Text(
-                        text = currentDate,
+                        text = "$waktu | $tanggal",
                         fontSize = 10.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = PlusJakartaSans
@@ -141,6 +146,7 @@ fun CardSurat(
         }
     }
 }
+
 
 fun getStatusColor(status: String): Color {
     return when (status.lowercase(Locale.ROOT)) {
@@ -160,10 +166,25 @@ fun getStatusTextcolor(status: String): Color {
     }
 }
 
-fun getCurrentDate(): String {
-    val dateFormat = SimpleDateFormat("hh:mm a | dd MMMM yyyy", Locale("id", "ID"))
-    return dateFormat.format(Calendar.getInstance().time)
+fun splitDateTime(isoDateTime: String): Pair<String, String> {
+    return try {
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        val date = sdf.parse(isoDateTime)
+
+        val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("id", "ID"))
+        val timeFormat = SimpleDateFormat("HH:mm", Locale("id", "ID"))
+
+        Pair(
+            dateFormat.format(date ?: Date()),
+            timeFormat.format(date ?: Date())
+        )
+    } catch (e: Exception) {
+        Pair("-", "-")
+    }
 }
+
 
 @Preview(showBackground = true)
 @Composable
@@ -171,9 +192,10 @@ fun SuratDispensasiCardPreview() {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        CardSurat(title = "Surat Izin Sakit", status = "Diproses", onDetailClick = {})
-        CardSurat(title = "Surat Dispensasi", status = "Disetujui", onDetailClick = {})
-        CardSurat(title = "Surat Rekomendasi", status = "Ditolak", onDetailClick = {})
-        CardSurat(title = "Surat Tugas", status = "Belum diproses", onDetailClick = {})
+        CardSurat(tipeSurat = "Surat Izin Sakit", status = "Diproses", isoDateTime = "2025-03-30T12:04:16.780Z", onDetailClick = {})
+        CardSurat(tipeSurat = "Surat Dispensasi", status = "Disetujui", isoDateTime = "2025-03-30T10:30:00.000Z", onDetailClick = {})
+        CardSurat(tipeSurat = "Surat Rekomendasi", status = "Ditolak", isoDateTime = "2025-03-30T09:15:45.000Z", onDetailClick = {})
+        CardSurat(tipeSurat = "Surat Tugas", status = "Belum diproses", isoDateTime = "2025-03-30T14:00:00.000Z", onDetailClick = {})
     }
 }
+
