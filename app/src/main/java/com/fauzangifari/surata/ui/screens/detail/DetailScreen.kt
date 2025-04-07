@@ -18,6 +18,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.components.*
@@ -34,12 +36,17 @@ import java.io.File
 @Composable
 fun DetailScreen(
     navController: NavHostController,
+    letterId: String,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     var pdfFile by remember { mutableStateOf<File?>(null) }
 
+    val viewModel: DetailViewModel = hiltViewModel()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    // Load PDF dummy hanya sekali
     LaunchedEffect(Unit) {
         val file = savePdfToCache(context, R.raw.sample, "sample.pdf")
         if (file != null) {
@@ -48,11 +55,22 @@ fun DetailScreen(
         }
     }
 
+    // Fetch detail surat berdasarkan ID
+    LaunchedEffect(letterId) {
+        viewModel.getDetail(letterId)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Detail Surat", fontWeight = FontWeight.Medium, fontFamily = PlusJakartaSans, color = Grey900)},
+                    Text(
+                        "Detail Surat",
+                        fontWeight = FontWeight.Medium,
+                        fontFamily = PlusJakartaSans,
+                        color = Grey900
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.navigate(Screen.Home.route) {
@@ -74,46 +92,62 @@ fun DetailScreen(
                 .padding(innerPadding)
                 .padding(horizontal = 32.dp, vertical = 16.dp)
         ) {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
+            Column(modifier = Modifier.fillMaxSize()) {
                 Column(
                     modifier = Modifier
                         .weight(1f)
                         .verticalScroll(rememberScrollState())
                 ) {
-                    Collapse(
-                        label = "Data Surat",
-                        namaPembuat = "Muhammad Fauzan Gifari Dzul Fahmi",
-                        tanggalSurat = "15 Maret 2025",
-                        jenisSurat = "Surat Dispensasi",
-                        dokumenNama = "SP Lomba HUT SMA Negeri 3 Samarinda 2024.pdf",
-                        dokumenTipe = "PDF"
-                    )
+                    when {
+                        state.isLoading -> {
+                            CircularProgressIndicator(
+                                modifier = Modifier.align(Alignment.CenterHorizontally)
+                            )
+                        }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                        state.error.isNotEmpty() -> {
+                            Text(
+                                text = state.error,
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
 
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .aspectRatio(3f / 4f)
-                            .background(White),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-                        colors = CardDefaults.cardColors(containerColor = White),
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            bitmap?.let {
-                                Image(
-                                    bitmap = it.asImageBitmap(),
-                                    contentDescription = "Preview PDF",
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(8.dp)
-                                )
-                            } ?: Text("PDF tidak tersedia atau gagal dimuat.")
+                        else -> {
+                            Collapse(
+                                label = "Data Surat",
+                                namaPembuat = "Muhammad Fauzan Gifari",
+                                tanggalSurat = state.data?.createdAt ?: "--",
+                                jenisSurat = state.data?.letterType ?: "--",
+                                dokumenNama = "SP Lomba HUT SMA Negeri 3 Samarinda 2024.pdf",
+                                dokumenTipe = "PDF"
+                            )
+
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .aspectRatio(3f / 4f)
+                                    .background(White),
+                                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                                colors = CardDefaults.cardColors(containerColor = White),
+                            ) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    bitmap?.let {
+                                        Image(
+                                            bitmap = it.asImageBitmap(),
+                                            contentDescription = "Preview PDF",
+                                            modifier = Modifier
+                                                .fillMaxSize()
+                                                .padding(8.dp)
+                                        )
+                                    } ?: Text("PDF tidak tersedia atau gagal dimuat.")
+                                }
+                            }
                         }
                     }
 
@@ -145,6 +179,7 @@ fun DetailScreen(
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

@@ -11,4 +11,8 @@ class LetterRepositoryImpl @Inject constructor(
     override suspend fun getLetters(): LetterResponse {
         return apiService.getLetters()
     }
+
+    override suspend fun getLetterById(letterId: String): LetterResponse {
+        return apiService.getLetterById(letterId)
+    }
 }

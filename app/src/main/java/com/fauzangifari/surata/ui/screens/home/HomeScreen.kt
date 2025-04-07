@@ -158,7 +158,7 @@ fun SuratSection(
                             status = letter.status,
                             isoDateTime = letter.createdAt,
                             onDetailClick = {
-                                navController.navigate(Screen.Detail.route)
+                                navController.navigate(Screen.Detail.passId(letter.id))
                             }
                         )
                     }
