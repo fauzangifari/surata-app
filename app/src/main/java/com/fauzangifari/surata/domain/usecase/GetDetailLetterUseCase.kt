@@ -17,13 +17,9 @@ class GetDetailLetterUseCase @Inject constructor(
         try {
             emit(Resource.Loading())
             val response = letterRepository.getLetterById(letterId)
-            if (response.success == true && !response.result.isNullOrEmpty()) {
-                val result = response.result.firstOrNull()?.toDomain()
-                if (result != null) {
-                    emit(Resource.Success(result))
-                } else {
-                    emit(Resource.Error("Surat tidak ditemukan"))
-                }
+            if (response.success == true && response.result != null) {
+                val result = response.result.toDomain()
+                emit(Resource.Success(result))
             } else {
                 val errorMessage = response.message ?: response.errors?.firstOrNull()?.message
                 ?: "Terjadi kesalahan dari server"

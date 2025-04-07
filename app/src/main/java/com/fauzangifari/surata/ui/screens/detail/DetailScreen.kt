@@ -46,7 +46,6 @@ fun DetailScreen(
     val viewModel: DetailViewModel = hiltViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    // Load PDF dummy hanya sekali
     LaunchedEffect(Unit) {
         val file = savePdfToCache(context, R.raw.sample, "sample.pdf")
         if (file != null) {
@@ -55,7 +54,6 @@ fun DetailScreen(
         }
     }
 
-    // Fetch detail surat berdasarkan ID
     LaunchedEffect(letterId) {
         viewModel.getDetail(letterId)
     }

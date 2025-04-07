@@ -1,5 +1,6 @@
 package com.fauzangifari.surata.data.repository
 
+import com.fauzangifari.surata.data.source.remote.response.LetterDetailResponse
 import com.fauzangifari.surata.data.source.remote.response.LetterResponse
 import com.fauzangifari.surata.data.source.remote.retrofit.ApiService
 import com.fauzangifari.surata.domain.repository.LetterRepository
@@ -12,7 +13,7 @@ class LetterRepositoryImpl @Inject constructor(
         return apiService.getLetters()
     }
 
-    override suspend fun getLetterById(letterId: String): LetterResponse {
+    override suspend fun getLetterById(letterId: String): LetterDetailResponse {
         return apiService.getLetterById(letterId)
     }
 }
