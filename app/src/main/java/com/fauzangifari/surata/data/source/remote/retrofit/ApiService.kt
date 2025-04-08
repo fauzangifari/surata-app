@@ -6,10 +6,10 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 
 interface ApiService {
-    @GET("letters")
+    @GET("v1/letters")
     suspend fun getLetters() : LetterResponse
 
-    @GET("letters/{letterId}")
+    @GET("v1/letters/{letterId}")
     suspend fun getLetterById(
         @Path("letterId") letterId: String
     ) : LetterDetailResponse

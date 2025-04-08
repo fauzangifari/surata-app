@@ -16,6 +16,8 @@ class HomeViewModel @Inject constructor(
     private val getLetterUseCase: GetLetterUseCase
 ) : ViewModel() {
 
+    private var isLoaded = false
+
     private val _state = MutableStateFlow(LetterState())
     val state: StateFlow<LetterState> = _state
 
@@ -24,6 +26,8 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun getLetters() {
+        if (isLoaded) return
+
         viewModelScope.launch {
             getLetterUseCase().collect { result ->
                 when (result) {
@@ -31,6 +35,7 @@ class HomeViewModel @Inject constructor(
                         _state.update { it.copy(isLoading = true) }
                     }
                     is Resource.Success -> {
+                        isLoaded = true
                         _state.update {
                             it.copy(
                                 isLoading = false,

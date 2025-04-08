@@ -114,7 +114,7 @@ fun DetailScreen(
                         else -> {
                             Collapse(
                                 label = "Data Surat",
-                                namaPembuat = "Muhammad Fauzan Gifari",
+                                namaPembuat = state.data?.applicantName ?: "--",
                                 tanggalSurat = state.data?.createdAt ?: "--",
                                 jenisSurat = state.data?.letterType ?: "--",
                                 dokumenNama = "SP Lomba HUT SMA Negeri 3 Samarinda 2024.pdf",

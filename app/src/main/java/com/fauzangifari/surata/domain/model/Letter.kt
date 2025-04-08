@@ -2,6 +2,8 @@ package com.fauzangifari.surata.domain.model
 
 data class Letter(
     val id: String,
+    val applicantName: String,
+    val applicantEmail: String,
     val letterDate: String,
     val endDate: String,
     val letterContent: String,

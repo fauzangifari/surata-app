@@ -17,6 +17,8 @@ fun ResultItem.toDomain(): Letter {
         letterType = this.letterType.orEmpty(),
         status = this.status.orEmpty(),
         letterNumber = this.letterNumber.orEmpty(),
+        applicantName = applicant?.name.orEmpty(),
+        applicantEmail = applicant?.email.orEmpty()
     )
 }
 
@@ -33,5 +35,7 @@ fun Result.toDomain(): Letter {
         letterType = this.letterType.orEmpty(),
         status = this.status.orEmpty(),
         letterNumber = this.letterNumber.orEmpty(),
+        applicantName = applicant?.name.orEmpty(),
+        applicantEmail = applicant?.email.orEmpty()
     )
 }

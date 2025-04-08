@@ -108,7 +108,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Input Email
                 TextInput(
                     label = "Email Address",
                     value = email,
@@ -125,7 +124,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // Input Password
                 TextInput(
                     label = "Password",
                     value = password,

@@ -46,7 +46,7 @@ fun CardSurat(
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(10.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
         modifier = modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {

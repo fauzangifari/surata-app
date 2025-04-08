@@ -1,5 +1,7 @@
 package com.fauzangifari.surata.common
 
+import com.fauzangifari.surata.BuildConfig
+
 object Constant {
-    const val BASE_URL = "https://mock.apidog.com/m1/819463-798835-default/v1/"
+    const val BASE_URL = BuildConfig.BASE_URL
 }

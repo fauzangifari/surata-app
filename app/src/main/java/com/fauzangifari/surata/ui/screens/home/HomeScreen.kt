@@ -32,7 +32,7 @@ import androidx.compose.foundation.lazy.items
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController, modifier: Modifier = Modifier) {
+fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel, modifier: Modifier = Modifier) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showSheet by remember { mutableStateOf(false) }
 
@@ -67,7 +67,7 @@ fun HomeScreen(navController: NavHostController, modifier: Modifier = Modifier) 
 
             ProfileCard()
 
-            SuratSection(navController)
+            SuratSection(navController, viewModel)
 
             if (showSheet) {
                 ModalBottomSheet(
@@ -108,7 +108,7 @@ fun ProfileCard() {
 @Composable
 fun SuratSection(
     navController: NavHostController,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -278,5 +278,5 @@ fun SuratForm(onClose: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun HomePreview() {
-    HomeScreen(navController = rememberNavController())
+    HomeScreen(navController = rememberNavController(), hiltViewModel())
 }
