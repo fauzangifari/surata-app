@@ -14,7 +14,7 @@ data class LetterDetailResponse(
 	val success: Boolean? = null,
 
 	@field:SerializedName("meta")
-	val meta: Meta? = null,
+	val meta: MetaDetail? = null,
 
 	@field:SerializedName("message")
 	val message: String? = null,

@@ -14,7 +14,7 @@ data class LetterResponse(
 	val success: Boolean? = null,
 
 	@field:SerializedName("meta")
-	val meta: Meta? = null,
+	val meta: MetaLetter? = null,
 
 	@field:SerializedName("message")
 	val message: String? = null,
@@ -24,7 +24,7 @@ data class LetterResponse(
 ) : Parcelable
 
 @Parcelize
-data class Meta(
+data class MetaLetter(
 
 	@field:SerializedName("total")
 	val total: String? = null,

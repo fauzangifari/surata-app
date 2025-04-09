@@ -2,6 +2,7 @@ package com.fauzangifari.surata.data.source.remote.retrofit
 
 import com.fauzangifari.surata.data.source.remote.response.LetterDetailResponse
 import com.fauzangifari.surata.data.source.remote.response.LetterResponse
+import com.fauzangifari.surata.data.source.remote.response.StudentResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 
@@ -13,4 +14,7 @@ interface ApiService {
     suspend fun getLetterById(
         @Path("letterId") letterId: String
     ) : LetterDetailResponse
+
+    @GET("v1/students")
+    suspend fun getStudents() : StudentResponse
 }
