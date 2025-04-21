@@ -23,6 +23,5 @@ fun NotificationScreen(navController: NavHostController, modifier: Modifier = Mo
         ){
 
         }
-
     }
 }
