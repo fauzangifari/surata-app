@@ -1,11 +1,9 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    alias(libs.plugins.hilt.android)
-    alias(libs.plugins.kotlin.kapt)
+//    alias(libs.plugins.hilt.android)
+//    alias(libs.plugins.kotlin.kapt)
     id("kotlin-parcelize")
 }
 
@@ -22,10 +20,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        val properties = Properties()
-        properties.load(project.rootProject.file("local.properties").inputStream())
-
-        buildConfigField("String", "BASE_URL", "\"${properties.getProperty("BASE_URL")}\"")
     }
 
     buildTypes {
@@ -52,6 +46,9 @@ android {
 
 dependencies {
 
+    implementation(project(":data"))
+    implementation(project(":domain"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -72,10 +69,15 @@ dependencies {
     // Navigation
     implementation(libs.androidx.navigation.compose)
 
-    // Dagger Hilt
-    implementation(libs.hilt.android)
-    implementation(libs.androidx.hilt.navigation.compose)
-    kapt(libs.hilt.android.compiler)
+//    // Dagger Hilt
+//    implementation(libs.hilt.android)
+//    implementation(libs.androidx.hilt.navigation.compose)
+//    kapt(libs.hilt.android.compiler)
+
+    // Koin
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
 
     // Retrofit
     implementation(libs.retrofit)

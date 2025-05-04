@@ -1,6 +1,6 @@
 package com.fauzangifari.surata.ui.screens.detail
 
-import com.fauzangifari.surata.domain.model.Letter
+import com.fauzangifari.domain.model.Letter
 
 data class DetailState(
     val isLoading: Boolean = false,

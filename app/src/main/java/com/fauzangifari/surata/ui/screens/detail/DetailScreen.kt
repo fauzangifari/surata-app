@@ -18,7 +18,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.fauzangifari.surata.R
@@ -27,9 +26,10 @@ import com.fauzangifari.surata.ui.navigation.Screen
 import com.fauzangifari.surata.ui.theme.Grey900
 import com.fauzangifari.surata.ui.theme.PlusJakartaSans
 import com.fauzangifari.surata.ui.theme.White
-import com.fauzangifari.surata.utils.openPdfWithIntent
-import com.fauzangifari.surata.utils.renderFirstPdfPage
-import com.fauzangifari.surata.utils.savePdfToCache
+import com.fauzangifari.data.utils.openPdfWithIntent
+import com.fauzangifari.data.utils.renderFirstPdfPage
+import com.fauzangifari.data.utils.savePdfToCache
+import org.koin.androidx.compose.koinViewModel
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,7 +43,7 @@ fun DetailScreen(
     var bitmap by remember { mutableStateOf<Bitmap?>(null) }
     var pdfFile by remember { mutableStateOf<File?>(null) }
 
-    val viewModel: DetailViewModel = hiltViewModel()
+    val viewModel: DetailViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {

@@ -2,17 +2,14 @@ package com.fauzangifari.surata.ui.screens.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.fauzangifari.surata.common.Resource
-import com.fauzangifari.surata.domain.usecase.GetLetterUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.fauzangifari.domain.common.Resource
+import com.fauzangifari.domain.usecase.GetLetterUseCase
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
-@HiltViewModel
-class HomeViewModel @Inject constructor(
+class HomeViewModel(
     private val getLetterUseCase: GetLetterUseCase
 ) : ViewModel() {
 

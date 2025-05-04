@@ -21,3 +21,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "surata"
 include(":app")
+include(":data")
+include(":domain")

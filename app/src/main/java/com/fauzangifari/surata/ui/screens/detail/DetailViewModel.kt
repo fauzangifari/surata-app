@@ -2,16 +2,13 @@ package com.fauzangifari.surata.ui.screens.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.fauzangifari.surata.common.Resource
-import com.fauzangifari.surata.domain.usecase.GetDetailLetterUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
+import com.fauzangifari.domain.common.Resource
+import com.fauzangifari.domain.usecase.GetDetailLetterUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class DetailViewModel @Inject constructor(
+class DetailViewModel(
     private val getDetailLetterUseCase: GetDetailLetterUseCase
 ) : ViewModel() {
 

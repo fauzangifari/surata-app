@@ -2,7 +2,6 @@ package com.fauzangifari.surata.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -13,6 +12,7 @@ import com.fauzangifari.surata.ui.screens.home.HomeScreen
 import com.fauzangifari.surata.ui.screens.home.HomeViewModel
 import com.fauzangifari.surata.ui.screens.notification.NotificationScreen
 import com.fauzangifari.surata.ui.screens.profile.ProfileScreen
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifier) {
@@ -21,7 +21,7 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         startDestination = Screen.Home.route
     ) {
         composable(Screen.Home.route) {
-            val viewModel: HomeViewModel  = hiltViewModel()
+            val viewModel: HomeViewModel  = koinViewModel()
             HomeScreen(navController, viewModel)
         }
         composable(Screen.Notification.route) { NotificationScreen(navController) }

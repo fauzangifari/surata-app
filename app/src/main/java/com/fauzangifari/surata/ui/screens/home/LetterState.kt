@@ -1,6 +1,6 @@
 package com.fauzangifari.surata.ui.screens.home
 
-import com.fauzangifari.surata.domain.model.Letter
+import com.fauzangifari.domain.model.Letter
 
 data class LetterState(
     val isLoading: Boolean = false,
