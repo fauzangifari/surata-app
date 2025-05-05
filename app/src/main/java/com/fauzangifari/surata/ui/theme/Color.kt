@@ -32,12 +32,12 @@ val Grey900 = Color(0xFF41454D)
 
 // Green
 val GreenLight = Color(0xFFB2F2BB)
-val GreenDark = Color(0xFF00A152)
+val GreenDark = Color(0xFF004F2A)
 
 // Yellow
 val YellowLight = Color(0xFFFFF0B3)
-val YellowDark = Color(0xFFE6B800)
+val YellowDark = Color(0xFF67500A)
 
 // Red
 val RedLight = Color(0xFFF5B7B1)
-val RedDark = Color(0xFFD32F2F)
+val RedDark = Color(0xFF641812)

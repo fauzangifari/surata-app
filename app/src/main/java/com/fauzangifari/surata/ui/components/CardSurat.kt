@@ -39,15 +39,18 @@ fun CardSurat(
     onDetailClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val statusColor = getStatusColor(status)
+    val convertStatus = getConvertStatus(status)
+    val statusColor = getStatusColor(convertStatus)
+
 
     val (tanggal, waktu) = splitDateTime(isoDateTime)
 
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(4.dp),
-        modifier = modifier.fillMaxWidth()
+        elevation = CardDefaults.cardElevation(1.dp),
+        modifier = modifier.fillMaxWidth(),
+        onClick = onDetailClick
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
@@ -60,22 +63,6 @@ fun CardSurat(
                     fontWeight = FontWeight.Bold,
                     fontSize = 16.sp,
                     fontFamily = PlusJakartaSans
-                )
-                ButtonCustom(
-                    value = "Detail Surat",
-                    buttonType = ButtonType.PILL,
-                    onClick = onDetailClick,
-                    fontSize = 12,
-                    modifier = Modifier.height(36.dp).wrapContentWidth(),
-                    buttonStyle = ButtonStyle.OUTLINED,
-                    textColor = Blue800,
-                    trailingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_outline_email_24),
-                            contentDescription = "Detail Surat",
-                            tint = Blue800,
-                        )
-                    }
                 )
             }
 
@@ -90,7 +77,7 @@ fun CardSurat(
                         text = "Keterangan",
                         fontFamily = PlusJakartaSans,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp,
+                        fontSize = 12.sp,
                         color = Grey500,
                         modifier = Modifier.padding(bottom = 4.dp)
                     )
@@ -103,10 +90,10 @@ fun CardSurat(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = status,
-                            fontSize = 10.sp,
+                            text = convertStatus,
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            color = getStatusTextcolor(status),
+                            color = getStatusTextcolor(convertStatus),
                             fontFamily = PlusJakartaSans
                         )
                     }
@@ -127,7 +114,7 @@ fun CardSurat(
                 ) {
                     Text(
                         text = "Tanggal",
-                        fontSize = 10.sp,
+                        fontSize = 12.sp,
                         color = Grey500,
                         fontWeight = FontWeight.Bold,
                         fontFamily = PlusJakartaSans,
@@ -137,13 +124,22 @@ fun CardSurat(
 
                     Text(
                         text = "$waktu | $tanggal",
-                        fontSize = 10.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = PlusJakartaSans
                     )
                 }
             }
         }
+    }
+}
+
+fun getConvertStatus(status: String): String{
+    return when (status.lowercase(Locale.ROOT)) {
+        "pending" -> "Diproses"
+        "approved" -> "Disetujui"
+        "rejected" -> "Ditolak"
+        else -> "Belum diproses"
     }
 }
 

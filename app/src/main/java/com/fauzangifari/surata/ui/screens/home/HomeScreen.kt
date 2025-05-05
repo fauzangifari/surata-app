@@ -28,6 +28,8 @@ import com.fauzangifari.surata.ui.navigation.Screen
 import com.fauzangifari.surata.ui.theme.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,7 +51,7 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel, modif
                     painter = painterResource(id = R.drawable.ic_add_24),
                     contentDescription = "Tambah Surat",
                     tint = Color.White,
-                    modifier = Modifier.size(44.dp)
+                    modifier = Modifier.size(30.dp)
                 )
             }
         }
@@ -58,7 +60,7 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel, modif
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 32.dp)
+                .padding(horizontal = 24.dp)
         ) {
             Text("Halo,", fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = PlusJakartaSans, color = Grey900)
             Text("Muhammad Fauzan Gifari", fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = PlusJakartaSans, color = Grey900)
@@ -118,7 +120,7 @@ fun SuratSection(
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
             color = Grey900,
-            modifier = Modifier.padding(vertical = 8.dp)
+            modifier = Modifier.padding(vertical = 16.dp)
         )
 
         when {

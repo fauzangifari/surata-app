@@ -22,7 +22,7 @@ class HomeViewModel(
         getLetters()
     }
 
-    private fun getLetters() {
+    fun getLetters() {
         if (isLoaded) return
 
         viewModelScope.launch {
