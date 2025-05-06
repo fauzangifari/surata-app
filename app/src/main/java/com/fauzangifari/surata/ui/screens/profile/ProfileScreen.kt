@@ -22,7 +22,9 @@ import com.fauzangifari.surata.ui.theme.Blue800
 @Composable
 fun ProfileScreen(navController: NavHostController, modifier: Modifier = Modifier) {
     Scaffold(
-        topBar = { TopBar() },
+        topBar = { TopBar(
+            navController = navController
+        ) },
         bottomBar = { BottomBar(navController) },
     ) { padding ->
         Column (

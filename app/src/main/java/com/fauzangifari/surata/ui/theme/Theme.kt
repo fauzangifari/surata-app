@@ -16,7 +16,7 @@ private val LightColorScheme = lightColorScheme(
     onBackground = Black,
     onSurface = Black,
     secondaryContainer = Blue100,
-    surfaceContainerLow = White
+    surfaceContainerLow = White,
 )
 
 @Composable

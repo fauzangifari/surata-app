@@ -41,3 +41,6 @@ val YellowDark = Color(0xFF67500A)
 // Red
 val RedLight = Color(0xFFF5B7B1)
 val RedDark = Color(0xFF641812)
+
+// Background
+val BackgroundLight = Color(0xFFF9FAFB)

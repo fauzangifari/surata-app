@@ -12,12 +12,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.fauzangifari.surata.R
+import com.fauzangifari.surata.ui.navigation.Screen
 import com.fauzangifari.surata.ui.theme.Grey700
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar() {
+fun TopBar(
+    navController: NavController,
+    onSettingClick: () -> Unit = { navController.navigate(Screen.Setting.route) },
+    onNotificationClick: () -> Unit = {},
+) {
     TopAppBar(
         title = {
             Image(
@@ -27,14 +33,14 @@ fun TopBar() {
             )
         },
         actions = {
-            IconButton(onClick = { /* TODO: Handle notifications */ }) {
+            IconButton(onClick = { onNotificationClick() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_outline_notifications_24),
                     contentDescription = "Notifikasi",
                     tint = Grey700
                 )
             }
-            IconButton(onClick = { /* TODO: Handle settings */ }) {
+            IconButton(onClick = { onSettingClick() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_outline_settings_24),
                     contentDescription = "Pengaturan",

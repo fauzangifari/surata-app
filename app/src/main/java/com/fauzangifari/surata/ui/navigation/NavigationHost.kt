@@ -12,6 +12,7 @@ import com.fauzangifari.surata.ui.screens.home.HomeScreen
 import com.fauzangifari.surata.ui.screens.home.HomeViewModel
 import com.fauzangifari.surata.ui.screens.notification.NotificationScreen
 import com.fauzangifari.surata.ui.screens.profile.ProfileScreen
+import com.fauzangifari.surata.ui.screens.settings.SettingScreen
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -20,6 +21,7 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
         navController = navController,
         startDestination = Screen.Home.route
     ) {
+        // Bottom Navigation
         composable(Screen.Home.route) {
             val viewModel: HomeViewModel  = koinViewModel()
             HomeScreen(navController, viewModel)
@@ -33,5 +35,10 @@ fun NavigationHost(navController: NavHostController, modifier: Modifier = Modifi
             val letterId = backStackEntry.arguments?.getString("letterId") ?: return@composable
             DetailScreen(navController = navController, letterId = letterId)
         }
+
+        // Other Screens
+        composable(Screen.Setting.route) { SettingScreen(
+            navController = navController,
+        ) }
     }
 }

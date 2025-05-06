@@ -13,7 +13,9 @@ import com.fauzangifari.surata.ui.components.TopBar
 @Composable
 fun NotificationScreen(navController: NavHostController, modifier: Modifier = Modifier) {
     Scaffold(
-        topBar = { TopBar() },
+        topBar = { TopBar(
+            navController = navController
+        ) },
         bottomBar = { BottomBar(navController) },
     ) { padding ->
         Column (

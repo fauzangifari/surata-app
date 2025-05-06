@@ -7,4 +7,5 @@ sealed class Screen(val route: String){
     object Detail : Screen("detail/{letterId}") {
         fun passId(letterId: String): String = "detail/$letterId"
     }
+    object Setting: Screen("setting")
 }

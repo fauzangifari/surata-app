@@ -22,7 +22,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.components.*
-import com.fauzangifari.surata.ui.navigation.Screen
 import com.fauzangifari.surata.ui.theme.Grey900
 import com.fauzangifari.surata.ui.theme.PlusJakartaSans
 import com.fauzangifari.surata.ui.theme.White
@@ -71,9 +70,7 @@ fun DetailScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = {
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.Home.route) { inclusive = true }
-                        }
+                        navController.popBackStack()
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_arrow_back_24),
@@ -88,7 +85,7 @@ fun DetailScreen(
             modifier = modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 32.dp, vertical = 16.dp)
+                .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
             Column(modifier = Modifier.fillMaxSize()) {
                 Column(

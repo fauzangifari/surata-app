@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.navigation.compose.rememberNavController
 import com.fauzangifari.surata.ui.navigation.NavigationHost
 import com.fauzangifari.surata.ui.screens.splash.SplashScreen
@@ -17,7 +18,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SurataTheme {
-                var showSplash by remember { mutableStateOf(true) }
+                var showSplash by rememberSaveable { mutableStateOf(true) }
                 val navController = rememberNavController()
 
                 if (showSplash) {

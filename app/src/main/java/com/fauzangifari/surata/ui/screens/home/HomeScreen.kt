@@ -28,9 +28,9 @@ import com.fauzangifari.surata.ui.navigation.Screen
 import com.fauzangifari.surata.ui.theme.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.ui.text.style.TextAlign
 import org.koin.androidx.compose.koinViewModel
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,7 +39,9 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel, modif
     var showSheet by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { TopBar() },
+        topBar = { TopBar(
+            navController = navController
+        ) },
         bottomBar = { BottomBar(navController) },
         floatingActionButton = {
             FloatingActionButton(
@@ -62,7 +64,7 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel, modif
                 .padding(padding)
                 .padding(horizontal = 24.dp)
         ) {
-            Text("Halo,", fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = PlusJakartaSans, color = Grey900)
+            Text("Halo, ${greetings()}!", fontSize = 16.sp, fontWeight = FontWeight.Medium, fontFamily = PlusJakartaSans, color = Grey900)
             Text("Muhammad Fauzan Gifari", fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = PlusJakartaSans, color = Grey900)
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -138,14 +140,30 @@ fun SuratSection(
             !state.error.isNullOrBlank() -> {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 32.dp),
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = state.error ?: "Terjadi kesalahan",
-                        color = RedDark
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Text(
+                            text = "Oops..",
+                            color = RedLight,
+                            fontSize = 40.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center,
+                            fontFamily = PlusJakartaSans
+                        )
+                        Text(
+                            text = state.error ?: "Terjadi kesalahan",
+                            color = Black,
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Center,
+                            fontFamily = PlusJakartaSans
+                        )
+                    }
                 }
             }
 
@@ -160,7 +178,9 @@ fun SuratSection(
                             status = letter.status,
                             isoDateTime = letter.createdAt,
                             onDetailClick = {
-                                navController.navigate(Screen.Detail.passId(letter.id))
+                                navController.navigate(Screen.Detail.passId(letter.id)) {
+                                    launchSingleTop = true
+                                }
                             }
                         )
                     }
@@ -274,6 +294,15 @@ fun SuratForm(onClose: () -> Unit) {
             onClick = onClose,
             modifier = Modifier.fillMaxWidth().height(50.dp)
         )
+    }
+}
+
+fun greetings(): String {
+    val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+    return when (hour) {
+        in 0..11 -> "Selamat Pagi"
+        in 12..17 -> "Selamat Siang"
+        else -> "Selamat Malam"
     }
 }
 
