@@ -39,10 +39,6 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel, modif
     var showSheet by remember { mutableStateOf(false) }
 
     Scaffold(
-        topBar = { TopBar(
-            navController = navController
-        ) },
-        bottomBar = { BottomBar(navController) },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showSheet = true },
@@ -56,12 +52,12 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel, modif
                     modifier = Modifier.size(30.dp)
                 )
             }
-        }
+        },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
                 .padding(horizontal = 24.dp)
         ) {
             Text("Halo, ${greetings()}!", fontSize = 16.sp, fontWeight = FontWeight.Medium, fontFamily = PlusJakartaSans, color = Grey900)

@@ -10,11 +10,13 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import kotlinx.coroutines.delay
 import com.fauzangifari.surata.R
+import com.fauzangifari.surata.ui.navigation.Screen
 
 @Composable
-fun SplashScreen(onSplashEnd: () -> Unit) {
+fun SplashScreen(navController: NavController) {
     var startAnimation by remember { mutableStateOf(false) }
     var endAnimation by remember { mutableStateOf(false) }
 
@@ -41,12 +43,14 @@ fun SplashScreen(onSplashEnd: () -> Unit) {
         delay(2500)
         endAnimation = true
         delay(500)
-        onSplashEnd()
+        navController.navigate("main_with_bottom_nav") {
+            popUpTo(Screen.Splash.route) { inclusive = true }
+        }
     }
 
     Box(
         modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Image(
             painter = painterResource(id = R.drawable.surata_logo),

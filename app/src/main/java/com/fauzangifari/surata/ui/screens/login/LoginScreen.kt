@@ -31,7 +31,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
-    viewModel: LoginViewModel = koinViewModel()
+    viewModel: LoginViewModel = koinViewModel(),
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
@@ -40,6 +40,8 @@ fun LoginScreen(
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val passwordVisible by viewModel.passwordVisible.collectAsState()
+    val emailError by viewModel.emailError.collectAsState()
+    val passwordError by viewModel.passwordError.collectAsState()
 
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
@@ -114,6 +116,17 @@ fun LoginScreen(
                     placeholder = "Masukkan Email Sekolah",
                     onValueChange = viewModel::onEmailChange,
                     singleLine = true,
+                    isError =  emailError != null,
+                    supportingText = {
+                        emailError?.let {
+                            Text(
+                                text = it,
+                                color = Color.Red,
+                                fontFamily = PlusJakartaSans,
+                                fontSize = 12.sp
+                            )
+                        }
+                    },
                     leadingIcon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_outline_email_24),
@@ -130,6 +143,17 @@ fun LoginScreen(
                     placeholder = "Masukkan Password",
                     onValueChange = viewModel::onPasswordChange,
                     singleLine = true,
+                    isError =  passwordError != null,
+                    supportingText = {
+                        passwordError?.let {
+                            Text(
+                                text = it,
+                                color = Color.Red,
+                                fontFamily = PlusJakartaSans,
+                                fontSize = 12.sp
+                            )
+                        }
+                    },
                     leadingIcon = {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_outline_lock_24),

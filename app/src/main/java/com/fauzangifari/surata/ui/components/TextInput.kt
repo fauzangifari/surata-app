@@ -31,6 +31,8 @@ fun TextInput(
     isPassword: Boolean = false,
     isEnabled: Boolean = true,
     singleLine: Boolean = true,
+    isError: Boolean = false,
+    supportingText: @Composable (() -> Unit)? = null,
     trailingIconClick: (() -> Unit)? = null
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
@@ -51,6 +53,8 @@ fun TextInput(
             onValueChange = onValueChange,
             enabled = isEnabled,
             singleLine = singleLine,
+            isError = isError,
+            supportingText = supportingText,
             textStyle = TextStyle(
                 fontSize = 16.sp,
                 color = Color.Black,
@@ -84,12 +88,14 @@ fun TextInput(
                 .onFocusChanged { isFocused = it.isFocused },
             placeholder = { Text(text = placeholder, fontSize = 16.sp, color = Color.Gray, fontFamily = PlusJakartaSans) },
             colors = TextFieldDefaults.colors(
-                disabledContainerColor = Color.LightGray,
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
+                disabledContainerColor = Grey500,
+                focusedContainerColor = if (isError) Color(0xFFFFEBEE) else Color.White,
+                unfocusedContainerColor = if (isError) Color(0xFFFFEBEE) else Color.White,
+                errorContainerColor = Color(0xFFFFEBEE),
                 disabledIndicatorColor = borderColor,
-                unfocusedIndicatorColor = borderColor,
-                focusedIndicatorColor = borderColor
+                unfocusedIndicatorColor = if (isError) Color.Red else borderColor,
+                focusedIndicatorColor = if (isError) Color.Red else borderColor,
+                errorIndicatorColor = Color.Red,
             )
         )
     }
