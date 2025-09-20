@@ -27,12 +27,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.components.*
-import com.fauzangifari.surata.ui.theme.Grey900
 import com.fauzangifari.surata.ui.theme.PlusJakartaSans
 import com.fauzangifari.surata.ui.theme.White
 import com.fauzangifari.data.utils.openPdfWithIntent
 import com.fauzangifari.data.utils.renderFirstPdfPage
 import com.fauzangifari.data.utils.savePdfToCache
+import com.fauzangifari.surata.ui.theme.BackgroundLight
 import com.fauzangifari.surata.ui.theme.Black
 import com.fauzangifari.surata.ui.theme.Blue900
 import org.koin.androidx.compose.koinViewModel
@@ -253,7 +253,7 @@ fun DataSurat(
             Spacer(modifier = Modifier.height(8.dp))
             Card(
                 shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFF3F3F3)),
+                colors = CardDefaults.cardColors(containerColor = BackgroundLight),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(end = 8.dp)
@@ -265,7 +265,7 @@ fun DataSurat(
                     Icon(
                         painter = painterResource(id = R.drawable.ic_pdf),
                         contentDescription = null,
-                        tint = Color.Red
+                        tint = Color.Unspecified
                     )
                     Spacer(Modifier.width(12.dp))
                     Column {

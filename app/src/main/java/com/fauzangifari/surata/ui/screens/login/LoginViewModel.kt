@@ -1,19 +1,22 @@
 package com.fauzangifari.surata.ui.screens.login
 
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
 
 class LoginViewModel : ViewModel() {
 
-    // StateFlow for email input
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email
 
     private val _emailError = MutableStateFlow<String?>(null)
     val emailError: StateFlow<String?> = _emailError
 
-    // StateFlow for password input
     private val _password = MutableStateFlow("")
     val password: StateFlow<String> = _password
 
@@ -25,6 +28,13 @@ class LoginViewModel : ViewModel() {
 
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn
+
+    private val _toastMessage = MutableSharedFlow<String>()
+    val toastMessage = _toastMessage.asSharedFlow()
+
+    private suspend fun showToast(message: String) {
+        _toastMessage.emit(message)
+    }
 
     fun onEmailChange(newEmail: String) {
         _email.value = newEmail
@@ -44,11 +54,15 @@ class LoginViewModel : ViewModel() {
         val isEmailValid = validateEmail(_email.value)
         val isPasswordValid = validatePassword(_password.value)
 
-        if (isEmailValid && isPasswordValid) {
-            if (_email.value == "admin@gmail.com" && _password.value == "123") {
-                _isLoggedIn.value = true
-            } else {
-                _passwordError.value = "Email atau password salah"
+        viewModelScope.launch {
+            if (isEmailValid && isPasswordValid) {
+                if (_email.value == "admin@gmail.com" && _password.value == "123") {
+                    _isLoggedIn.value = true
+                    showToast(message = "Berhasil Login")
+                } else {
+                    _isLoggedIn.value = false
+                    showToast(message = "Email atau password salah")
+                }
             }
         }
     }

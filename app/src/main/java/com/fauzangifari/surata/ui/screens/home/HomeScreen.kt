@@ -48,7 +48,7 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel, modif
                 Icon(
                     painter = painterResource(id = R.drawable.ic_add_24),
                     contentDescription = "Tambah Surat",
-                    tint = Color.White,
+                    tint = White,
                     modifier = Modifier.size(30.dp)
                 )
             }

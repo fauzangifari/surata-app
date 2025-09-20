@@ -1,5 +1,6 @@
 package com.fauzangifari.surata.ui.screens.login
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -16,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -23,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.components.ButtonCustom
+import com.fauzangifari.surata.ui.components.ButtonStyle
 import com.fauzangifari.surata.ui.components.ButtonType
 import com.fauzangifari.surata.ui.components.TextInput
 import com.fauzangifari.surata.ui.theme.*
@@ -37,11 +40,20 @@ fun LoginScreen(
     val screenHeight = configuration.screenHeightDp.dp
     val headerHeight = (screenHeight * 0.40f).coerceAtMost(300.dp)
 
+    val context = LocalContext.current
+    val toastMessageFlow = viewModel.toastMessage
+
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val passwordVisible by viewModel.passwordVisible.collectAsState()
     val emailError by viewModel.emailError.collectAsState()
     val passwordError by viewModel.passwordError.collectAsState()
+
+    LaunchedEffect(Unit) {
+        toastMessageFlow.collect { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         Box(
@@ -75,13 +87,13 @@ fun LoginScreen(
                     fontSize = 22.sp,
                     fontFamily = PlusJakartaSans,
                     fontWeight = FontWeight.Bold,
-                    color = Color.White,
+                    color = White
                 )
                 Text(
                     text = "Silahkan masuk untuk melanjutkan",
                     fontSize = 14.sp,
                     fontFamily = PlusJakartaSans,
-                    color = Color.White
+                    color = White
                 )
             }
         }
@@ -192,9 +204,27 @@ fun LoginScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                TextButton(onClick = {}, modifier = Modifier.align(Alignment.CenterHorizontally)) {
-                    Text(text = "Lupa password?", color = Grey800, fontFamily = PlusJakartaSans)
-                }
+                Spacer(modifier = Modifier.height(24.dp))
+
+                ButtonCustom(
+                    value = "Masuk dengan Google",
+                    onClick = { /* TODO: Google Sign-In */ },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    textColor = Blue900,
+                    fontSize = 16,
+                    buttonType = ButtonType.REGULAR,
+                    buttonStyle = ButtonStyle.OUTLINED,
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.google_icon),
+                            contentDescription = "Google Icon",
+                            modifier = Modifier.size(23.dp),
+                            tint = Color.Unspecified
+                        )
+                    }
+                )
             }
         }
     }
