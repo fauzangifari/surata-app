@@ -16,6 +16,7 @@ import androidx.navigation.NavController
 import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.navigation.Screen
 import com.fauzangifari.surata.ui.theme.Grey900
+import com.fauzangifari.surata.ui.theme.White
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +50,9 @@ fun TopBar(
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = Color.Transparent
-        )
+            containerColor = White
+        ),
+        modifier = Modifier,
+        windowInsets = TopAppBarDefaults.windowInsets,
     )
 }

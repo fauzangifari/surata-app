@@ -1,6 +1,5 @@
 package com.fauzangifari.surata.ui.screens.login
 
-import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow

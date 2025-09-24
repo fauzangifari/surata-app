@@ -23,6 +23,7 @@ import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.theme.Black
 import com.fauzangifari.surata.ui.theme.Blue100
 import com.fauzangifari.surata.ui.theme.Blue900
+import com.fauzangifari.surata.ui.theme.Grey600
 import com.fauzangifari.surata.ui.theme.PlusJakartaSans
 import com.fauzangifari.surata.ui.theme.White
 
@@ -43,14 +44,16 @@ fun NotificationCard(
     ) {
         Row(
             modifier = Modifier
-                .padding(horizontal = 12.dp, vertical = 12.dp),
+                .padding(horizontal = 16.dp, vertical = 16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
 
             Box(
                 modifier = Modifier
                     .size(36.dp)
-                    .background(Blue100, CircleShape),
+                    .background(
+                        color = Blue100,
+                        shape = RoundedCornerShape(12.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
@@ -76,7 +79,7 @@ fun NotificationCard(
                     fontSize = 12.sp,
                     fontWeight = FontWeight.Normal,
                     fontFamily = PlusJakartaSans,
-                    color = Color.Gray,
+                    color = Grey600,
                     textAlign = TextAlign.End,
                     modifier = Modifier.fillMaxWidth()
                 )

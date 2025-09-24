@@ -1,5 +1,10 @@
 package com.fauzangifari.surata.ui.screens.home
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -28,7 +33,10 @@ import com.fauzangifari.surata.ui.navigation.Screen
 import com.fauzangifari.surata.ui.theme.*
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.style.TextAlign
+import coil3.compose.AsyncImage
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 
@@ -58,7 +66,7 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel, modif
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp)
+                .padding(top = 24.dp, bottom = 8.dp, start = 24.dp, end = 24.dp)
         ) {
             Text("Halo, ${greetings()}!", fontSize = 16.sp, fontWeight = FontWeight.Medium, fontFamily = PlusJakartaSans, color = Grey900)
             Text("Muhammad Fauzan Gifari", fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = PlusJakartaSans, color = Grey900)
@@ -90,13 +98,18 @@ fun ProfileCard() {
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(
+
+            AsyncImage(
+                model = "https://avatars.githubusercontent.com/u/77602702?v=4",
+                contentDescription = "Profile Picture",
+                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                 modifier = Modifier
                     .size(48.dp)
                     .clip(CircleShape)
-                    .background(Grey500)
             )
+
             Spacer(modifier = Modifier.width(12.dp))
+
             Column {
                 Text("Siswa Aktif", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 Text("fauzan@sman1samarinda.sch.id", color = Color.White, fontSize = 12.sp)
@@ -125,11 +138,19 @@ fun SuratSection(
             state.isLoading -> {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 32.dp),
+                        .fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        ShimmerAnimated(modifier = Modifier.padding(bottom = 16.dp))
+                        ShimmerAnimated(modifier = Modifier.padding(bottom = 16.dp))
+                        ShimmerAnimated(modifier = Modifier.padding(bottom = 16.dp))
+                        ShimmerAnimated(modifier = Modifier.padding(bottom = 16.dp))
+                        ShimmerAnimated(modifier = Modifier.padding(bottom = 16.dp))
+                    }
                 }
             }
 
@@ -199,8 +220,6 @@ fun SuratSection(
         }
     }
 }
-
-
 
 @Composable
 fun SuratForm(onClose: () -> Unit) {
@@ -301,6 +320,131 @@ fun greetings(): String {
         else -> "Selamat Malam"
     }
 }
+
+@Composable
+fun ShimmerAnimated(
+    modifier: Modifier = Modifier
+) {
+    val shimmerColors = listOf(
+        Grey300.copy(alpha = 0.9f),
+        Grey100.copy(alpha = 0.3f),
+        Grey300.copy(alpha = 0.9f)
+    )
+
+    val transition = rememberInfiniteTransition(label = "shimmerTransition")
+    val translateAnim by transition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1000f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 1200,
+                easing = LinearEasing
+            )
+        ),
+        label = "shimmerAnim"
+    )
+
+    val brush = Brush.linearGradient(
+        colors = shimmerColors,
+        start = Offset(0f, 0f),
+        end = Offset(x = translateAnim, y = translateAnim)
+    )
+
+    ShimmerEffect(brush = brush, modifier = modifier)
+}
+
+@Composable
+fun ShimmerEffect(
+    brush: Brush,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(1.dp),
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth(0.4f)
+                    .height(20.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(brush)
+            )
+
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 8.dp),
+                color = Grey300
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(75.dp)
+                            .height(16.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(brush)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .width(100.dp)
+                            .height(20.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(brush)
+                    )
+                }
+
+                VerticalDivider(
+                    color = Grey300,
+                    modifier = Modifier
+                        .height(40.dp)
+                        .padding(horizontal = 8.dp)
+                )
+
+                // Bagian Tanggal
+                Column(
+                    modifier = Modifier.weight(1f),
+                    horizontalAlignment = Alignment.Start
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .width(60.dp)
+                            .height(16.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(brush)
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Box(
+                        modifier = Modifier
+                            .width(120.dp)
+                            .height(20.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(brush)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ShimmerEffectPreview() {
+    ShimmerEffect(brush = Brush.linearGradient(listOf(Grey300, Grey100, Grey300)), modifier = Modifier.padding(16.dp))
+}
+
 
 @Preview(showBackground = true)
 @Composable

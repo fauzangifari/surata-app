@@ -7,7 +7,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,16 +46,14 @@ fun BottomBar(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .navigationBarsPadding()
+    BottomAppBar(
+        modifier = modifier,
+        containerColor = White,
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(63.dp)
-                .background(White),
+                .height(64.dp),
             horizontalArrangement = Arrangement.SpaceAround,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -71,7 +71,7 @@ fun BottomBar(
                     animationSpec = tween(durationMillis = 600, easing = LinearOutSlowInEasing),
                     label = "bgColor"
                 )
-                
+
                 Box(
                     modifier = Modifier
                         .padding(4.dp)
@@ -106,7 +106,8 @@ fun BottomBar(
                                     initialOffsetX = { it / 2 },
                                     animationSpec = tween(400, easing = LinearOutSlowInEasing)
                                 )).togetherWith(
-                                    fadeOut(animationSpec = tween(300, easing = FastOutLinearInEasing)
+                                    fadeOut(
+                                        animationSpec = tween(300, easing = FastOutLinearInEasing)
                                     ) + slideOutHorizontally(
                                         targetOffsetX = { -it / 2 },
                                         animationSpec = tween(300, easing = FastOutLinearInEasing)
@@ -132,3 +133,4 @@ fun BottomBar(
         }
     }
 }
+

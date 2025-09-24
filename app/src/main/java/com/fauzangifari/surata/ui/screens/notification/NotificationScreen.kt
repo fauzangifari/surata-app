@@ -29,7 +29,7 @@ fun NotificationScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(bottom =  24.dp, start = 24.dp, end = 24.dp)
+            .padding(top = 24.dp, bottom =  24.dp, start = 24.dp, end = 24.dp)
     ) {
 
         Text(
