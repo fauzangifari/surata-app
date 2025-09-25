@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
+import coil3.compose.AsyncImage
 import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.components.*
 import com.fauzangifari.surata.ui.theme.PlusJakartaSans
@@ -35,6 +37,7 @@ import com.fauzangifari.data.utils.savePdfToCache
 import com.fauzangifari.surata.ui.theme.BackgroundLight
 import com.fauzangifari.surata.ui.theme.Black
 import com.fauzangifari.surata.ui.theme.Blue900
+import com.fauzangifari.surata.ui.theme.Grey700
 import org.koin.androidx.compose.koinViewModel
 import java.io.File
 
@@ -89,16 +92,15 @@ fun DetailScreen(
             )
         },
         bottomBar = {
-            Box(
+            BottomAppBar(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .navigationBarsPadding()
-                    .background(White)
-                    .padding(horizontal = 24.dp, vertical = 12.dp),
-                contentAlignment = Alignment.Center
+                    .fillMaxWidth(),
+                containerColor = White
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -162,7 +164,7 @@ fun DetailScreen(
             Spacer(Modifier.height(16.dp))
 
             DataSurat(
-                image = "",
+                image = "https://avatars.githubusercontent.com/u/77602702?v=4",
                 name = "Muhammad Fauzan Gifari",
                 dateCreated = "12/12/2023",
                 letterType = "Surat Keterangan"
@@ -220,13 +222,17 @@ fun DataSurat(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
+                AsyncImage(
+                    model = image,
+                    contentDescription = "Profile Picture",
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
-                        .background(Color.Gray)
                 )
+
                 Spacer(modifier = Modifier.width(16.dp))
+
                 Column {
                     Text(name, fontWeight = FontWeight.Bold, fontSize = 14.sp, fontFamily = PlusJakartaSans)
                     Text("Nama Pembuat", fontSize = 12.sp, fontFamily = PlusJakartaSans)
@@ -237,20 +243,49 @@ fun DataSurat(
 
             Row {
                 Column {
-                    Text("Tanggal Dibuat", fontSize = 12.sp)
-                    Text(dateCreated, fontWeight = FontWeight.Medium, fontSize = 14.sp)
+                    Text(
+                        text = "Tanggal Dibuat",
+                        fontSize = 12.sp,
+                        fontFamily = PlusJakartaSans,
+                        color = Grey700
+                    )
+
+                    Text(
+                        text = dateCreated,
+                        fontSize = 14.sp,
+                        fontFamily = PlusJakartaSans,
+                        color = Black
+                    )
                 }
+
                 Spacer(Modifier.weight(1f))
+
                 Column {
-                    Text("Jenis Surat", fontSize = 12.sp, fontFamily = PlusJakartaSans)
-                    Text(letterType, fontWeight = FontWeight.Medium, fontSize = 14.sp, fontFamily = PlusJakartaSans)
+                    Text(
+                        text = "Jenis Surat",
+                        fontSize = 12.sp,
+                        fontFamily = PlusJakartaSans,
+                        color = Grey700
+                    )
+                    Text(
+                        text = letterType,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 14.sp,
+                        fontFamily = PlusJakartaSans
+                    )
                 }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text("Lampiran", fontSize = 14.sp, fontFamily = PlusJakartaSans)
+            Text(
+                text = "Lampiran",
+                fontSize = 14.sp,
+                fontFamily = PlusJakartaSans
+            )
+
             Spacer(modifier = Modifier.height(8.dp))
+
             Card(
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(containerColor = BackgroundLight),

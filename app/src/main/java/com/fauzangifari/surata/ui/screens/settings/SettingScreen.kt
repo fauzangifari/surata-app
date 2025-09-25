@@ -52,7 +52,6 @@ import com.fauzangifari.surata.ui.theme.White
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingScreen(modifier: Modifier = Modifier, navController: NavHostController) {
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -138,12 +137,12 @@ fun SettingScreen(modifier: Modifier = Modifier, navController: NavHostControlle
                 Card (
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 24.dp),
+                        .padding(vertical = 16.dp),
                     shape = RoundedCornerShape(16.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                     colors = CardDefaults.cardColors(containerColor = White)
                 ) {
-                    ProfileMenuItem(
+                    MenuItem(
                         icon = R.drawable.ic_outline_person_24,
                         title = "Data Pribadi",
                         onClick = {}
@@ -155,7 +154,7 @@ fun SettingScreen(modifier: Modifier = Modifier, navController: NavHostControlle
                         modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp)
                     )
 
-                    ProfileMenuItem(
+                    MenuItem(
                         icon = R.drawable.ic_question_answer_24,
                         title = "FAQs",
                         onClick = {}
@@ -166,7 +165,20 @@ fun SettingScreen(modifier: Modifier = Modifier, navController: NavHostControlle
                         thickness = 1.dp,
                         modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp)
                     )
-                    ProfileMenuItem(
+
+                    MenuItem(
+                        icon = R.drawable.ic_info_outline,
+                        title = "Tentang Aplikasi",
+                        onClick = {}
+                    )
+
+                    HorizontalDivider(
+                        color = Grey300,
+                        thickness = 1.dp,
+                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp)
+                    )
+
+                    MenuItem(
                         icon = R.drawable.ic_logout_24,
                         title = "Keluar",
                         onClick = {}
@@ -179,7 +191,7 @@ fun SettingScreen(modifier: Modifier = Modifier, navController: NavHostControlle
 }
 
 @Composable
-fun ProfileMenuItem(
+fun MenuItem(
     icon: Int,
     title: String,
     onClick: () -> Unit
@@ -188,7 +200,7 @@ fun ProfileMenuItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = 24.dp, horizontal = 16.dp),
+            .padding(vertical = 16.dp, horizontal = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Surface(
@@ -205,7 +217,9 @@ fun ProfileMenuItem(
                 )
             }
         }
+
         Spacer(modifier = Modifier.width(16.dp))
+
         Text(
             text = title,
             fontSize = 16.sp,
@@ -213,6 +227,7 @@ fun ProfileMenuItem(
             fontFamily = PlusJakartaSans,
             modifier = Modifier.weight(1f)
         )
+
         Icon(
             painter = painterResource(id = R.drawable.ic_chevron_right),
             contentDescription = "Next",

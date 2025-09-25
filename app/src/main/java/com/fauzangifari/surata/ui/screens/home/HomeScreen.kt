@@ -69,6 +69,9 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel, modif
                 .padding(top = 24.dp, bottom = 8.dp, start = 24.dp, end = 24.dp)
         ) {
             Text("Halo, ${greetings()}!", fontSize = 16.sp, fontWeight = FontWeight.Medium, fontFamily = PlusJakartaSans, color = Grey900)
+
+            Spacer(modifier = Modifier.height(4.dp))
+
             Text("Muhammad Fauzan Gifari", fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = PlusJakartaSans, color = Grey900)
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -82,6 +85,7 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel, modif
                     onDismissRequest = { showSheet = false },
                     sheetState = sheetState,
                     shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                    containerColor = White
                 ) {
                     SuratForm(onClose = { showSheet = false })
                 }

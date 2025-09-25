@@ -108,7 +108,7 @@ fun BottomBarLayout(rootNavController: NavHostController) {
     Scaffold(
         topBar = {
             TopBar(
-                navController = rootNavController
+                navController = rootNavController,
             )
         },
         bottomBar = {

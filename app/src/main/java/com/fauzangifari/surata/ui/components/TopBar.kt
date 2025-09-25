@@ -23,7 +23,7 @@ import com.fauzangifari.surata.ui.theme.White
 fun TopBar(
     navController: NavController,
     onSettingClick: () -> Unit = { navController.navigate(Screen.Setting.route) },
-    onNotificationClick: () -> Unit = {},
+    onNotificationClick: () -> Unit = { navController.navigate(Screen.Notification.route) },
 ) {
     TopAppBar(
         title = {
