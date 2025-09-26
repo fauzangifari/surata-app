@@ -23,7 +23,7 @@ import com.fauzangifari.surata.ui.theme.White
 fun TopBar(
     navController: NavController,
     onSettingClick: () -> Unit = { navController.navigate(Screen.Setting.route) },
-    onNotificationClick: () -> Unit = { navController.navigate(Screen.Notification.route) },
+//    onNotificationClick: () -> Unit = {},
 ) {
     TopAppBar(
         title = {
@@ -34,13 +34,13 @@ fun TopBar(
             )
         },
         actions = {
-            IconButton(onClick = { onNotificationClick() }) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_outline_notifications_24),
-                    contentDescription = "Notifikasi",
-                    tint = Grey900
-                )
-            }
+//            IconButton(onClick = { onNotificationClick() }) {
+//                Icon(
+//                    painter = painterResource(id = R.drawable.ic_outline_notifications_24),
+//                    contentDescription = "Notifikasi",
+//                    tint = Grey900
+//                )
+//            }
             IconButton(onClick = { onSettingClick() }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_outline_settings_24),

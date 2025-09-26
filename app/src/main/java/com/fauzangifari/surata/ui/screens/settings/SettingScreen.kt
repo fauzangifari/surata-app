@@ -157,7 +157,9 @@ fun SettingScreen(modifier: Modifier = Modifier, navController: NavHostControlle
                     MenuItem(
                         icon = R.drawable.ic_question_answer_24,
                         title = "FAQs",
-                        onClick = {}
+                        onClick = {
+                            navController.navigate("faq")
+                        }
                     )
 
                     HorizontalDivider(
@@ -169,7 +171,9 @@ fun SettingScreen(modifier: Modifier = Modifier, navController: NavHostControlle
                     MenuItem(
                         icon = R.drawable.ic_info_outline,
                         title = "Tentang Aplikasi",
-                        onClick = {}
+                        onClick = {
+                            navController.navigate("about")
+                        }
                     )
 
                     HorizontalDivider(

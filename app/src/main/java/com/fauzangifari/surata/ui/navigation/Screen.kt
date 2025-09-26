@@ -10,4 +10,6 @@ sealed class Screen(val route: String){
         fun passId(letterId: String): String = "detail/$letterId"
     }
     object Setting: Screen("setting")
+    object FAQ: Screen("faq")
+    object About: Screen("about")
 }

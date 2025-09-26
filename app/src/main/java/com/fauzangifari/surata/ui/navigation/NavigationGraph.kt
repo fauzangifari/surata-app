@@ -23,7 +23,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.fauzangifari.surata.ui.components.BottomBar
 import com.fauzangifari.surata.ui.components.TopBar
+import com.fauzangifari.surata.ui.screens.about.AboutScreen
 import com.fauzangifari.surata.ui.screens.detail.DetailScreen
+import com.fauzangifari.surata.ui.screens.faq.FAQScreen
 import com.fauzangifari.surata.ui.screens.home.HomeScreen
 import com.fauzangifari.surata.ui.screens.home.HomeViewModel
 import com.fauzangifari.surata.ui.screens.login.LoginScreen
@@ -94,6 +96,72 @@ fun NavigationGraph(startDestination: String) {
                 navController = navController
             )
         }
+
+        composable(
+            route = Screen.FAQ.route,
+            enterTransition = {
+                fadeIn(animationSpec = tween(300, easing = LinearEasing)) +
+                        slideIntoContainer(
+                            animationSpec = tween(300, easing = EaseIn),
+                            towards = AnimatedContentTransitionScope.SlideDirection.Start
+                        )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(300, easing = LinearEasing)) +
+                        slideOutOfContainer(
+                            animationSpec = tween(300, easing = EaseOut),
+                            towards = AnimatedContentTransitionScope.SlideDirection.End
+                        )
+            }
+        ) {
+            FAQScreen(
+                navController = navController
+            )
+        }
+
+        composable(
+            route = Screen.FAQ.route,
+            enterTransition = {
+                fadeIn(animationSpec = tween(300, easing = LinearEasing)) +
+                        slideIntoContainer(
+                            animationSpec = tween(300, easing = EaseIn),
+                            towards = AnimatedContentTransitionScope.SlideDirection.Start
+                        )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(300, easing = LinearEasing)) +
+                        slideOutOfContainer(
+                            animationSpec = tween(300, easing = EaseOut),
+                            towards = AnimatedContentTransitionScope.SlideDirection.End
+                        )
+            }
+        ) {
+            FAQScreen(
+                navController = navController
+            )
+        }
+
+        composable(
+            route = Screen.About.route,
+            enterTransition = {
+                fadeIn(animationSpec = tween(300, easing = LinearEasing)) +
+                        slideIntoContainer(
+                            animationSpec = tween(300, easing = EaseIn),
+                            towards = AnimatedContentTransitionScope.SlideDirection.Start
+                        )
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(300, easing = LinearEasing)) +
+                        slideOutOfContainer(
+                            animationSpec = tween(300, easing = EaseOut),
+                            towards = AnimatedContentTransitionScope.SlideDirection.End
+                        )
+            }
+        ) {
+            AboutScreen(
+                navController = navController
+            )
+        }
     }
 }
 
@@ -116,7 +184,7 @@ fun BottomBarLayout(rootNavController: NavHostController) {
                 it.route
             }) {
                 BottomBar(
-                    navController = navController
+                    navController = navController,
                 )
             }
         }
