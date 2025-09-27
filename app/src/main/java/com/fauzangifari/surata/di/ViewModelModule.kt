@@ -1,6 +1,7 @@
 package com.fauzangifari.surata.di
 
 import com.fauzangifari.surata.ui.screens.detail.DetailViewModel
+import com.fauzangifari.surata.ui.screens.faq.FAQViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import com.fauzangifari.surata.ui.screens.home.HomeViewModel
 import com.fauzangifari.surata.ui.screens.login.LoginViewModel
@@ -18,5 +19,9 @@ val viewModelModule = module {
 
     viewModel {
         LoginViewModel()
+    }
+
+    viewModel {
+        FAQViewModel()
     }
 }

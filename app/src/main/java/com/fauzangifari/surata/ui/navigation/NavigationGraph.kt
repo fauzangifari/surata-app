@@ -7,9 +7,7 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -26,6 +24,7 @@ import com.fauzangifari.surata.ui.components.TopBar
 import com.fauzangifari.surata.ui.screens.about.AboutScreen
 import com.fauzangifari.surata.ui.screens.detail.DetailScreen
 import com.fauzangifari.surata.ui.screens.faq.FAQScreen
+import com.fauzangifari.surata.ui.screens.faq.FAQViewModel
 import com.fauzangifari.surata.ui.screens.home.HomeScreen
 import com.fauzangifari.surata.ui.screens.home.HomeViewModel
 import com.fauzangifari.surata.ui.screens.login.LoginScreen
@@ -114,30 +113,10 @@ fun NavigationGraph(startDestination: String) {
                         )
             }
         ) {
+            val viewModel: FAQViewModel = koinViewModel()
             FAQScreen(
-                navController = navController
-            )
-        }
-
-        composable(
-            route = Screen.FAQ.route,
-            enterTransition = {
-                fadeIn(animationSpec = tween(300, easing = LinearEasing)) +
-                        slideIntoContainer(
-                            animationSpec = tween(300, easing = EaseIn),
-                            towards = AnimatedContentTransitionScope.SlideDirection.Start
-                        )
-            },
-            exitTransition = {
-                fadeOut(animationSpec = tween(300, easing = LinearEasing)) +
-                        slideOutOfContainer(
-                            animationSpec = tween(300, easing = EaseOut),
-                            towards = AnimatedContentTransitionScope.SlideDirection.End
-                        )
-            }
-        ) {
-            FAQScreen(
-                navController = navController
+                navController = navController,
+                viewModel = viewModel
             )
         }
 
