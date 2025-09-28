@@ -26,6 +26,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.navigation.NavigationItem
 import com.fauzangifari.surata.ui.navigation.Screen
+import com.fauzangifari.surata.ui.theme.Black
+import com.fauzangifari.surata.ui.theme.Blue50
 import com.fauzangifari.surata.ui.theme.Blue800
 import com.fauzangifari.surata.ui.theme.PlusJakartaSans
 import com.fauzangifari.surata.ui.theme.White
@@ -66,7 +68,7 @@ fun BottomBar(
                 )
 
                 val animatedBgColor by animateColorAsState(
-                    targetValue = if (isSelected) Blue800.copy(alpha = 0.15f) else Color.Transparent,
+                    targetValue = if (isSelected) Blue50 else Color.Transparent,
                     animationSpec = tween(durationMillis = 600, easing = LinearOutSlowInEasing),
                     label = "bgColor"
                 )
@@ -94,7 +96,7 @@ fun BottomBar(
                         Icon(
                             painter = painterResource(id = item.icon),
                             contentDescription = item.title,
-                            tint = if (isSelected) Blue800 else Color.Black,
+                            tint = if (isSelected) Blue800 else Black,
                         )
                         AnimatedContent(
                             targetState = isSelected,
@@ -121,7 +123,7 @@ fun BottomBar(
                                     text = item.title,
                                     fontSize = 14.sp,
                                     fontFamily = PlusJakartaSans,
-                                    fontWeight = FontWeight.Medium,
+                                    fontWeight = FontWeight.Bold,
                                     color = Blue800
                                 )
                             }

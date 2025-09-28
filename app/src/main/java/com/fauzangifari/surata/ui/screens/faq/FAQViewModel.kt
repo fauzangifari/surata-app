@@ -21,6 +21,10 @@ class FAQViewModel : ViewModel(){
             FAQ(
                 question = "Apakah status pengajuan bisa dilacak?",
                 answer = "Ya, kamu bisa melihatnya di menu Riwayat Surat."
+            ),
+            FAQ(
+                question = "Siapa yang bisa menggunakan aplikasi Surata?",
+                answer = "Aplikasi ini khusus untuk siswa dan staf SMA Negeri 1 Samarinda."
             )
         )
     }
