@@ -4,6 +4,7 @@ import com.fauzangifari.data.source.remote.dto.request.SignInRequest
 import com.fauzangifari.data.source.remote.dto.request.SignOutRequest
 import com.fauzangifari.data.source.remote.dto.response.SessionResponse
 import com.fauzangifari.data.source.remote.dto.response.SignInResponse
+import com.fauzangifari.data.source.remote.dto.response.SignOutResponse
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -19,7 +20,7 @@ interface AuthApiService {
     @POST("sign-out")
     suspend fun signOut(
         @Body request: SignOutRequest
-    ): String
+    ): SignOutResponse
 
     @GET("get-session")
     suspend fun getSession(): Response<SessionResponse>

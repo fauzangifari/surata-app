@@ -16,7 +16,6 @@ class GetLetterUseCase(
             val response = letterRepository.getLetters()
             val letterList = response
             emit(Resource.Success(letterList))
-            println("Data dari usecase: $letterList")
         } catch (e: IOException) {
             emit(Resource.Error("Tidak dapat menghubungi server. Periksa koneksi internet anda."))
         } catch (e: Exception) {

@@ -10,7 +10,9 @@ interface AuthRepository {
         password: String,
     ) : Resource<Auth>
 
-    suspend fun signOut() : Resource<Boolean>
+    suspend fun signOut(
+        success: Boolean = true
+    ) : Resource<Boolean>
 
     suspend fun getSession() : Resource<Session>
 
