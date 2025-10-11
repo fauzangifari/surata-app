@@ -19,6 +19,7 @@ android {
         properties.load(project.rootProject.file("local.properties").inputStream())
 
         buildConfigField("String", "BASE_URL", "\"${properties.getProperty("BASE_URL")}\"")
+        buildConfigField("String", "BASE_URL_DEV", "\"${properties.getProperty("BASE_URL_DEV")}\"")
     }
 
     buildTypes {
@@ -51,6 +52,9 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // Security
+    implementation("androidx.security:security-crypto:1.1.0")
 
     // Koin
     implementation(libs.koin.core)

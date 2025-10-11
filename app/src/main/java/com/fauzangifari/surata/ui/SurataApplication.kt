@@ -2,6 +2,7 @@ package com.fauzangifari.surata.ui
 
 import android.app.Application
 import com.fauzangifari.data.di.networkModule
+import com.fauzangifari.data.di.preferencesModule
 import com.fauzangifari.data.di.repositoryModule
 import com.fauzangifari.domain.di.useCaseModule
 import com.fauzangifari.surata.di.viewModelModule
@@ -20,7 +21,8 @@ class SurataApplication : Application(){
                     networkModule,
                     repositoryModule,
                     useCaseModule,
-                    viewModelModule
+                    viewModelModule,
+                    preferencesModule
                 )
             )
         }

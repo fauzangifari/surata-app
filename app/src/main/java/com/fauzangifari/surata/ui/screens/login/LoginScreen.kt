@@ -5,6 +5,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,32 +30,60 @@ import com.fauzangifari.surata.ui.components.ButtonType
 import com.fauzangifari.surata.ui.components.TextInput
 import com.fauzangifari.surata.ui.theme.*
 import org.koin.androidx.compose.koinViewModel
+import com.fauzangifari.domain.common.Resource
+import com.fauzangifari.surata.ui.navigation.Screen
 
 @Composable
 fun LoginScreen(
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = koinViewModel(),
+    onLoginSuccess: () -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
-    val headerHeight = (screenHeight * 0.40f).coerceAtMost(300.dp)
-
+    val headerHeight = (screenHeight * 0.40f).coerceAtMost(400.dp)
     val context = LocalContext.current
-    val toastMessageFlow = viewModel.toastMessage
 
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
     val passwordVisible by viewModel.passwordVisible.collectAsState()
     val emailError by viewModel.emailError.collectAsState()
     val passwordError by viewModel.passwordError.collectAsState()
+    val loginState by viewModel.loginState.collectAsState()
+    val isLoggedIn by viewModel.isLoggedIn.collectAsState()
 
+    // ✅ Toast dari ViewModel (pesan validasi, error umum)
     LaunchedEffect(Unit) {
-        toastMessageFlow.collect { message ->
+        viewModel.toastMessage.collect { message ->
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 
+    // ✅ Jika sudah login sukses
+    LaunchedEffect(isLoggedIn) {
+        if (isLoggedIn) {
+            onLoginSuccess?.invoke()
+        }
+    }
+
+    // ✅ Toast otomatis sesuai hasil login (Success / Error)
+    LaunchedEffect(loginState) {
+        when (loginState) {
+            is Resource.Success -> {
+                if ((loginState as Resource.Success<*>).data != null) {
+                    Toast.makeText(context, "Login berhasil", Toast.LENGTH_SHORT).show()
+                }
+            }
+            is Resource.Error -> {
+                val message = (loginState as Resource.Error).message ?: "Login gagal"
+                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            }
+            else -> {}
+        }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
+        // Header
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -71,7 +100,7 @@ fun LoginScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Blue800.copy(alpha = 0.8f))
-                    .background(Black.copy(alpha = 0.1f)),
+                    .background(Black.copy(alpha = 0.1f))
             )
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Image(
@@ -97,6 +126,7 @@ fun LoginScreen(
             }
         }
 
+        // Body (Form)
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -121,13 +151,14 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Email input
                 TextInput(
                     label = "Email Address",
                     value = email,
                     placeholder = "Masukkan Email Sekolah",
                     onValueChange = viewModel::onEmailChange,
                     singleLine = true,
-                    isError =  emailError != null,
+                    isError = emailError != null,
                     supportingText = {
                         emailError?.let {
                             Text(
@@ -148,13 +179,14 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
+                // Password input
                 TextInput(
                     label = "Password",
                     value = password,
                     placeholder = "Masukkan Password",
                     onValueChange = viewModel::onPasswordChange,
                     singleLine = true,
-                    isError =  passwordError != null,
+                    isError = passwordError != null,
                     supportingText = {
                         passwordError?.let {
                             Text(
@@ -175,8 +207,10 @@ fun LoginScreen(
                         IconButton(onClick = viewModel::togglePasswordVisibility) {
                             Icon(
                                 painter = painterResource(
-                                    id = if (passwordVisible) R.drawable.ic_outline_visibility_off_24
-                                    else R.drawable.ic_outline_visibility_24
+                                    id = if (passwordVisible)
+                                        R.drawable.ic_outline_visibility_off_24
+                                    else
+                                        R.drawable.ic_outline_visibility_24
                                 ),
                                 contentDescription = "Toggle Password"
                             )
@@ -188,8 +222,12 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 ButtonCustom(
-                    value = "Sign In",
-                    onClick = viewModel::login,
+                    value = if (loginState is Resource.Loading) "Memproses..." else "Masuk",
+                    onClick = {
+                        if (loginState !is Resource.Loading) {
+                            viewModel.login()
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
@@ -199,9 +237,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                HorizontalDivider(
-                    modifier = Modifier.fillMaxWidth()
-                )
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
                 Spacer(modifier = Modifier.height(24.dp))
 
@@ -226,11 +262,26 @@ fun LoginScreen(
                 )
             }
         }
+
+        if (loginState is Resource.Loading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.3f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = Blue700)
+            }
+        }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
 fun LoginScreenPreview() {
-    LoginScreen()
+    LoginScreen(
+        modifier = Modifier,
+        onLoginSuccess = {}
+    )
 }

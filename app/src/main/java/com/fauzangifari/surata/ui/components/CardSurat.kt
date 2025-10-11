@@ -99,13 +99,6 @@ fun CardSurat(
                     }
                 }
 
-                VerticalDivider(
-                    color = Grey300,
-                    modifier = Modifier
-                        .height(30.dp)
-                        .width(1.dp)
-                )
-
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -188,9 +181,9 @@ fun SuratDispensasiCardPreview() {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        CardSurat(tipeSurat = "Surat Izin Sakit", status = "Diproses", isoDateTime = "2025-03-30T12:04:16.780Z", onDetailClick = {})
-        CardSurat(tipeSurat = "Surat Dispensasi", status = "Disetujui", isoDateTime = "2025-03-30T10:30:00.000Z", onDetailClick = {})
-        CardSurat(tipeSurat = "Surat Rekomendasi", status = "Ditolak", isoDateTime = "2025-03-30T09:15:45.000Z", onDetailClick = {})
+        CardSurat(tipeSurat = "Surat Izin Sakit", status = "diproses", isoDateTime = "2025-03-30T12:04:16.780Z", onDetailClick = {})
+        CardSurat(tipeSurat = "Surat Dispensasi", status = "disetujui", isoDateTime = "2025-03-30T10:30:00.000Z", onDetailClick = {})
+        CardSurat(tipeSurat = "Surat Rekomendasi", status = "ditolak", isoDateTime = "2025-03-30T09:15:45.000Z", onDetailClick = {})
         CardSurat(tipeSurat = "Surat Tugas", status = "Belum diproses", isoDateTime = "2025-03-30T14:00:00.000Z", onDetailClick = {})
     }
 }

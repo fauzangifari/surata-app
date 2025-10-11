@@ -1,7 +1,7 @@
-package com.fauzangifari.data.utils
+package com.fauzangifari.data.mapper
 
-import com.fauzangifari.data.source.remote.response.Result
-import com.fauzangifari.data.source.remote.response.ResultItem
+import com.fauzangifari.data.source.remote.dto.response.Result
+import com.fauzangifari.data.source.remote.dto.response.ResultItem
 import com.fauzangifari.domain.model.Letter
 
 fun ResultItem.toDomain(): Letter {

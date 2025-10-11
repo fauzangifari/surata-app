@@ -49,6 +49,9 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
 
+    // Datastore
+    implementation("androidx.datastore:datastore-preferences:1.1.7")
+
     // Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)

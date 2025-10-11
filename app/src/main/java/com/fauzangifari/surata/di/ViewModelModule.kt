@@ -5,6 +5,7 @@ import com.fauzangifari.surata.ui.screens.faq.FAQViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel
 import com.fauzangifari.surata.ui.screens.home.HomeViewModel
 import com.fauzangifari.surata.ui.screens.login.LoginViewModel
+import com.fauzangifari.surata.ui.screens.splash.SplashViewModel
 import org.koin.dsl.module
 
 val viewModelModule = module {
@@ -18,10 +19,14 @@ val viewModelModule = module {
     }
 
     viewModel {
-        LoginViewModel()
+        LoginViewModel(get())
     }
 
     viewModel {
         FAQViewModel()
+    }
+
+    viewModel {
+        SplashViewModel(get(), get())
     }
 }

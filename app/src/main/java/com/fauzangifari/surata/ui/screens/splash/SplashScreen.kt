@@ -1,5 +1,6 @@
 package com.fauzangifari.surata.ui.screens.splash
 
+import android.util.Log
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -11,12 +12,17 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import kotlinx.coroutines.delay
 import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.navigation.Screen
+import kotlinx.coroutines.delay
+import org.koin.androidx.compose.koinViewModel
+import com.fauzangifari.domain.common.Resource
 
 @Composable
-fun SplashScreen(navController: NavController) {
+fun SplashScreen(
+    navController: NavController,
+    viewModel: SplashViewModel = koinViewModel()
+) {
     var startAnimation by remember { mutableStateOf(false) }
     var endAnimation by remember { mutableStateOf(false) }
 
@@ -38,13 +44,36 @@ fun SplashScreen(navController: NavController) {
         label = "Exit Alpha"
     )
 
+    val sessionState by viewModel.sessionState.collectAsState()
+
     LaunchedEffect(Unit) {
         startAnimation = true
-        delay(2500)
-        endAnimation = true
-        delay(500)
-        navController.navigate("main_with_bottom_nav") {
-            popUpTo(Screen.Splash.route) { inclusive = true }
+        delay(2000)
+        viewModel.checkSession()
+    }
+
+    LaunchedEffect(sessionState) {
+        Log.d("SplashScreen", "SessionState: $sessionState")
+        when (sessionState) {
+            is Resource.Success -> {
+                delay(1000)
+                endAnimation = true
+                delay(500)
+                navController.navigate("main_with_bottom_nav") {
+                    popUpTo(Screen.Splash.route) { inclusive = true }
+                }
+            }
+
+            is Resource.Error -> {
+                delay(1000)
+                endAnimation = true
+                delay(500)
+                navController.navigate(Screen.Login.route) {
+                    popUpTo(Screen.Splash.route) { inclusive = true }
+                }
+            }
+
+            else -> Unit
         }
     }
 
@@ -62,3 +91,4 @@ fun SplashScreen(navController: NavController) {
         )
     }
 }
+

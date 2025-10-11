@@ -1,12 +1,11 @@
 package com.fauzangifari.data.source.remote.retrofit
 
-import com.fauzangifari.data.source.remote.response.LetterDetailResponse
-import com.fauzangifari.data.source.remote.response.LetterResponse
-import com.fauzangifari.data.source.remote.response.StudentResponse
+import com.fauzangifari.data.source.remote.dto.response.LetterDetailResponse
+import com.fauzangifari.data.source.remote.dto.response.LetterResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 
-interface ApiService {
+interface LetterApiService {
 
     @GET("v1/letters")
     suspend fun getLetters() : LetterResponse
@@ -15,8 +14,5 @@ interface ApiService {
     suspend fun getLetterById(
         @Path("letterId") letterId: String
     ) : LetterDetailResponse
-
-    @GET("v1/students")
-    suspend fun getStudents() : StudentResponse
 
 }

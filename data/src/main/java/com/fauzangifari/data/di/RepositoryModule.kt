@@ -1,7 +1,9 @@
 package com.fauzangifari.data.di
 
+import com.fauzangifari.data.repository.AuthRepositoryImpl
 import com.fauzangifari.data.repository.LetterRepositoryImpl
 import com.fauzangifari.data.repository.StudentRepositoryImpl
+import com.fauzangifari.domain.repository.AuthRepository
 import com.fauzangifari.domain.repository.LetterRepository
 import com.fauzangifari.domain.repository.StudentRepository
 import org.koin.dsl.module
@@ -9,10 +11,14 @@ import org.koin.dsl.module
 val repositoryModule = module {
 
     single<LetterRepository> {
-        LetterRepositoryImpl(apiService = get())
+        LetterRepositoryImpl(letterApiService = get())
     }
 
     single<StudentRepository> {
-        StudentRepositoryImpl(apiService = get())
+        StudentRepositoryImpl(letterApiService = get())
+    }
+
+    single<AuthRepository> {
+        AuthRepositoryImpl(authPreferences = get(), authApiService = get())
     }
 }

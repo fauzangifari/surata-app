@@ -22,6 +22,7 @@ class DetailViewModel(
                     is Resource.Loading -> _state.value = _state.value.copy(isLoading = true)
                     is Resource.Success -> _state.value = _state.value.copy(data = result.data, isLoading = false)
                     is Resource.Error -> _state.value = _state.value.copy(error = result.message.toString(), isLoading = false)
+                    else -> {}
                 }
             }
         }

@@ -54,7 +54,7 @@ fun AboutScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 24.dp, vertical = 24.dp)
-        ){
+        ) {
             // Content FAQ Screen
         }
     }

@@ -1,4 +1,4 @@
-package com.fauzangifari.data.source.remote.response
+package com.fauzangifari.data.source.remote.dto.response
 
 import kotlinx.parcelize.Parcelize
 import android.os.Parcelable

@@ -45,7 +45,13 @@ fun NavigationGraph(startDestination: String) {
         }
 
         composable(Screen.Login.route) {
-            LoginScreen()
+            LoginScreen(
+                onLoginSuccess = {
+                    navController.navigate("main_with_bottom_nav") {
+                        popUpTo(Screen.Login.route) { inclusive = true }
+                    }
+                },
+            )
         }
 
         composable("main_with_bottom_nav") {
