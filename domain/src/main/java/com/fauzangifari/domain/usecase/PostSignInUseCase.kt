@@ -8,7 +8,8 @@ class PostSignInUseCase(
     private val authRepository: AuthRepository
 ) {
     suspend operator fun invoke(
-        email: String, password: String
+        email: String,
+        password: String,
     ): Resource<Auth> {
         return try {
             authRepository.signIn(email, password)

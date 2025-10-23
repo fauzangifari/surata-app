@@ -1,23 +1,20 @@
 package com.fauzangifari.domain.usecase
 
-import android.util.Log
 import com.fauzangifari.domain.common.Resource
 import com.fauzangifari.domain.model.Letter
-import com.fauzangifari.domain.repository.LetterRepository
+import com.fauzangifari.domain.repository.LetterLocalRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.IOException
 
-class GetDetailLetterUseCase (
-    private val letterRepository: LetterRepository
+class GetLetterLocalUseCase(
+    private val letterLocalRepository: LetterLocalRepository
 ) {
-    operator fun invoke(letterId: String): Flow<Resource<Letter>> = flow {
-        try {
+    operator fun invoke() : Flow<Resource<List<Letter>>> = flow {
+        try{
             emit(Resource.Loading())
-            val response = letterRepository.getLetterById(letterId)
-            Log.d("GetDetailLetterUseCase", "Response: $response")
-            val letterList = response
-            emit(Resource.Success(letterList))
+            val letters = letterLocalRepository.getAllLetter()
+            emit(Resource.Success(letters))
         } catch (e: IOException) {
             emit(Resource.Error("Tidak dapat menghubungi server. Periksa koneksi internet anda."))
         } catch (e: Exception) {

@@ -31,7 +31,6 @@ import com.fauzangifari.surata.ui.components.TextInput
 import com.fauzangifari.surata.ui.theme.*
 import org.koin.androidx.compose.koinViewModel
 import com.fauzangifari.domain.common.Resource
-import com.fauzangifari.surata.ui.navigation.Screen
 
 @Composable
 fun LoginScreen(
@@ -52,21 +51,18 @@ fun LoginScreen(
     val loginState by viewModel.loginState.collectAsState()
     val isLoggedIn by viewModel.isLoggedIn.collectAsState()
 
-    // ✅ Toast dari ViewModel (pesan validasi, error umum)
     LaunchedEffect(Unit) {
         viewModel.toastMessage.collect { message ->
             Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
 
-    // ✅ Jika sudah login sukses
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn) {
-            onLoginSuccess?.invoke()
+            onLoginSuccess.invoke()
         }
     }
 
-    // ✅ Toast otomatis sesuai hasil login (Success / Error)
     LaunchedEffect(loginState) {
         when (loginState) {
             is Resource.Success -> {
@@ -219,7 +215,7 @@ fun LoginScreen(
                     isPassword = !passwordVisible,
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
                 ButtonCustom(
                     value = if (loginState is Resource.Loading) "Memproses..." else "Masuk",

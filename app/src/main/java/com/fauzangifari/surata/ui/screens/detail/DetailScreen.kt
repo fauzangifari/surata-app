@@ -56,6 +56,7 @@ fun DetailScreen(
     val viewModel: DetailViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    // Load sample PDF untuk preview
     LaunchedEffect(Unit) {
         val file = savePdfToCache(context, R.raw.sample, "sample.pdf")
         if (file != null) {
@@ -64,6 +65,7 @@ fun DetailScreen(
         }
     }
 
+    // Panggil API detail surat
     LaunchedEffect(letterId) {
         viewModel.getDetail(letterId)
     }
@@ -74,42 +76,34 @@ fun DetailScreen(
                 title = {
                     Text(
                         "Detail Surat",
-                        fontWeight = FontWeight.Medium,
+                        fontWeight = FontWeight.SemiBold,
                         fontFamily = PlusJakartaSans,
                         color = Black
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = {
-                        navController.popBackStack()
-                    }) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_arrow_back_24),
                             contentDescription = "Kembali"
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = White)
             )
         },
         bottomBar = {
-            BottomAppBar(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                containerColor = White
-            ) {
+            BottomAppBar(containerColor = White) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    val buttonModifier = Modifier
-                        .weight(1f)
-                        .height(50.dp)
-
                     ButtonCustom(
-                        modifier = buttonModifier,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp),
                         value = "Bagikan",
                         leadingIcon = {
                             Icon(
@@ -120,15 +114,15 @@ fun DetailScreen(
                         },
                         buttonType = ButtonType.REGULAR,
                         buttonStyle = ButtonStyle.OUTLINED,
-                        fontSize = 16,
                         textColor = Blue900,
-                        onClick = {
-
-                        }
+                        fontSize = 16,
+                        onClick = { /* TODO: Implement share */ }
                     )
 
                     ButtonCustom(
-                        modifier = buttonModifier,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp),
                         value = "Cetak PDF",
                         leadingIcon = {
                             Icon(
@@ -140,10 +134,15 @@ fun DetailScreen(
                         buttonType = ButtonType.REGULAR,
                         buttonStyle = ButtonStyle.FILLED,
                         fontSize = 16,
+                        textColor = White,
                         onClick = {
                             pdfFile?.let {
                                 openPdfWithIntent(context, it)
-                            } ?: Toast.makeText(context, "File PDF belum tersedia", Toast.LENGTH_SHORT).show()
+                            } ?: Toast.makeText(
+                                context,
+                                "File PDF belum tersedia",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     )
                 }
@@ -153,41 +152,49 @@ fun DetailScreen(
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(horizontal = 24.dp)
+                .padding(horizontal = 20.dp, vertical = 16.dp)
                 .verticalScroll(scrollState)
         ) {
-            when {
-                state.isLoading -> {
-                }
+            if (state.isLoading) {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                Spacer(Modifier.height(20.dp))
             }
 
-            Spacer(Modifier.height(16.dp))
-
+            val data = state.data
             DataSurat(
                 image = "https://avatars.githubusercontent.com/u/77602702?v=4",
-                name = "Muhammad Fauzan Gifari",
-                dateCreated = "12/12/2023",
-                letterType = "Surat Keterangan"
+                name = data?.applicantName ?: "-",
+                dateCreated = data?.createdAt ?: "-",
+                letterType = letterMapper(data?.letterType ?: "-"),
+                letterNumber = data?.letterNumber ?: "-",
+                letterStatus = letterStatusToIndonesian(data?.status ?: "-")
             )
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(20.dp))
 
-            StatusSurat()
+            StatusSurat(status = data?.status ?: "-")
 
-            Spacer(Modifier.height(16.dp))
+            Spacer(Modifier.height(20.dp))
 
             Card(
                 shape = RoundedCornerShape(12.dp),
                 colors = CardDefaults.cardColors(containerColor = White),
-                modifier = Modifier.fillMaxWidth().aspectRatio(3f / 4f)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(Modifier.padding(16.dp)) {
-                    Text("Pratinjau Surat", fontWeight = FontWeight.Medium, fontSize = 16.sp, fontFamily = PlusJakartaSans)
+                    Text(
+                        "Pratinjau Surat",
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 16.sp,
+                        fontFamily = PlusJakartaSans
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
 
                     Box(
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(300.dp),
                         contentAlignment = Alignment.Center
                     ) {
                         bitmap?.let {
@@ -195,8 +202,9 @@ fun DetailScreen(
                                 bitmap = it.asImageBitmap(),
                                 contentDescription = "Preview PDF",
                                 modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(8.dp)
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp)),
+                                contentScale = ContentScale.Crop
                             )
                         } ?: Text("PDF tidak tersedia atau gagal dimuat.")
                     }
@@ -213,11 +221,13 @@ fun DataSurat(
     image: String,
     name: String,
     dateCreated: String,
-    letterType: String
+    letterType: String,
+    letterNumber: String,
+    letterStatus: String
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = White),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -227,71 +237,34 @@ fun DataSurat(
                     contentDescription = "Profile Picture",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(50.dp)
                         .clip(CircleShape)
                 )
 
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Column {
-                    Text(name, fontWeight = FontWeight.Bold, fontSize = 14.sp, fontFamily = PlusJakartaSans)
-                    Text("Nama Pembuat", fontSize = 12.sp, fontFamily = PlusJakartaSans)
+                    Text(name.ifBlank { "-" }, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                    Text("Pembuat Surat", fontSize = 12.sp, color = Grey700)
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Divider(Modifier.padding(vertical = 12.dp))
 
-            Row {
-                Column {
-                    Text(
-                        text = "Tanggal Dibuat",
-                        fontSize = 12.sp,
-                        fontFamily = PlusJakartaSans,
-                        color = Grey700
-                    )
+            InfoRow("Tanggal Dibuat", dateCreated)
+            InfoRow("Jenis Surat", letterType)
+            InfoRow("Nomor Surat", letterNumber)
+            InfoRow("Status", letterStatus)
 
-                    Text(
-                        text = dateCreated,
-                        fontSize = 14.sp,
-                        fontFamily = PlusJakartaSans,
-                        color = Black
-                    )
-                }
+            Spacer(modifier = Modifier.height(12.dp))
 
-                Spacer(Modifier.weight(1f))
-
-                Column {
-                    Text(
-                        text = "Jenis Surat",
-                        fontSize = 12.sp,
-                        fontFamily = PlusJakartaSans,
-                        color = Grey700
-                    )
-                    Text(
-                        text = letterType,
-                        fontWeight = FontWeight.Medium,
-                        fontSize = 14.sp,
-                        fontFamily = PlusJakartaSans
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "Lampiran",
-                fontSize = 14.sp,
-                fontFamily = PlusJakartaSans
-            )
-
+            Text("Lampiran", fontWeight = FontWeight.Medium, fontSize = 14.sp)
             Spacer(modifier = Modifier.height(8.dp))
 
             Card(
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(containerColor = BackgroundLight),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(end = 8.dp)
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -304,8 +277,8 @@ fun DataSurat(
                     )
                     Spacer(Modifier.width(12.dp))
                     Column {
-                        Text("Dokumen_Pendukung.pdf", fontSize = 14.sp, fontFamily = PlusJakartaSans)
-                        Text("2.4 MB", fontSize = 12.sp, color = Color.Gray, fontFamily = PlusJakartaSans)
+                        Text("Dokumen_Pendukung.pdf", fontSize = 14.sp)
+                        Text("2.4 MB", fontSize = 12.sp, color = Grey700)
                     }
                 }
             }
@@ -314,17 +287,88 @@ fun DataSurat(
 }
 
 @Composable
-fun StatusSurat() {
+fun InfoRow(title: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+    ) {
+        Text(
+            text = title,
+            fontSize = 12.sp,
+            fontFamily = PlusJakartaSans,
+            color = Grey700,
+            modifier = Modifier.weight(1f)
+        )
+        Text(
+            text = value.ifBlank { "-" },
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = Black,
+            modifier = Modifier.weight(1f),
+            maxLines = 1
+        )
+    }
+}
+
+@Composable
+fun StatusSurat(status: String) {
+    val color = getStatusColor(status)
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = White),
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(Modifier.padding(16.dp)) {
-            Text("Status Surat", fontWeight = FontWeight.Medium, fontSize = 16.sp, fontFamily = PlusJakartaSans)
+            Text("Status Surat", fontWeight = FontWeight.Medium, fontSize = 16.sp)
+            Spacer(modifier = Modifier.height(12.dp))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier
+                        .size(10.dp)
+                        .clip(CircleShape)
+                        .background(color)
+                )
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    letterStatusToIndonesian(status),
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.sp,
+                    color = color
+                )
+            }
         }
     }
 }
+
+fun getStatusColor(status: String): Color = when (status.lowercase()) {
+    "pending" -> Color(0xFFFFA500)
+    "approved" -> Color(0xFF4CAF50)
+    "rejected" -> Color(0xFFF44336)
+    "process" -> Color(0xFF2196F3)
+    "revision" -> Color(0xFFFFC107)
+    "cancelled" -> Color(0xFF9E9E9E)
+    else -> Grey700
+}
+
+fun letterStatusToIndonesian(status: String): String = when (status.lowercase()) {
+    "pending" -> "Menunggu"
+    "approved" -> "Disetujui"
+    "rejected" -> "Ditolak"
+    "process" -> "Diproses"
+    "revision" -> "Revisi"
+    "cancelled" -> "Dibatalkan"
+    else -> "-"
+}
+
+fun letterMapper(letterType: String): String = when (letterType.lowercase()) {
+    "recomendation" -> "Surat Rekomendasi"
+    "assignment" -> "Surat Tugas"
+    "active_certificate" -> "Surat Keterangan Aktif"
+    "dispensation" -> "Surat Dispensasi"
+    else -> "-"
+}
+
 
 @Preview(showBackground = true)
 @Composable

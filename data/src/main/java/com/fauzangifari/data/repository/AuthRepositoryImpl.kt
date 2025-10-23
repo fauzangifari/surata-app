@@ -1,11 +1,11 @@
 package com.fauzangifari.data.repository
 
-import android.util.Log
 import com.fauzangifari.data.mapper.toDomain
 import com.fauzangifari.data.source.local.datastore.AuthPreferences
 import com.fauzangifari.data.source.remote.dto.request.SignInRequest
 import com.fauzangifari.data.source.remote.dto.request.SignOutRequest
 import com.fauzangifari.data.source.remote.retrofit.AuthApiService
+import com.fauzangifari.data.source.remote.retrofit.AuthTokenProvider
 import com.fauzangifari.domain.common.Resource
 import com.fauzangifari.domain.model.Auth
 import com.fauzangifari.domain.model.Session
@@ -17,25 +17,25 @@ class AuthRepositoryImpl(
     private val authApiService: AuthApiService,
     private val authPreferences: AuthPreferences
 ) : AuthRepository {
-    override suspend fun signIn(
-        email: String,
-        password: String
-    ): Resource<Auth> {
+    override suspend fun signIn(email: String, password: String): Resource<Auth> {
         return try {
-            return try {
-                val request = SignInRequest(email, password)
-                val response = authApiService.signIn(request)
-                authPreferences.saveToken(response.token)
-                Log.i("AuthRepositoryImpl", "Token saved: ${response.token}")
-                Log.i("AuthRepositoryImpl", "Response: $response")
-                Resource.Success(response.toDomain())
-            } catch (e: Exception) {
-                Resource.Error(e.localizedMessage ?: "An unexpected error occurred")
-            }
+            val request = SignInRequest(email, password)
+            val response = authApiService.signIn(request)
+
+            val token = response.token
+            val userId = response.user.id
+
+            authPreferences.saveToken(token)
+            authPreferences.saveUserId(userId)
+
+            AuthTokenProvider.setToken(token)
+
+            Resource.Success(response.toDomain())
         } catch (e: Exception) {
-            Resource.Error(e.localizedMessage ?: "An unexpected error occurred")
+            Resource.Error(e.localizedMessage ?: "Unexpected error")
         }
     }
+
 
 
     override suspend fun signOut(
@@ -47,6 +47,7 @@ class AuthRepositoryImpl(
             val message = response.message
 
             authPreferences.clear()
+            AuthTokenProvider.setToken(null)
 
             if (isSuccess) {
                 Resource.Success(true)
@@ -55,6 +56,7 @@ class AuthRepositoryImpl(
             }
         } catch (e: Exception) {
             runCatching { authPreferences.clear() }
+            AuthTokenProvider.setToken(null)
             Resource.Error(e.localizedMessage ?: "An unexpected error occurred")
         }
     }

@@ -168,6 +168,12 @@ private fun SettingScreenContent(
                         onClick = onConfirmLogout,
                         enabled = !isLogoutLoading
                     ) {
+                        Text(
+                            text = "Keluar",
+                            fontFamily = PlusJakartaSans,
+                            color = Blue900
+                        )
+
                         if (isLogoutLoading) {
                             CircularProgressIndicator(
                                 modifier = Modifier.size(16.dp),
@@ -175,12 +181,6 @@ private fun SettingScreenContent(
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                         }
-
-                        Text(
-                            text = "Keluar",
-                            fontFamily = PlusJakartaSans,
-                            color = Blue900
-                        )
                     }
                 },
                 dismissButton = {

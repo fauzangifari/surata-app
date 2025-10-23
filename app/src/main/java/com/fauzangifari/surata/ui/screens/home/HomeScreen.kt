@@ -1,5 +1,8 @@
 package com.fauzangifari.surata.ui.screens.home
 
+import android.util.Log
+import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -37,6 +40,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.style.TextAlign
 import coil3.compose.AsyncImage
+import com.fauzangifari.domain.model.ReqLetter
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 
@@ -87,9 +91,10 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel, modif
                     shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
                     containerColor = White
                 ) {
-                    SuratForm(onClose = { showSheet = false })
+                    SuratForm(onClose = { showSheet = false }, viewModel = viewModel)
                 }
             }
+
         }
     }
 }
@@ -127,7 +132,7 @@ fun SuratSection(
     navController: NavHostController,
     viewModel: HomeViewModel,
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val state by viewModel.letterState.collectAsStateWithLifecycle()
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
@@ -140,25 +145,24 @@ fun SuratSection(
 
         when {
             state.isLoading -> {
+                // 🌀 Loading shimmer
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier.fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
-                        ShimmerAnimated(modifier = Modifier.padding(bottom = 16.dp))
-                        ShimmerAnimated(modifier = Modifier.padding(bottom = 16.dp))
-                        ShimmerAnimated(modifier = Modifier.padding(bottom = 16.dp))
-                        ShimmerAnimated(modifier = Modifier.padding(bottom = 16.dp))
-                        ShimmerAnimated(modifier = Modifier.padding(bottom = 16.dp))
+                        repeat(5) {
+                            ShimmerAnimated(modifier = Modifier.padding(bottom = 16.dp))
+                        }
                     }
                 }
             }
 
             !state.error.isNullOrBlank() -> {
+                // ⚠️ Error state
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -188,14 +192,15 @@ fun SuratSection(
                 }
             }
 
-            state.letters.isNotEmpty() -> {
+            state.data.isNotEmpty() -> {
+                // ✅ Data surat tampil
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
-                    items(state.letters) { letter ->
+                    items(state.data) { letter ->
                         CardSurat(
-                            tipeSurat = letter.letterType,
+                            tipeSurat = letterTypeMapper(letter.letterType),
                             status = letter.status,
                             isoDateTime = letter.createdAt,
                             onDetailClick = {
@@ -209,6 +214,7 @@ fun SuratSection(
             }
 
             else -> {
+                // ℹ️ Tidak ada data
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -216,7 +222,7 @@ fun SuratSection(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Belum ada surat.",
+                        text = "Belum ada surat yang dibuat.",
                         color = Grey500
                     )
                 }
@@ -225,51 +231,150 @@ fun SuratSection(
     }
 }
 
+
 @Composable
-fun SuratForm(onClose: () -> Unit) {
+fun SuratForm(
+    onClose: () -> Unit,
+    viewModel: HomeViewModel
+) {
     val context = LocalContext.current
+    val postState by viewModel.postLetterState.collectAsStateWithLifecycle()
+
     var description by remember { mutableStateOf("") }
     var selectedSurat by remember { mutableStateOf("") }
+    var subject by remember { mutableStateOf("") }
+
+    // ⏰ Untuk tanggal dan waktu
+    var beginDate by remember { mutableStateOf("") }
+    var endDate by remember { mutableStateOf("") }
+    var beginTime by remember { mutableStateOf("") }
+    var endTime by remember { mutableStateOf("") }
+
     var isChecked by remember { mutableStateOf(false) }
+    var selectedStudents by remember { mutableStateOf(mutableListOf<String>()) }
+
+    LaunchedEffect(postState.isSuccess, postState.error) {
+        when {
+            postState.isSuccess -> {
+                Toast.makeText(context, "Surat berhasil dibuat!", Toast.LENGTH_SHORT).show()
+
+                description = ""
+                selectedSurat = ""
+                subject = ""
+                beginDate = ""
+                endDate = ""
+                beginTime = ""
+                endTime = ""
+                isChecked = false
+                selectedStudents.clear()
+
+                onClose()
+            }
+            !postState.error.isNullOrBlank() -> {
+                Toast.makeText(context, postState.error, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
             .background(White)
+            .padding(horizontal = 16.dp, vertical = 12.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text("Buat Surat", fontSize = 20.sp, fontWeight = FontWeight.Bold)
+        Text(
+            text = "Buat Surat",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold,
+            color = Grey900
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
+        // 🔹 Jenis Surat
+        SectionTitle("Informasi Surat")
         DropdownField(
             label = "Jenis Surat",
-            items = listOf("Surat Dispensasi", "Surat Rekomendasi", "Surat Keterangan Aktif", "Surat Tugas"),
+            items = listOf(
+                "Surat Dispensasi",
+                "Surat Rekomendasi",
+                "Surat Keterangan Aktif",
+                "Surat Tugas"
+            ),
             placeHolder = "Pilih Jenis Surat",
             onItemSelected = { selectedSurat = it }
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        when (selectedSurat) {
-            "Surat Dispensasi", "Surat Tugas" -> {
-                DateInput(label = "Tanggal Mulai", onDateSelected = {}, placeholder = "Pilih Tanggal Mulai", modifier = Modifier.fillMaxWidth())
+        AnimatedVisibility(visible = selectedSurat.isNotBlank()) {
+            Column {
                 Spacer(modifier = Modifier.height(8.dp))
-                DateInput(label = "Tanggal Berakhir", onDateSelected = {}, placeholder = "Pilih Tanggal Berakhir", modifier = Modifier.fillMaxWidth())
-                Spacer(modifier = Modifier.height(8.dp))
-
-                if (selectedSurat == "Surat Dispensasi") {
-                    TimeInput(context = context, label = "Waktu Mulai", placeHolder = "Pilih Waktu Mulai", onTimeSelected = {}, modifier = Modifier.fillMaxWidth())
-                    Spacer(modifier = Modifier.height(8.dp))
-                    TimeInput(context = context, label = "Waktu Selesai", placeHolder = "Pilih Waktu Selesai", onTimeSelected = {}, modifier = Modifier.fillMaxWidth())
-                }
+                TextInput(
+                    label = "Judul Surat",
+                    placeholder = "Masukkan judul surat",
+                    value = subject,
+                    onValueChange = { subject = it },
+                    singleLine = true
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        // 🧑‍🎓 Surat Dispensasi → Pilih siswa
+        if (selectedSurat == "Surat Dispensasi") {
+            Spacer(modifier = Modifier.height(16.dp))
+            SectionTitle("Pilih Siswa")
+            MultiPickedField(
+                selectedStudents = selectedStudents,
+                onSelectedChange = { selectedStudents = it.toMutableList() }
+            )
+            if (selectedStudents.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(6.dp))
+                Text(
+                    text = "Terpilih: ${selectedStudents.joinToString(", ")}",
+                    fontSize = 13.sp,
+                    color = Grey700
+                )
+            }
+        }
 
+        // 📅 Surat Dispensasi & Surat Tugas → butuh tanggal + jam
+        if (selectedSurat == "Surat Dispensasi" || selectedSurat == "Surat Tugas") {
+            Spacer(modifier = Modifier.height(16.dp))
+            SectionTitle("Tanggal & Waktu")
+
+            DateInput(
+                label = "Tanggal Mulai",
+                onDateSelected = { beginDate = it },
+                placeholder = "Pilih Tanggal Mulai"
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            TimeInput(
+                context = context,
+                label = "Waktu Mulai",
+                placeHolder = "Pilih Waktu Mulai",
+                onTimeSelected = { beginTime = it }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+            DateInput(
+                label = "Tanggal Berakhir",
+                onDateSelected = { endDate = it },
+                placeholder = "Pilih Tanggal Berakhir"
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            TimeInput(
+                context = context,
+                label = "Waktu Selesai",
+                placeHolder = "Pilih Waktu Selesai",
+                onTimeSelected = { endTime = it }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        SectionTitle("Keterangan")
         DescriptionInput(
             label = "Keterangan (Opsional)",
             placeholder = "Masukkan keterangan surat",
@@ -280,9 +385,11 @@ fun SuratForm(onClose: () -> Unit) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        FileUpload(onFileSelected = {})
+        SectionTitle("Dokumen Pendukung")
+        FileUpload(onFileSelected = { /* TODO: Upload ke Firebase nanti */ })
 
         Spacer(modifier = Modifier.height(16.dp))
+        Divider(color = Grey200, thickness = 1.dp, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -301,18 +408,86 @@ fun SuratForm(onClose: () -> Unit) {
             )
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         ButtonCustom(
-            value = "Buat Surat",
+            value = if (postState.isLoading) "Mengirim..." else "Buat Surat",
             fontSize = 14,
             buttonType = ButtonType.REGULAR,
             buttonStyle = ButtonStyle.FILLED,
-            backgroundColor = Blue800,
+            backgroundColor = if (postState.isLoading) Grey500 else Blue800,
             textColor = White,
-            onClick = onClose,
+            onClick = {
+                if (!postState.isLoading) {
+                    val beginIso = if (beginDate.isNotEmpty() && beginTime.isNotEmpty()) {
+                        toIsoDate(beginDate, beginTime)
+                    } else ""
+                    val endIso = if (endDate.isNotEmpty() && endTime.isNotEmpty()) {
+                        toIsoDate(endDate, endTime)
+                    } else ""
+
+                    val mappedLetterType = when (selectedSurat) {
+                        "Surat Dispensasi" -> "DISPENSATION"
+                        "Surat Rekomendasi" -> "RECOMMENDATION"
+                        "Surat Keterangan Aktif" -> "ACTIVE_CERTIFICATE"
+                        "Surat Tugas" -> "ASSIGNMENT"
+                        else -> selectedSurat
+                    }
+
+                    val req = ReqLetter(
+                        letterType = mappedLetterType,
+                        subject = subject,
+                        beginDate = if (beginIso.isNotBlank()) beginIso else null,
+                        endDate = if (endIso.isNotBlank()) endIso else null,
+                        reason = if (description.isNotBlank()) description else null,
+                        isPrinted = isChecked,
+                        cc = if (selectedStudents.isNotEmpty()) selectedStudents else emptyList(),
+                        attachment = "https://via.placeholder.com/570x589/a409d8/cf57ba.gif"
+                    )
+
+
+                    viewModel.postLetter(req)
+                }
+            },
             modifier = Modifier.fillMaxWidth().height(50.dp)
         )
+    }
+}
+
+fun toIsoDate(date: String, time: String): String {
+    return try {
+        val parts = date.split("/")
+        val day = parts[0].padStart(2, '0')
+        val month = parts[1].padStart(2, '0')
+        val year = parts[2]
+        val cleanTime = time.trim().replace(" ", "")
+        "${year}-${day}-${month}T${cleanTime}:00.000+08:00"
+    } catch (e: Exception) {
+        ""
+    }
+}
+
+
+@Composable
+fun SectionTitle(title: String) {
+    Text(
+        text = title,
+        fontSize = 14.sp,
+        fontWeight = FontWeight.Medium,
+        color = Blue800,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 6.dp)
+    )
+}
+
+fun letterTypeMapper(type: String): String {
+    return when (type) {
+        "DISPENSATION" -> "Surat Dispensasi"
+        "RECOMMENDATION" -> "Surat Rekomendasi"
+        "ACTIVE_CERTIFICATE" -> "Surat Keterangan Aktif"
+        "ASSIGNMENT" -> "Surat Tugas"
+        else -> type
     }
 }
 

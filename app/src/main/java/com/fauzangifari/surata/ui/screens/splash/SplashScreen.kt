@@ -53,7 +53,6 @@ fun SplashScreen(
     }
 
     LaunchedEffect(sessionState) {
-        Log.d("SplashScreen", "SessionState: $sessionState")
         when (sessionState) {
             is Resource.Success -> {
                 delay(1000)

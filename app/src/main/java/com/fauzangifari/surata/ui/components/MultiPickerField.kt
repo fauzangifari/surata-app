@@ -30,10 +30,10 @@ fun MultiPickedField(
 
     Column(modifier) {
         OutlinedTextField(
-            value = if (selectedStudents.isEmpty()) "" else "${selectedStudents.size} siswa dipilih",
+            value = if (selectedStudents.isEmpty()) "Pilih Siswa" else "${selectedStudents.size} siswa dipilih",
             onValueChange = {},
             readOnly = true,
-            label = { Text("Pilih Siswa (Maksimal 5)") },
+            label = { Text("Daftar Siswa Dispensasi") },
             trailingIcon = {
                 IconButton(onClick = { showDialog = true }) {
                     Icon(Icons.Default.ArrowDropDown, contentDescription = "Pilih siswa")

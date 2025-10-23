@@ -12,17 +12,17 @@ import retrofit2.http.POST
 
 interface AuthApiService {
 
-    @POST("sign-in/email")
+    @POST("api/auth/sign-in/email")
     suspend fun signIn(
         @Body request: SignInRequest
     ): SignInResponse
 
-    @POST("sign-out")
+    @POST("api/auth/sign-out")
     suspend fun signOut(
         @Body request: SignOutRequest
     ): SignOutResponse
 
-    @GET("get-session")
+    @GET("api/auth/get-session")
     suspend fun getSession(): Response<SessionResponse>
 
 }

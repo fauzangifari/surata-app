@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 
 class SettingViewModel(
     private val authPreferences: AuthPreferences,
-    private val postSignOutUseCase: PostSignOutUseCase
+    private val postSignOutUseCase: PostSignOutUseCase,
 ) : ViewModel() {
 
     private val _logoutState = MutableStateFlow<Resource<Boolean>>(Resource.Idle())
@@ -36,7 +36,6 @@ class SettingViewModel(
                 is Resource.Success -> {
                     runCatching { authPreferences.clear() }
                         .onFailure { error ->
-                            Log.e("SettingViewModel", "Failed to clear session: ${error.localizedMessage}")
                             val message = error.localizedMessage ?: "Gagal menghapus sesi"
                             _logoutState.value = Resource.Error(message)
                             _logoutMessage.emit(message)
@@ -49,7 +48,6 @@ class SettingViewModel(
                 }
 
                 is Resource.Error -> {
-                    Log.e("SettingViewModel", "Logout error: ${result.message}")
                     val message = result.message ?: "Terjadi kesalahan saat keluar"
                     _logoutState.value = Resource.Error(message)
                     _logoutMessage.emit(message)

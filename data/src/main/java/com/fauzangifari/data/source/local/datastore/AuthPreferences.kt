@@ -15,6 +15,7 @@ class AuthPreferences(private val dataStore: DataStore<Preferences>) {
 
     companion object {
         private val TOKEN_KEY = stringPreferencesKey("token_key")
+        private val USER_ID_KEY = stringPreferencesKey("user_id_key")
     }
 
     suspend fun saveToken(token: String) {
@@ -34,6 +35,25 @@ class AuthPreferences(private val dataStore: DataStore<Preferences>) {
         }
         .map { prefs ->
             prefs[TOKEN_KEY]
+        }
+
+    suspend fun saveUserId(userId: String) {
+        dataStore.edit { prefs ->
+            prefs[USER_ID_KEY] = userId
+        }
+    }
+
+    suspend fun getUserId(): String? {
+        val prefs = dataStore.data.first()
+        return prefs[USER_ID_KEY]
+    }
+
+    val userId: Flow<String?> = dataStore.data
+        .catch { e ->
+            if (e is IOException) emit(emptyPreferences()) else throw e
+        }
+        .map { prefs ->
+            prefs[USER_ID_KEY]
         }
 
     suspend fun clear() {

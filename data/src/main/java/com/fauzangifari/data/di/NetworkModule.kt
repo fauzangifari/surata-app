@@ -24,15 +24,15 @@ val networkModule = module {
 
     single { AuthInterceptor(get()) }
 
-    single(named("letterRetrofit")) {
-        Retrofit.Builder()
-            .baseUrl(Constant.BASE_URL)
-            .client(get())
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-    }
+//    single(named("letterRetrofit")) {
+//        Retrofit.Builder()
+//            .baseUrl(Constant.BASE_URL)
+//            .client(get())
+//            .addConverterFactory(GsonConverterFactory.create())
+//            .build()
+//    }
 
-    single(named("authRetrofit")) {
+    single(named("retrofit")) {
         Retrofit.Builder()
             .baseUrl(Constant.BASE_URL_DEV)
             .client(get())
@@ -41,12 +41,12 @@ val networkModule = module {
     }
 
     single {
-        get<Retrofit>(qualifier = named("letterRetrofit"))
+        get<Retrofit>(qualifier = named("retrofit"))
             .create(LetterApiService::class.java)
     }
 
     single {
-        get<Retrofit>(qualifier = named("authRetrofit"))
+        get<Retrofit>(qualifier = named("retrofit"))
             .create(AuthApiService::class.java)
     }
 }

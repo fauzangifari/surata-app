@@ -8,15 +8,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.IOException
 
-class GetDetailLetterUseCase (
+class GetLetterByUserIdUseCase (
     private val letterRepository: LetterRepository
-) {
-    operator fun invoke(letterId: String): Flow<Resource<Letter>> = flow {
+){
+    operator fun invoke(userId: String): Flow<Resource<List<Letter>>> = flow {
         try {
             emit(Resource.Loading())
-            val response = letterRepository.getLetterById(letterId)
-            Log.d("GetDetailLetterUseCase", "Response: $response")
+            val response = letterRepository.getLettersByUserId(userId)
             val letterList = response
+            Log.d("GetLetterByUserIdUseCase", "Fetched letters for userId $userId: $letterList")
             emit(Resource.Success(letterList))
         } catch (e: IOException) {
             emit(Resource.Error("Tidak dapat menghubungi server. Periksa koneksi internet anda."))

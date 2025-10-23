@@ -1,22 +1,10 @@
 package com.fauzangifari.data.mapper
 
-import com.fauzangifari.data.source.remote.dto.request.SignInRequest
-import com.fauzangifari.data.source.remote.dto.request.SignOutRequest
 import com.fauzangifari.data.source.remote.dto.response.SessionResponse
 import com.fauzangifari.data.source.remote.dto.response.SignInResponse
 import com.fauzangifari.domain.model.Auth
 import com.fauzangifari.domain.model.Session
-import com.fauzangifari.domain.model.SignInParam
 import com.fauzangifari.domain.model.User
-
-fun SignInParam.toRequest(): SignInRequest {
-    return SignInRequest(
-        email = this.email,
-        password = this.password,
-        callBackURL = null,
-        rememberMe = if (this.rememberMe) "true" else "false"
-    )
-}
 
 fun SignInResponse.toDomain() = Auth(
     token = token,
@@ -28,10 +16,6 @@ fun SignInResponse.toDomain() = Auth(
         emailVerified = user.emailVerified,
     )
 )
-
-fun SignOutRequest.toDomain(): Boolean {
-    return this.success
-}
 
 fun SessionResponse.toDomain(): Session {
     return Session(

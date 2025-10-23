@@ -1,8 +1,8 @@
 package com.fauzangifari.surata.ui.screens.login
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fauzangifari.data.source.local.datastore.AuthPreferences
 import com.fauzangifari.domain.common.Resource
 import com.fauzangifari.domain.model.Auth
 import com.fauzangifari.domain.usecase.PostSignInUseCase
@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
-    private val signInUseCase: PostSignInUseCase
+    private val signInUseCase: PostSignInUseCase,
 ) : ViewModel() {
 
     // -------------------------
@@ -89,7 +89,6 @@ class LoginViewModel(
                 is Resource.Error -> {
                     _isLoggedIn.value = false
                     _loginState.value = result
-                    Log.e("LoginViewModel", "Error: ${result.message}")
                     showToast(result.message ?: "Terjadi kesalahan")
                 }
 
