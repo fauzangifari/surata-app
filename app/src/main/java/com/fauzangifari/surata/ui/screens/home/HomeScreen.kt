@@ -1,6 +1,5 @@
 package com.fauzangifari.surata.ui.screens.home
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
@@ -43,12 +42,21 @@ import coil3.compose.AsyncImage
 import com.fauzangifari.domain.model.ReqLetter
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel, modifier: Modifier = Modifier) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showSheet by remember { mutableStateOf(false) }
+
+    val userName by viewModel.userNameState.collectAsStateWithLifecycle()
+    val userEmail by viewModel.userEmailState.collectAsStateWithLifecycle()
+
+    var toastMessage by remember { mutableStateOf<String?>(null) }
+    var toastType by remember { mutableStateOf<ToastType>(ToastType.SUCCESS) }
+    var toastVisible by remember { mutableStateOf(false) }
 
     Scaffold(
         floatingActionButton = {
@@ -67,40 +75,72 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel, modif
         },
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 24.dp, bottom = 8.dp, start = 24.dp, end = 24.dp)
-        ) {
-            Text("Halo, ${greetings()}!", fontSize = 16.sp, fontWeight = FontWeight.Medium, fontFamily = PlusJakartaSans, color = Grey900)
+        Box(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = 24.dp, bottom = 8.dp, start = 24.dp, end = 24.dp)
+            ) {
+                Text("Halo, ${greetings()}!", fontSize = 16.sp, fontWeight = FontWeight.Medium, fontFamily = PlusJakartaSans, color = Grey900)
 
-            Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(4.dp))
 
-            Text("Muhammad Fauzan Gifari", fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = PlusJakartaSans, color = Grey900)
+                Text(userName ?: "-", fontSize = 16.sp, fontWeight = FontWeight.Bold, fontFamily = PlusJakartaSans, color = Grey900)
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
-            ProfileCard()
+                ProfileCard(email = userEmail)
 
-            SuratSection(navController, viewModel)
-
-            if (showSheet) {
-                ModalBottomSheet(
-                    onDismissRequest = { showSheet = false },
-                    sheetState = sheetState,
-                    shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-                    containerColor = White
+                Box(modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
                 ) {
-                    SuratForm(onClose = { showSheet = false }, viewModel = viewModel)
+                    SuratSection(navController, viewModel)
+                }
+
+                if (showSheet) {
+                    ModalBottomSheet(
+                        onDismissRequest = { showSheet = false },
+                        sheetState = sheetState,
+                        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
+                        containerColor = White
+                    ) {
+                        SuratForm(
+                            onClose = { showSheet = false },
+                            viewModel = viewModel,
+                            onShowToast = { message, type ->
+                                toastMessage = message
+                                toastType = type
+                                toastVisible = true
+                            }
+                        )
+                    }
                 }
             }
 
+            // CustomToast overlay at top of the screen
+            toastMessage?.let { msg ->
+                CustomToast(
+                    message = msg,
+                    type = toastType,
+                    visible = toastVisible,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                )
+            }
+
+            LaunchedEffect(toastVisible) {
+                if (toastVisible) {
+                    kotlinx.coroutines.delay(3000)
+                    toastVisible = false
+                }
+            }
         }
     }
 }
 
 @Composable
-fun ProfileCard() {
+fun ProfileCard(email: String?) {
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Blue800),
@@ -121,20 +161,22 @@ fun ProfileCard() {
 
             Column {
                 Text("Siswa Aktif", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
-                Text("fauzan@sman1samarinda.sch.id", color = Color.White, fontSize = 12.sp)
+                Text(email ?: "-", color = Color.White, fontSize = 12.sp)
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuratSection(
     navController: NavHostController,
     viewModel: HomeViewModel,
 ) {
     val state by viewModel.letterState.collectAsStateWithLifecycle()
+    val pullToRefreshState = rememberPullToRefreshState()
 
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(modifier = Modifier.fillMaxSize()) {
         Text(
             text = "Riwayat Surat",
             fontSize = 16.sp,
@@ -143,88 +185,94 @@ fun SuratSection(
             modifier = Modifier.padding(vertical = 16.dp)
         )
 
-        when {
-            state.isLoading -> {
-                // 🌀 Loading shimmer
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        repeat(5) {
-                            ShimmerAnimated(modifier = Modifier.padding(bottom = 16.dp))
+        PullToRefreshBox(
+            isRefreshing = state.isRefreshing,
+            onRefresh = { viewModel.refreshLetters() },
+            state = pullToRefreshState,
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(bottom = 16.dp)
+            ) {
+                when {
+                    state.isLoading -> {
+                        items(5) { idx ->
+                            ShimmerAnimated(modifier = Modifier.padding(bottom = 0.dp))
                         }
                     }
-                }
-            }
 
-            !state.error.isNullOrBlank() -> {
-                // ⚠️ Error state
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 24.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        Text(
-                            text = "Oops..",
-                            color = RedLight,
-                            fontSize = 40.sp,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center,
-                            fontFamily = PlusJakartaSans
-                        )
-                        Text(
-                            text = state.error ?: "Terjadi kesalahan",
-                            color = Black,
-                            fontSize = 16.sp,
-                            textAlign = TextAlign.Center,
-                            fontFamily = PlusJakartaSans
-                        )
-                    }
-                }
-            }
-
-            state.data.isNotEmpty() -> {
-                // ✅ Data surat tampil
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    contentPadding = PaddingValues(bottom = 16.dp)
-                ) {
-                    items(state.data) { letter ->
-                        CardSurat(
-                            tipeSurat = letterTypeMapper(letter.letterType),
-                            status = letter.status,
-                            isoDateTime = letter.createdAt,
-                            onDetailClick = {
-                                navController.navigate(Screen.Detail.passId(letter.id)) {
-                                    launchSingleTop = true
+                    !state.error.isNullOrBlank() -> {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 24.dp, vertical = 48.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                                ) {
+                                    Text(
+                                        text = "Oops..",
+                                        color = RedLight,
+                                        fontSize = 40.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        textAlign = TextAlign.Center,
+                                        fontFamily = PlusJakartaSans
+                                    )
+                                    Text(
+                                        text = state.error ?: "Terjadi kesalahan",
+                                        color = Black,
+                                        fontSize = 16.sp,
+                                        textAlign = TextAlign.Center,
+                                        fontFamily = PlusJakartaSans
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "Tarik ke bawah untuk menyegarkan",
+                                        color = Grey500,
+                                        fontSize = 12.sp
+                                    )
                                 }
                             }
-                        )
+                        }
                     }
-                }
-            }
 
-            else -> {
-                // ℹ️ Tidak ada data
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 32.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Belum ada surat yang dibuat.",
-                        color = Grey500
-                    )
+                    state.data.isNotEmpty() -> {
+                        items(state.data) { letter ->
+                            CardSurat(
+                                tipeSurat = letterTypeMapper(letter.letterType),
+                                status = letter.status,
+                                isoDateTime = letter.createdAt,
+                                onDetailClick = {
+                                    navController.navigate(Screen.Detail.passId(letter.id)) {
+                                        launchSingleTop = true
+                                    }
+                                }
+                            )
+                        }
+                    }
+
+                    else -> {
+                        item {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 32.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = "Belum ada surat yang dibuat.",
+                                    color = Grey500
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -235,7 +283,8 @@ fun SuratSection(
 @Composable
 fun SuratForm(
     onClose: () -> Unit,
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel,
+    onShowToast: (String, ToastType) -> Unit
 ) {
     val context = LocalContext.current
     val postState by viewModel.postLetterState.collectAsStateWithLifecycle()
@@ -244,19 +293,18 @@ fun SuratForm(
     var selectedSurat by remember { mutableStateOf("") }
     var subject by remember { mutableStateOf("") }
 
-    // ⏰ Untuk tanggal dan waktu
     var beginDate by remember { mutableStateOf("") }
     var endDate by remember { mutableStateOf("") }
     var beginTime by remember { mutableStateOf("") }
     var endTime by remember { mutableStateOf("") }
 
     var isChecked by remember { mutableStateOf(false) }
-    var selectedStudents by remember { mutableStateOf(mutableListOf<String>()) }
+    val selectedStudents = remember { mutableStateListOf<String>() }
 
     LaunchedEffect(postState.isSuccess, postState.error) {
         when {
             postState.isSuccess -> {
-                Toast.makeText(context, "Surat berhasil dibuat!", Toast.LENGTH_SHORT).show()
+                onShowToast("Surat berhasil dibuat!", ToastType.SUCCESS)
 
                 description = ""
                 selectedSurat = ""
@@ -268,10 +316,11 @@ fun SuratForm(
                 isChecked = false
                 selectedStudents.clear()
 
+                kotlinx.coroutines.delay(100)
                 onClose()
             }
             !postState.error.isNullOrBlank() -> {
-                Toast.makeText(context, postState.error, Toast.LENGTH_SHORT).show()
+                onShowToast(postState.error ?: "Terjadi kesalahan", ToastType.ERROR)
             }
         }
     }
@@ -327,7 +376,10 @@ fun SuratForm(
             SectionTitle("Pilih Siswa")
             MultiPickedField(
                 selectedStudents = selectedStudents,
-                onSelectedChange = { selectedStudents = it.toMutableList() }
+                onSelectedChange = {
+                    selectedStudents.clear()
+                    selectedStudents.addAll(it)
+                }
             )
             if (selectedStudents.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(6.dp))
@@ -389,7 +441,9 @@ fun SuratForm(
         FileUpload(onFileSelected = { /* TODO: Upload ke Firebase nanti */ })
 
         Spacer(modifier = Modifier.height(16.dp))
-        Divider(color = Grey200, thickness = 1.dp, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp))
+        HorizontalDivider(color = Grey200, thickness = 1.dp, modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -462,7 +516,7 @@ fun toIsoDate(date: String, time: String): String {
         val year = parts[2]
         val cleanTime = time.trim().replace(" ", "")
         "${year}-${day}-${month}T${cleanTime}:00.000+08:00"
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         ""
     }
 }

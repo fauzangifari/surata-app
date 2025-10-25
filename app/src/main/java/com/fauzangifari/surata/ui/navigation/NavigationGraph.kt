@@ -1,9 +1,6 @@
 package com.fauzangifari.surata.ui.navigation
 
 import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.EaseIn
-import androidx.compose.animation.core.EaseOut
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -40,11 +37,24 @@ fun NavigationGraph(startDestination: String) {
 
     NavHost(navController = navController, startDestination = startDestination) {
 
-        composable(Screen.Splash.route) {
+        composable(
+            route = Screen.Splash.route,
+            exitTransition = {
+                fadeOut(animationSpec = tween(300))
+            }
+        ) {
             SplashScreen(navController)
         }
 
-        composable(Screen.Login.route) {
+        composable(
+            route = Screen.Login.route,
+            enterTransition = {
+                fadeIn(animationSpec = tween(400))
+            },
+            exitTransition = {
+                fadeOut(animationSpec = tween(300))
+            }
+        ) {
             LoginScreen(
                 onLoginSuccess = {
                     navController.navigate("main_with_bottom_nav") {
@@ -54,7 +64,12 @@ fun NavigationGraph(startDestination: String) {
             )
         }
 
-        composable("main_with_bottom_nav") {
+        composable(
+            route = "main_with_bottom_nav",
+            enterTransition = {
+                fadeIn(animationSpec = tween(400))
+            }
+        ) {
             BottomBarLayout(navController)
         }
 
@@ -62,18 +77,22 @@ fun NavigationGraph(startDestination: String) {
             route = Screen.Detail.route,
             arguments = listOf(navArgument("letterId") { type = NavType.StringType }),
             enterTransition = {
-                fadeIn(animationSpec = tween(300, easing = LinearEasing)) +
-                        slideIntoContainer(
-                            animationSpec = tween(300, easing = EaseIn),
-                            towards = AnimatedContentTransitionScope.SlideDirection.Start
-                        )
+                slideIntoContainer(
+                    animationSpec = tween(400),
+                    towards = AnimatedContentTransitionScope.SlideDirection.Start
+                ) + fadeIn(animationSpec = tween(400))
             },
             exitTransition = {
-                fadeOut(animationSpec = tween(300, easing = LinearEasing)) +
-                        slideOutOfContainer(
-                            animationSpec = tween(300, easing = EaseOut),
-                            towards = AnimatedContentTransitionScope.SlideDirection.End
-                        )
+                fadeOut(animationSpec = tween(300))
+            },
+            popEnterTransition = {
+                fadeIn(animationSpec = tween(300))
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    animationSpec = tween(400),
+                    towards = AnimatedContentTransitionScope.SlideDirection.End
+                ) + fadeOut(animationSpec = tween(400))
             }
         ) { backStackEntry ->
             val letterId = backStackEntry.arguments?.getString("letterId") ?: return@composable
@@ -83,18 +102,22 @@ fun NavigationGraph(startDestination: String) {
         composable(
             route = Screen.Setting.route,
             enterTransition = {
-                fadeIn(animationSpec = tween(300, easing = LinearEasing)) +
-                        slideIntoContainer(
-                            animationSpec = tween(300, easing = EaseIn),
-                            towards = AnimatedContentTransitionScope.SlideDirection.Start
-                        )
+                slideIntoContainer(
+                    animationSpec = tween(400),
+                    towards = AnimatedContentTransitionScope.SlideDirection.Start
+                ) + fadeIn(animationSpec = tween(400))
             },
             exitTransition = {
-                fadeOut(animationSpec = tween(300, easing = LinearEasing)) +
-                        slideOutOfContainer(
-                            animationSpec = tween(300, easing = EaseOut),
-                            towards = AnimatedContentTransitionScope.SlideDirection.End
-                        )
+                fadeOut(animationSpec = tween(300))
+            },
+            popEnterTransition = {
+                fadeIn(animationSpec = tween(300))
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    animationSpec = tween(400),
+                    towards = AnimatedContentTransitionScope.SlideDirection.End
+                ) + fadeOut(animationSpec = tween(400))
             }
         ) {
             SettingScreen(
@@ -105,18 +128,22 @@ fun NavigationGraph(startDestination: String) {
         composable(
             route = Screen.FAQ.route,
             enterTransition = {
-                fadeIn(animationSpec = tween(300, easing = LinearEasing)) +
-                        slideIntoContainer(
-                            animationSpec = tween(300, easing = EaseIn),
-                            towards = AnimatedContentTransitionScope.SlideDirection.Start
-                        )
+                slideIntoContainer(
+                    animationSpec = tween(400),
+                    towards = AnimatedContentTransitionScope.SlideDirection.Start
+                ) + fadeIn(animationSpec = tween(400))
             },
             exitTransition = {
-                fadeOut(animationSpec = tween(300, easing = LinearEasing)) +
-                        slideOutOfContainer(
-                            animationSpec = tween(300, easing = EaseOut),
-                            towards = AnimatedContentTransitionScope.SlideDirection.End
-                        )
+                fadeOut(animationSpec = tween(300))
+            },
+            popEnterTransition = {
+                fadeIn(animationSpec = tween(300))
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    animationSpec = tween(400),
+                    towards = AnimatedContentTransitionScope.SlideDirection.End
+                ) + fadeOut(animationSpec = tween(400))
             }
         ) {
             val viewModel: FAQViewModel = koinViewModel()
@@ -129,18 +156,22 @@ fun NavigationGraph(startDestination: String) {
         composable(
             route = Screen.About.route,
             enterTransition = {
-                fadeIn(animationSpec = tween(300, easing = LinearEasing)) +
-                        slideIntoContainer(
-                            animationSpec = tween(300, easing = EaseIn),
-                            towards = AnimatedContentTransitionScope.SlideDirection.Start
-                        )
+                slideIntoContainer(
+                    animationSpec = tween(400),
+                    towards = AnimatedContentTransitionScope.SlideDirection.Start
+                ) + fadeIn(animationSpec = tween(400))
             },
             exitTransition = {
-                fadeOut(animationSpec = tween(300, easing = LinearEasing)) +
-                        slideOutOfContainer(
-                            animationSpec = tween(300, easing = EaseOut),
-                            towards = AnimatedContentTransitionScope.SlideDirection.End
-                        )
+                fadeOut(animationSpec = tween(300))
+            },
+            popEnterTransition = {
+                fadeIn(animationSpec = tween(300))
+            },
+            popExitTransition = {
+                slideOutOfContainer(
+                    animationSpec = tween(400),
+                    towards = AnimatedContentTransitionScope.SlideDirection.End
+                ) + fadeOut(animationSpec = tween(400))
             }
         ) {
             AboutScreen(
@@ -181,14 +212,100 @@ fun BottomBarLayout(rootNavController: NavHostController) {
                 .padding(innerPadding)
                 .fillMaxSize()
         ) {
-            composable(Screen.Home.route) {
+            composable(
+                route = Screen.Home.route,
+                enterTransition = {
+                    when (initialState.destination.route) {
+                        Screen.Notification.route -> slideIntoContainer(
+                            animationSpec = tween(400),
+                            towards = AnimatedContentTransitionScope.SlideDirection.End
+                        ) + fadeIn(animationSpec = tween(400))
+                        Screen.Profile.route -> slideIntoContainer(
+                            animationSpec = tween(400),
+                            towards = AnimatedContentTransitionScope.SlideDirection.End
+                        ) + fadeIn(animationSpec = tween(400))
+                        else -> fadeIn(animationSpec = tween(400))
+                    }
+                },
+                exitTransition = {
+                    when (targetState.destination.route) {
+                        Screen.Notification.route -> slideOutOfContainer(
+                            animationSpec = tween(400),
+                            towards = AnimatedContentTransitionScope.SlideDirection.Start
+                        ) + fadeOut(animationSpec = tween(400))
+                        Screen.Profile.route -> slideOutOfContainer(
+                            animationSpec = tween(400),
+                            towards = AnimatedContentTransitionScope.SlideDirection.Start
+                        ) + fadeOut(animationSpec = tween(400))
+                        else -> fadeOut(animationSpec = tween(300))
+                    }
+                }
+            ) {
                 val viewModel: HomeViewModel = koinViewModel()
                 HomeScreen(navController = rootNavController, viewModel = viewModel)
             }
-            composable(Screen.Notification.route) {
+
+            composable(
+                route = Screen.Notification.route,
+                enterTransition = {
+                    when (initialState.destination.route) {
+                        Screen.Home.route -> slideIntoContainer(
+                            animationSpec = tween(400),
+                            towards = AnimatedContentTransitionScope.SlideDirection.Start
+                        ) + fadeIn(animationSpec = tween(400))
+                        Screen.Profile.route -> slideIntoContainer(
+                            animationSpec = tween(400),
+                            towards = AnimatedContentTransitionScope.SlideDirection.End
+                        ) + fadeIn(animationSpec = tween(400))
+                        else -> fadeIn(animationSpec = tween(400))
+                    }
+                },
+                exitTransition = {
+                    when (targetState.destination.route) {
+                        Screen.Home.route -> slideOutOfContainer(
+                            animationSpec = tween(400),
+                            towards = AnimatedContentTransitionScope.SlideDirection.End
+                        ) + fadeOut(animationSpec = tween(400))
+                        Screen.Profile.route -> slideOutOfContainer(
+                            animationSpec = tween(400),
+                            towards = AnimatedContentTransitionScope.SlideDirection.Start
+                        ) + fadeOut(animationSpec = tween(400))
+                        else -> fadeOut(animationSpec = tween(300))
+                    }
+                }
+            ) {
                 NotificationScreen()
             }
-            composable(Screen.Profile.route) {
+
+            composable(
+                route = Screen.Profile.route,
+                enterTransition = {
+                    when (initialState.destination.route) {
+                        Screen.Home.route -> slideIntoContainer(
+                            animationSpec = tween(400),
+                            towards = AnimatedContentTransitionScope.SlideDirection.Start
+                        ) + fadeIn(animationSpec = tween(400))
+                        Screen.Notification.route -> slideIntoContainer(
+                            animationSpec = tween(400),
+                            towards = AnimatedContentTransitionScope.SlideDirection.Start
+                        ) + fadeIn(animationSpec = tween(400))
+                        else -> fadeIn(animationSpec = tween(400))
+                    }
+                },
+                exitTransition = {
+                    when (targetState.destination.route) {
+                        Screen.Home.route -> slideOutOfContainer(
+                            animationSpec = tween(400),
+                            towards = AnimatedContentTransitionScope.SlideDirection.End
+                        ) + fadeOut(animationSpec = tween(400))
+                        Screen.Notification.route -> slideOutOfContainer(
+                            animationSpec = tween(400),
+                            towards = AnimatedContentTransitionScope.SlideDirection.End
+                        ) + fadeOut(animationSpec = tween(400))
+                        else -> fadeOut(animationSpec = tween(300))
+                    }
+                }
+            ) {
                 ProfileScreen()
             }
         }

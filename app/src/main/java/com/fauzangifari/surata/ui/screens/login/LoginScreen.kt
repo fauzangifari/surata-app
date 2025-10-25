@@ -1,6 +1,5 @@
 package com.fauzangifari.surata.ui.screens.login
 
-import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -17,7 +16,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,6 +29,9 @@ import com.fauzangifari.surata.ui.components.TextInput
 import com.fauzangifari.surata.ui.theme.*
 import org.koin.androidx.compose.koinViewModel
 import com.fauzangifari.domain.common.Resource
+import com.fauzangifari.surata.ui.components.CustomToast
+import com.fauzangifari.surata.ui.components.ToastType
+import kotlinx.coroutines.delay
 
 @Composable
 fun LoginScreen(
@@ -41,7 +42,6 @@ fun LoginScreen(
     val configuration = LocalConfiguration.current
     val screenHeight = configuration.screenHeightDp.dp
     val headerHeight = (screenHeight * 0.40f).coerceAtMost(400.dp)
-    val context = LocalContext.current
 
     val email by viewModel.email.collectAsState()
     val password by viewModel.password.collectAsState()
@@ -51,14 +51,13 @@ fun LoginScreen(
     val loginState by viewModel.loginState.collectAsState()
     val isLoggedIn by viewModel.isLoggedIn.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.toastMessage.collect { message ->
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
-        }
-    }
+    var toastMessage by remember { mutableStateOf<String?>(null) }
+    var toastType by remember { mutableStateOf<ToastType>(ToastType.SUCCESS) }
+    var toastVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(isLoggedIn) {
         if (isLoggedIn) {
+            delay(1100)
             onLoginSuccess.invoke()
         }
     }
@@ -66,20 +65,27 @@ fun LoginScreen(
     LaunchedEffect(loginState) {
         when (loginState) {
             is Resource.Success -> {
-                if ((loginState as Resource.Success<*>).data != null) {
-                    Toast.makeText(context, "Login berhasil", Toast.LENGTH_SHORT).show()
-                }
+                toastMessage = "Login Berhasil"
+                toastType = ToastType.SUCCESS
+                toastVisible = true
+
+                delay(1000)
+                toastVisible = false
             }
             is Resource.Error -> {
                 val message = (loginState as Resource.Error).message ?: "Login gagal"
-                Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                toastMessage = message
+                toastType = ToastType.ERROR
+                toastVisible = true
+
+                delay(1000)
+                toastVisible = false
             }
             else -> {}
         }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        // Header
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -267,6 +273,19 @@ fun LoginScreen(
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator(color = Blue700)
+            }
+        }
+
+        toastMessage?.let { msg ->
+            Box(modifier = Modifier.fillMaxSize()) {
+                CustomToast(
+                    message = msg,
+                    type = toastType,
+                    visible = toastVisible,
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 32.dp)
+                )
             }
         }
     }

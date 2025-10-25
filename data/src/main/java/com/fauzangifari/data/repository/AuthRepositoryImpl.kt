@@ -24,9 +24,13 @@ class AuthRepositoryImpl(
 
             val token = response.token
             val userId = response.user.id
+            val name = response.user.name
+            val userEmail = response.user.email
 
             authPreferences.saveToken(token)
             authPreferences.saveUserId(userId)
+            authPreferences.saveUserName(name)
+            authPreferences.saveUserEmail(userEmail)
 
             AuthTokenProvider.setToken(token)
 

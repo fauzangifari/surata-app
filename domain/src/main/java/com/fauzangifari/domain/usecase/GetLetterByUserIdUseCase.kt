@@ -16,7 +16,6 @@ class GetLetterByUserIdUseCase (
             emit(Resource.Loading())
             val response = letterRepository.getLettersByUserId(userId)
             val letterList = response
-            Log.d("GetLetterByUserIdUseCase", "Fetched letters for userId $userId: $letterList")
             emit(Resource.Success(letterList))
         } catch (e: IOException) {
             emit(Resource.Error("Tidak dapat menghubungi server. Periksa koneksi internet anda."))

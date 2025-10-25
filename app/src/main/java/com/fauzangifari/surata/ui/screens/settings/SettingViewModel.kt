@@ -1,6 +1,5 @@
 package com.fauzangifari.surata.ui.screens.settings
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fauzangifari.domain.common.Resource
@@ -8,8 +7,10 @@ import com.fauzangifari.data.source.local.datastore.AuthPreferences
 import com.fauzangifari.domain.usecase.PostSignOutUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 class SettingViewModel(
@@ -25,6 +26,17 @@ class SettingViewModel(
 
     private val _logoutEvent = MutableSharedFlow<LogoutEvent>()
     val logoutEvent = _logoutEvent.asSharedFlow()
+
+    val userNameState: StateFlow<String?> = authPreferences.userName.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = null
+    )
+    val userEmailState: StateFlow<String?> = authPreferences.userEmail.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = null
+    )
 
     fun logout() {
         if (_logoutState.value is Resource.Loading) return

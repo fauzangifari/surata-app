@@ -13,9 +13,6 @@ class LoginViewModel(
     private val signInUseCase: PostSignInUseCase,
 ) : ViewModel() {
 
-    // -------------------------
-    // State dari form input
-    // -------------------------
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email
 
@@ -31,24 +28,12 @@ class LoginViewModel(
     private val _passwordError = MutableStateFlow<String?>(null)
     val passwordError: StateFlow<String?> = _passwordError
 
-    // -------------------------
-    // State untuk login
-    // -------------------------
     private val _loginState = MutableStateFlow<Resource<Auth>>(Resource.Idle())
     val loginState: StateFlow<Resource<Auth>> = _loginState
 
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn
 
-    private val _toastMessage = MutableSharedFlow<String>()
-    val toastMessage = _toastMessage.asSharedFlow()
-
-    // -------------------------
-    // Utility Functions
-    // -------------------------
-    private suspend fun showToast(message: String) {
-        _toastMessage.emit(message)
-    }
 
     fun onEmailChange(newEmail: String) {
         _email.value = newEmail
@@ -64,9 +49,6 @@ class LoginViewModel(
         _passwordVisible.value = !_passwordVisible.value
     }
 
-    // -------------------------
-    // Login Function
-    // -------------------------
     fun login() {
         val email = _email.value
         val password = _password.value
@@ -83,13 +65,11 @@ class LoginViewModel(
                 is Resource.Success -> {
                     _isLoggedIn.value = true
                     _loginState.value = result
-                    showToast("Login berhasil")
                 }
 
                 is Resource.Error -> {
                     _isLoggedIn.value = false
                     _loginState.value = result
-                    showToast(result.message ?: "Terjadi kesalahan")
                 }
 
                 else -> Unit
@@ -97,9 +77,6 @@ class LoginViewModel(
         }
     }
 
-    // -------------------------
-    // Validation
-    // -------------------------
     private fun validateEmail(email: String): Boolean {
         return if (email.isBlank()) {
             _emailError.value = "Email tidak boleh kosong"

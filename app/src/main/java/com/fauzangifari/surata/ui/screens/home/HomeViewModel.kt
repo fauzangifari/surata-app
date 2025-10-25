@@ -9,10 +9,7 @@ import com.fauzangifari.domain.model.ReqLetter
 import com.fauzangifari.domain.usecase.GetLetterByUserIdUseCase
 import com.fauzangifari.domain.usecase.PostLetterUseCase
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -29,6 +26,17 @@ class HomeViewModel(
     private val _postLetterState = MutableStateFlow(PostLetterState())
     val postLetterState: StateFlow<PostLetterState> = _postLetterState
 
+    val userNameState: StateFlow<String?> = authPreferences.userName.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = null
+    )
+    val userEmailState: StateFlow<String?> = authPreferences.userEmail.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = null
+    )
+
     init {
         observeUserIdAndFetchLetters()
     }
@@ -38,11 +46,16 @@ class HomeViewModel(
             authPreferences.userId.collectLatest { id ->
 
                 if (!id.isNullOrBlank()) {
-                    Log.d("HomeViewModel", "Fetching letters for userId: $id")
-                    Log.d("HomeViewModel", "isLoaded: $isLoaded")
                     getLettersByUserId(id)
                 } else {
-                    Log.w("HomeViewModel", "UserId is null or blank, skip fetching letters.")
+                    _letterState.update {
+                        it.copy(
+                            isLoading = false,
+                            isRefreshing = false,
+                            data = emptyList(),
+                            error = "User ID tidak ditemukan."
+                        )
+                    }
                 }
             }
         }
@@ -54,7 +67,9 @@ class HomeViewModel(
         viewModelScope.launch {
             getLetterByUserIdUseCase(userId).collect { result ->
                 when (result) {
-                    is Resource.Loading -> _letterState.update { it.copy(isLoading = true) }
+                    is Resource.Loading -> _letterState.update {
+                        if (forceRefresh) it.copy(isRefreshing = true, error = null) else it.copy(isLoading = true, error = null)
+                    }
 
                     is Resource.Success -> {
                         isLoaded = true
@@ -63,6 +78,7 @@ class HomeViewModel(
                         _letterState.update {
                             it.copy(
                                 isLoading = false,
+                                isRefreshing = false,
                                 data = result.data ?: emptyList(),
                                 error = ""
                             )
@@ -74,12 +90,24 @@ class HomeViewModel(
 
                         it.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             error = "Terjadi kesalahan: ${result.message}"
                         )
                     }
 
                     else -> {}
                 }
+            }
+        }
+    }
+
+    fun refreshLetters() {
+        viewModelScope.launch {
+            val userId = authPreferences.getUserId()
+            if (!userId.isNullOrBlank()) {
+                getLettersByUserId(userId, forceRefresh = true)
+            } else {
+                _letterState.update { it.copy(error = "User ID tidak ditemukan.") }
             }
         }
     }

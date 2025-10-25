@@ -1,6 +1,5 @@
 package com.fauzangifari.surata.ui.screens.settings
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -50,6 +49,8 @@ import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.fauzangifari.domain.common.Resource
 import com.fauzangifari.surata.R
+import com.fauzangifari.surata.ui.components.CustomToast
+import com.fauzangifari.surata.ui.components.ToastType
 import com.fauzangifari.surata.ui.navigation.Screen
 import com.fauzangifari.surata.ui.theme.Black
 import com.fauzangifari.surata.ui.theme.Blue100
@@ -59,6 +60,7 @@ import com.fauzangifari.surata.ui.theme.Grey300
 import com.fauzangifari.surata.ui.theme.Grey900
 import com.fauzangifari.surata.ui.theme.PlusJakartaSans
 import com.fauzangifari.surata.ui.theme.White
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
 
@@ -73,9 +75,25 @@ fun SettingScreen(
     var showLogoutDialog by remember { mutableStateOf(false) }
     val logoutState by viewModel.logoutState.collectAsStateWithLifecycle()
 
+    val userName by viewModel.userNameState.collectAsStateWithLifecycle()
+    val userEmail by viewModel.userEmailState.collectAsStateWithLifecycle()
+
+    var toastMessage by remember { mutableStateOf<String?>(null) }
+    var toastType by remember { mutableStateOf<ToastType>(ToastType.SUCCESS) }
+    var toastVisible by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         viewModel.logoutMessage.collectLatest { message ->
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+            toastMessage = message
+            toastType = ToastType.SUCCESS
+            toastVisible = true
+        }
+    }
+
+    LaunchedEffect(toastVisible) {
+        if (toastVisible) {
+            delay(1000)
+            toastVisible = false
         }
     }
 
@@ -85,6 +103,7 @@ fun SettingScreen(
                 is SettingViewModel.LogoutEvent.NavigateToLogin -> {
                     showLogoutDialog = false
                     viewModel.resetLogoutState()
+                    delay(1100)
                     navController.navigate(Screen.Login.route) {
                         popUpTo(navController.graph.startDestinationId) {
                             inclusive = true
@@ -95,19 +114,34 @@ fun SettingScreen(
         }
     }
 
-    SettingScreenContent(
-        modifier = modifier,
-        navController = navController,
-        showLogoutDialog = showLogoutDialog,
-        onShowLogoutDialogChange = { visible ->
-            showLogoutDialog = visible
-            if (!visible) {
-                viewModel.resetLogoutState()
-            }
-        },
-        onConfirmLogout = { viewModel.logout() },
-        logoutState = logoutState
-    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        SettingScreenContent(
+            modifier = modifier,
+            navController = navController,
+            showLogoutDialog = showLogoutDialog,
+            onShowLogoutDialogChange = { visible ->
+                showLogoutDialog = visible
+                if (!visible) {
+                    viewModel.resetLogoutState()
+                }
+            },
+            onConfirmLogout = { viewModel.logout() },
+            logoutState = logoutState,
+            userName = userName.toString(),
+            userEmail = userEmail.toString()
+        )
+
+        toastMessage?.let { msg ->
+            CustomToast(
+                message = msg,
+                type = toastType,
+                visible = toastVisible,
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 82.dp)
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -118,7 +152,9 @@ private fun SettingScreenContent(
     showLogoutDialog: Boolean,
     onShowLogoutDialogChange: (Boolean) -> Unit,
     onConfirmLogout: () -> Unit,
-    logoutState: Resource<Boolean>
+    logoutState: Resource<Boolean>,
+    userEmail: String,
+    userName: String
 ) {
     Scaffold(
         topBar = {
@@ -229,7 +265,7 @@ private fun SettingScreenContent(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "Muhammad Fauzan Gifari",
+                            text = userName,
                             fontSize = 16.sp,
                             textAlign = TextAlign.Center,
                             color = Black,
@@ -239,7 +275,7 @@ private fun SettingScreenContent(
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Text(
-                            text = "fauzan@sman1samarinda.sch.id",
+                            text = userEmail,
                             color = Blue900,
                             fontSize = 12.sp,
                             fontFamily = PlusJakartaSans,
@@ -362,6 +398,8 @@ fun SettingScreenPreview() {
         showLogoutDialog = false,
         onShowLogoutDialogChange = {},
         onConfirmLogout = {},
-        logoutState = Resource.Idle()
+        logoutState = Resource.Idle(),
+        userName = "Muhammad Fauzan Gifari",
+        userEmail = "fauzan@gmail.com"
     )
 }
