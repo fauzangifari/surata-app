@@ -1,6 +1,5 @@
 package com.fauzangifari.surata.ui.screens.home
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
@@ -118,7 +117,6 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel, modif
                 }
             }
 
-            // CustomToast overlay at top of the screen
             toastMessage?.let { msg ->
                 CustomToast(
                     message = msg,
@@ -288,6 +286,7 @@ fun SuratForm(
 ) {
     val context = LocalContext.current
     val postState by viewModel.postLetterState.collectAsStateWithLifecycle()
+    val studentState by viewModel.studentState.collectAsStateWithLifecycle()
 
     var description by remember { mutableStateOf("") }
     var selectedSurat by remember { mutableStateOf("") }
@@ -299,7 +298,7 @@ fun SuratForm(
     var endTime by remember { mutableStateOf("") }
 
     var isChecked by remember { mutableStateOf(false) }
-    val selectedStudents = remember { mutableStateListOf<String>() }
+    val selectedStudentIds = remember { mutableStateListOf<String>() }
 
     LaunchedEffect(postState.isSuccess, postState.error) {
         when {
@@ -314,7 +313,7 @@ fun SuratForm(
                 beginTime = ""
                 endTime = ""
                 isChecked = false
-                selectedStudents.clear()
+                selectedStudentIds.clear()
 
                 kotlinx.coroutines.delay(100)
                 onClose()
@@ -343,7 +342,6 @@ fun SuratForm(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // 🔹 Jenis Surat
         SectionTitle("Informasi Surat")
         DropdownField(
             label = "Jenis Surat",
@@ -370,28 +368,32 @@ fun SuratForm(
             }
         }
 
-        // 🧑‍🎓 Surat Dispensasi → Pilih siswa
         if (selectedSurat == "Surat Dispensasi") {
             Spacer(modifier = Modifier.height(16.dp))
             SectionTitle("Pilih Siswa")
+
             MultiPickedField(
-                selectedStudents = selectedStudents,
+                students = studentState.data,
+                selectedStudentIds = selectedStudentIds,
+                isLoading = studentState.isLoading,
                 onSelectedChange = {
-                    selectedStudents.clear()
-                    selectedStudents.addAll(it)
+                    selectedStudentIds.clear()
+                    selectedStudentIds.addAll(it)
                 }
             )
-            if (selectedStudents.isNotEmpty()) {
+            if (selectedStudentIds.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(6.dp))
+                val selectedNames = studentState.data
+                    .filter { it.id in selectedStudentIds }
+                    .mapNotNull { it.name }
                 Text(
-                    text = "Terpilih: ${selectedStudents.joinToString(", ")}",
+                    text = "Terpilih: ${selectedNames.joinToString(", ")}",
                     fontSize = 13.sp,
                     color = Grey700
                 )
             }
         }
 
-        // 📅 Surat Dispensasi & Surat Tugas → butuh tanggal + jam
         if (selectedSurat == "Surat Dispensasi" || selectedSurat == "Surat Tugas") {
             Spacer(modifier = Modifier.height(16.dp))
             SectionTitle("Tanggal & Waktu")
@@ -483,7 +485,7 @@ fun SuratForm(
                     val mappedLetterType = when (selectedSurat) {
                         "Surat Dispensasi" -> "DISPENSATION"
                         "Surat Rekomendasi" -> "RECOMMENDATION"
-                        "Surat Keterangan Aktif" -> "ACTIVE_CERTIFICATE"
+                        "Surat Keterangan Aktif" -> "ACTIVE_STATEMENT"
                         "Surat Tugas" -> "ASSIGNMENT"
                         else -> selectedSurat
                     }
@@ -495,7 +497,7 @@ fun SuratForm(
                         endDate = if (endIso.isNotBlank()) endIso else null,
                         reason = if (description.isNotBlank()) description else null,
                         isPrinted = isChecked,
-                        cc = if (selectedStudents.isNotEmpty()) selectedStudents else emptyList(),
+                        cc = if (selectedStudentIds.isNotEmpty()) selectedStudentIds else emptyList(),
                         attachment = "https://via.placeholder.com/570x589/a409d8/cf57ba.gif"
                     )
 
@@ -539,7 +541,7 @@ fun letterTypeMapper(type: String): String {
     return when (type) {
         "DISPENSATION" -> "Surat Dispensasi"
         "RECOMMENDATION" -> "Surat Rekomendasi"
-        "ACTIVE_CERTIFICATE" -> "Surat Keterangan Aktif"
+        "ACTIVE_STATEMENT" -> "Surat Keterangan Aktif"
         "ASSIGNMENT" -> "Surat Tugas"
         else -> type
     }

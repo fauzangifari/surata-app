@@ -19,6 +19,9 @@ data class UserResponse(
     @field:SerializedName("emailVerified")
     val emailVerified: Boolean,
 
+    @field:SerializedName("secondaryEmail")
+    val secondaryEmail: String?,
+
     @field:SerializedName("createdAt")
     val createdAt: String,
 

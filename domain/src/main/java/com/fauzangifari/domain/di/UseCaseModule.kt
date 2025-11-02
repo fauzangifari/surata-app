@@ -5,6 +5,7 @@ import com.fauzangifari.domain.usecase.GetLetterByUserIdUseCase
 import com.fauzangifari.domain.usecase.GetLetterLocalUseCase
 import com.fauzangifari.domain.usecase.GetLetterUseCase
 import com.fauzangifari.domain.usecase.GetSessionUseCase
+import com.fauzangifari.domain.usecase.GetStudentUseCase
 import com.fauzangifari.domain.usecase.PostLetterUseCase
 import com.fauzangifari.domain.usecase.PostSignInUseCase
 import com.fauzangifari.domain.usecase.PostSignOutUseCase
@@ -18,6 +19,7 @@ val useCaseModule = module {
     factory { GetLetterUseCase(get()) }
     factory { GetSessionUseCase(get()) }
     factory { GetLetterLocalUseCase(get()) }
+    factory { GetStudentUseCase(get()) }
 
     // Post
     factory { PostSignInUseCase(get()) }

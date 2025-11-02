@@ -7,6 +7,7 @@ import com.fauzangifari.data.source.local.datastore.AuthPreferences
 import com.fauzangifari.domain.common.Resource
 import com.fauzangifari.domain.model.ReqLetter
 import com.fauzangifari.domain.usecase.GetLetterByUserIdUseCase
+import com.fauzangifari.domain.usecase.GetStudentUseCase
 import com.fauzangifari.domain.usecase.PostLetterUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 class HomeViewModel(
     private val getLetterByUserIdUseCase: GetLetterByUserIdUseCase,
     private val postLetterUseCase: PostLetterUseCase,
+    private val getStudentUseCase: GetStudentUseCase,
     private val authPreferences: AuthPreferences
 ) : ViewModel() {
 
@@ -25,6 +27,9 @@ class HomeViewModel(
 
     private val _postLetterState = MutableStateFlow(PostLetterState())
     val postLetterState: StateFlow<PostLetterState> = _postLetterState
+
+    private val _studentState = MutableStateFlow(StudentState())
+    val studentState: StateFlow<StudentState> = _studentState
 
     val userNameState: StateFlow<String?> = authPreferences.userName.stateIn(
         scope = viewModelScope,
@@ -39,6 +44,49 @@ class HomeViewModel(
 
     init {
         observeUserIdAndFetchLetters()
+        getStudents()
+    }
+
+    private fun getStudents() {
+        viewModelScope.launch {
+            try {
+                getStudentUseCase().collect { result ->
+                    when (result) {
+                        is Resource.Loading -> {
+                            _studentState.update {
+                                it.copy(isLoading = true, error = null)
+                            }
+                        }
+                        is Resource.Success -> {
+                            _studentState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    data = result.data ?: emptyList(),
+                                    error = null
+                                )
+                            }
+                        }
+                        is Resource.Error -> {
+                            _studentState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    error = result.message
+                                )
+                            }
+                        }
+
+                        else -> {}
+                    }
+                }
+            } catch (e: Exception) {
+                _studentState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = "Terjadi kesalahan: ${e.message}"
+                    )
+                }
+            }
+        }
     }
 
     private fun observeUserIdAndFetchLetters() {
@@ -74,7 +122,6 @@ class HomeViewModel(
                     is Resource.Success -> {
                         isLoaded = true
 
-                        Log.d("HomeViewModel", "getLettersByUserId success: ${result.data}")
                         _letterState.update {
                             it.copy(
                                 isLoading = false,
@@ -86,7 +133,6 @@ class HomeViewModel(
                     }
 
                     is Resource.Error -> _letterState.update {
-                        Log.e("HomeViewModel", "getLettersByUserId error: ${result.message}")
 
                         it.copy(
                             isLoading = false,

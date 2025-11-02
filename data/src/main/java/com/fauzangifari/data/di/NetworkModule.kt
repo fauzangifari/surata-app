@@ -3,6 +3,7 @@ package com.fauzangifari.data.di
 import com.fauzangifari.data.source.remote.retrofit.AuthApiService
 import com.fauzangifari.data.source.remote.retrofit.AuthInterceptor
 import com.fauzangifari.data.source.remote.retrofit.LetterApiService
+import com.fauzangifari.data.source.remote.retrofit.StudentApiService
 import com.fauzangifari.domain.common.Constant
 import okhttp3.OkHttpClient
 import org.koin.core.qualifier.named
@@ -48,5 +49,10 @@ val networkModule = module {
     single {
         get<Retrofit>(qualifier = named("retrofit"))
             .create(AuthApiService::class.java)
+    }
+
+    single {
+        get<Retrofit>(qualifier = named("retrofit"))
+            .create(StudentApiService::class.java)
     }
 }

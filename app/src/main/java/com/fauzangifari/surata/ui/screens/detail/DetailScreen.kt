@@ -364,7 +364,7 @@ fun letterStatusToIndonesian(status: String): String = when (status.lowercase())
 fun letterMapper(letterType: String): String = when (letterType.lowercase()) {
     "recomendation" -> "Surat Rekomendasi"
     "assignment" -> "Surat Tugas"
-    "active_certificate" -> "Surat Keterangan Aktif"
+    "active_statement" -> "Surat Keterangan Aktif"
     "dispensation" -> "Surat Dispensasi"
     else -> "-"
 }

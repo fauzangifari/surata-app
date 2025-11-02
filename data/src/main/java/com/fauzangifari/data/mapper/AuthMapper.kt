@@ -13,7 +13,9 @@ fun SignInResponse.toDomain() = Auth(
         email = user.email,
         name = user.name,
         image = user.image,
+        secondaryEmail = user.secondaryEmail,
         emailVerified = user.emailVerified,
+
     )
 )
 
@@ -30,7 +32,8 @@ fun SessionResponse.toDomain(): Session {
             name = user?.name.orEmpty(),
             email = user?.email.orEmpty(),
             emailVerified = user?.emailVerified == true,
-            image = user?.image.orEmpty()
+            image = user?.image.orEmpty(),
+            secondaryEmail = user?.secondaryEmail.orEmpty()
         )
     )
 }

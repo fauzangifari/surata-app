@@ -15,7 +15,7 @@ val repositoryModule = module {
     }
 
     single<StudentRepository> {
-        StudentRepositoryImpl(letterApiService = get())
+        StudentRepositoryImpl(studentApiService = get())
     }
 
     single<AuthRepository> {

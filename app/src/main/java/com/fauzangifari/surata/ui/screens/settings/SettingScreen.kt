@@ -1,5 +1,10 @@
 package com.fauzangifari.surata.ui.screens.settings
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -12,8 +17,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,6 +34,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -52,13 +60,17 @@ import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.components.CustomToast
 import com.fauzangifari.surata.ui.components.ToastType
 import com.fauzangifari.surata.ui.navigation.Screen
-import com.fauzangifari.surata.ui.theme.Black
+import com.fauzangifari.surata.ui.theme.BackgroundLight
 import com.fauzangifari.surata.ui.theme.Blue100
+import com.fauzangifari.surata.ui.theme.Blue500
+import com.fauzangifari.surata.ui.theme.Blue800
 import com.fauzangifari.surata.ui.theme.Blue900
 import com.fauzangifari.surata.ui.theme.Grey200
-import com.fauzangifari.surata.ui.theme.Grey300
+import com.fauzangifari.surata.ui.theme.Grey500
+import com.fauzangifari.surata.ui.theme.Grey700
 import com.fauzangifari.surata.ui.theme.Grey900
 import com.fauzangifari.surata.ui.theme.PlusJakartaSans
+import com.fauzangifari.surata.ui.theme.RedMedium
 import com.fauzangifari.surata.ui.theme.White
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -131,15 +143,21 @@ fun SettingScreen(
             userEmail = userEmail.toString()
         )
 
-        toastMessage?.let { msg ->
-            CustomToast(
-                message = msg,
-                type = toastType,
-                visible = toastVisible,
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 82.dp)
-            )
+        // CustomToast overlay at top of the screen
+        AnimatedVisibility(
+            visible = toastVisible,
+            enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { -it }) + fadeOut(),
+            modifier = Modifier.align(Alignment.TopCenter)
+        ) {
+            toastMessage?.let { msg ->
+                CustomToast(
+                    message = msg,
+                    type = toastType,
+                    visible = true,
+                    modifier = Modifier.padding(top = 72.dp)
+                )
+            }
         }
     }
 }
@@ -162,9 +180,10 @@ private fun SettingScreenContent(
                 title = {
                     Text(
                         text = "Pengaturan",
-                        fontWeight = FontWeight.Medium,
+                        fontWeight = FontWeight.SemiBold,
                         fontFamily = PlusJakartaSans,
-                        color = Grey900
+                        color = Grey900,
+                        fontSize = 18.sp
                     )
                 },
                 navigationIcon = {
@@ -172,127 +191,206 @@ private fun SettingScreenContent(
                         Icon(
                             painter = painterResource(id = R.drawable.ic_arrow_back_24),
                             contentDescription = "Kembali",
+                            tint = Grey900
                         )
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = White
+                )
             )
         }
     ) { innerPadding ->
+        // Logout Dialog
         if (showLogoutDialog) {
             val isLogoutLoading = logoutState is Resource.Loading
 
             AlertDialog(
-                onDismissRequest = { onShowLogoutDialogChange(false) },
+                onDismissRequest = { if (!isLogoutLoading) onShowLogoutDialogChange(false) },
                 containerColor = White,
+                shape = RoundedCornerShape(20.dp),
                 title = {
-                    Text(
-                        text = "Keluar dari Akun",
-                        fontWeight = FontWeight.SemiBold,
-                        fontFamily = PlusJakartaSans,
-                        color = Black
-                    )
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Surface(
+                            modifier = Modifier.size(60.dp),
+                            shape = CircleShape,
+                            color = RedMedium.copy(alpha = 0.1f)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.ic_logout_24),
+                                    contentDescription = null,
+                                    tint = RedMedium,
+                                    modifier = Modifier.size(28.dp)
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Text(
+                            text = "Keluar dari Akun",
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = PlusJakartaSans,
+                            color = Grey900,
+                            fontSize = 18.sp
+                        )
+                    }
                 },
                 text = {
                     Text(
-                        text = "Apakah Anda yakin ingin keluar?",
+                        text = "Apakah Anda yakin ingin keluar dari akun ini?",
                         fontFamily = PlusJakartaSans,
-                        color = Grey900
+                        color = Grey700,
+                        fontSize = 14.sp,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
                     )
                 },
                 confirmButton = {
                     TextButton(
                         onClick = onConfirmLogout,
-                        enabled = !isLogoutLoading
+                        enabled = !isLogoutLoading,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(12.dp)
                     ) {
-                        Text(
-                            text = "Keluar",
-                            fontFamily = PlusJakartaSans,
-                            color = Blue900
-                        )
-
                         if (isLogoutLoading) {
                             CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                strokeWidth = 2.dp
+                                modifier = Modifier.size(20.dp),
+                                strokeWidth = 2.dp,
+                                color = RedMedium
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                         }
+                        Text(
+                            text = if (isLogoutLoading) "Memproses..." else "Ya, Keluar",
+                            fontFamily = PlusJakartaSans,
+                            fontWeight = FontWeight.SemiBold,
+                            color = RedMedium,
+                            fontSize = 15.sp
+                        )
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { onShowLogoutDialogChange(false) }) {
+                    TextButton(
+                        onClick = { if (!isLogoutLoading) onShowLogoutDialogChange(false) },
+                        enabled = !isLogoutLoading,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
                         Text(
                             text = "Batal",
                             fontFamily = PlusJakartaSans,
-                            color = Grey900
-                        )
-                    }
-                },
-                shape = RoundedCornerShape(16.dp)
-            )
-        }
-
-        Box(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 24.dp, vertical = 24.dp)
-        ) {
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                    colors = CardDefaults.cardColors(containerColor = White)
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        AsyncImage(
-                            model = "https://avatars.githubusercontent.com/u/77602702?v=4",
-                            contentDescription = "Profile Picture",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .size(150.dp)
-                                .clip(CircleShape)
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = userName,
-                            fontSize = 16.sp,
-                            textAlign = TextAlign.Center,
-                            color = Black,
-                            fontFamily = PlusJakartaSans
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = userEmail,
-                            color = Blue900,
-                            fontSize = 12.sp,
-                            fontFamily = PlusJakartaSans,
-                            modifier = Modifier
-                                .background(
-                                    color = Grey200,
-                                    shape = RoundedCornerShape(8.dp)
-                                )
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
+                            fontWeight = FontWeight.Medium,
+                            color = Grey700,
+                            fontSize = 15.sp
                         )
                     }
                 }
-
-                Card(
+            )
+        }
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .background(BackgroundLight)
+                .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
+        ) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = White
+            ) {
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(vertical = 16.dp),
+                        .padding(24.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Surface(
+                        modifier = Modifier.size(120.dp),
+                        shape = CircleShape,
+                        color = Blue900
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier.padding(6.dp)
+                        ) {
+                            AsyncImage(
+                                model = "https://avatars.githubusercontent.com/u/77602702?v=4",
+                                contentDescription = "Profile Picture",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(CircleShape)
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Text(
+                        text = userName,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        color = Grey900,
+                        fontFamily = PlusJakartaSans
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Surface(
+                        shape = RoundedCornerShape(20.dp),
+                        color = Blue100
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_outline_email_24),
+                                contentDescription = null,
+                                tint = Blue800,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = userEmail,
+                                color = Blue800,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = PlusJakartaSans
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Menu Section
+            Column(
+                modifier = Modifier.padding(horizontal = 16.dp)
+            ) {
+                // Account Section
+                Text(
+                    text = "Akun",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = PlusJakartaSans,
+                    color = Grey500,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
+                )
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(16.dp),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
                     colors = CardDefaults.cardColors(containerColor = White)
@@ -300,45 +398,89 @@ private fun SettingScreenContent(
                     MenuItem(
                         icon = R.drawable.ic_outline_person_24,
                         title = "Data Pribadi",
-                        onClick = {}
+                        subtitle = "Lihat dan edit profil Anda",
+                        iconBgColor = Blue100,
+                        iconTint = Blue500,
+                        onClick = { /* TODO */ }
                     )
+                }
 
-                    HorizontalDivider(
-                        color = Grey300,
-                        thickness = 1.dp,
-                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp)
-                    )
+                Spacer(modifier = Modifier.height(24.dp))
 
+                // Support Section
+                Text(
+                    text = "Bantuan & Dukungan",
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    fontFamily = PlusJakartaSans,
+                    color = Grey500,
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
+                )
+
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                    colors = CardDefaults.cardColors(containerColor = White)
+                ) {
                     MenuItem(
                         icon = R.drawable.ic_question_answer_24,
-                        title = "FAQs",
+                        title = "FAQ",
+                        subtitle = "Pertanyaan yang sering ditanyakan",
+                        iconBgColor = Blue100,
+                        iconTint = Blue500,
                         onClick = { navController.navigate("faq") }
                     )
 
                     HorizontalDivider(
-                        color = Grey300,
+                        color = Grey200,
                         thickness = 1.dp,
-                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp)
                     )
 
                     MenuItem(
                         icon = R.drawable.ic_info_outline,
                         title = "Tentang Aplikasi",
+                        subtitle = "Informasi versi dan developer",
+                        iconBgColor = Blue100,
+                        iconTint = Blue500,
                         onClick = { navController.navigate("about") }
                     )
+                }
 
-                    HorizontalDivider(
-                        color = Grey300,
-                        thickness = 1.dp,
-                        modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp)
-                    )
+                Spacer(modifier = Modifier.height(24.dp))
 
+                // Logout Section
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
+                    colors = CardDefaults.cardColors(containerColor = White)
+                ) {
                     MenuItem(
                         icon = R.drawable.ic_logout_24,
                         title = "Keluar",
+                        subtitle = "Keluar dari akun Anda",
+                        iconBgColor = RedMedium.copy(alpha = 0.1f),
+                        iconTint = RedMedium,
+                        showArrow = false,
                         onClick = { onShowLogoutDialogChange(true) }
                     )
                 }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // App Version Footer
+                Text(
+                    text = "Versi Aplikasi 1.0.0",
+                    fontSize = 12.sp,
+                    fontFamily = PlusJakartaSans,
+                    color = Grey500,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp)
+                )
             }
         }
     }
@@ -348,45 +490,66 @@ private fun SettingScreenContent(
 fun MenuItem(
     icon: Int,
     title: String,
+    subtitle: String? = null,
+    iconBgColor: androidx.compose.ui.graphics.Color = Blue100,
+    iconTint: androidx.compose.ui.graphics.Color = Blue900,
+    showArrow: Boolean = true,
     onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = 16.dp, horizontal = 16.dp),
+            .padding(horizontal = 16.dp, vertical = 16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Surface(
-            color = Blue100,
+            color = iconBgColor,
             shape = RoundedCornerShape(12.dp),
-            modifier = Modifier.size(36.dp)
+            modifier = Modifier.size(44.dp)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     painter = painterResource(id = icon),
                     contentDescription = title,
-                    tint = Blue900,
-                    modifier = Modifier.size(20.dp)
+                    tint = iconTint,
+                    modifier = Modifier.size(22.dp)
                 )
             }
         }
 
         Spacer(modifier = Modifier.width(16.dp))
 
-        Text(
-            text = title,
-            fontSize = 16.sp,
-            color = Black,
-            fontFamily = PlusJakartaSans,
+        Column(
             modifier = Modifier.weight(1f)
-        )
+        ) {
+            Text(
+                text = title,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = Grey900,
+                fontFamily = PlusJakartaSans
+            )
 
-        Icon(
-            painter = painterResource(id = R.drawable.ic_chevron_right),
-            contentDescription = "Next",
-            tint = Black
-        )
+            if (subtitle != null) {
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = subtitle,
+                    fontSize = 13.sp,
+                    color = Grey500,
+                    fontFamily = PlusJakartaSans
+                )
+            }
+        }
+
+        if (showArrow) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_chevron_right),
+                contentDescription = "Next",
+                tint = Grey500,
+                modifier = Modifier.size(20.dp)
+            )
+        }
     }
 }
 
@@ -400,6 +563,6 @@ fun SettingScreenPreview() {
         onConfirmLogout = {},
         logoutState = Resource.Idle(),
         userName = "Muhammad Fauzan Gifari",
-        userEmail = "fauzan@gmail.com"
+        userEmail = "fauzan@example.com"
     )
 }

@@ -52,6 +52,9 @@ data class SessionUserDto(
     @SerializedName("emailVerified")
     val emailVerified: Boolean? = null,
 
+    @SerializedName("secondaryEmail")
+    val secondaryEmail: String? = null,
+
     @SerializedName("createdAt")
     val createdAt: String? = null,
 
