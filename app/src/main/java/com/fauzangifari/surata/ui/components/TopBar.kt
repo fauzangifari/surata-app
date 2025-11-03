@@ -28,7 +28,7 @@ fun TopBar(
     TopAppBar(
         title = {
             Image(
-                painter = painterResource(id = R.drawable.surata_logo_2),
+                painter = painterResource(id = R.drawable.logo_surata_full),
                 contentDescription = "Logo Surata",
                 modifier = Modifier.size(80.dp)
             )

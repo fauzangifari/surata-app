@@ -81,11 +81,14 @@ fun SplashScreen(
         contentAlignment = Alignment.Center,
     ) {
         Image(
-            painter = painterResource(id = R.drawable.surata_logo),
-            contentDescription = "Splash Logo",
+            painter = painterResource(id = R.drawable.logo_surata),
+            contentDescription = "Logo Surata",
             modifier = Modifier
                 .size(200.dp)
-                .graphicsLayer(scaleX = scaleAnim, scaleY = scaleAnim)
+                .graphicsLayer {
+                    scaleX = scaleAnim
+                    scaleY = scaleAnim
+                }
                 .alpha(exitAlpha)
         )
     }

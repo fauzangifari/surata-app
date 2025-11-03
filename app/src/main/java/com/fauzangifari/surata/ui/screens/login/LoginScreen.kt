@@ -106,7 +106,7 @@ fun LoginScreen(
             )
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Image(
-                    painter = painterResource(id = R.drawable.surata_logo),
+                    painter = painterResource(id = R.drawable.logo_surata),
                     contentDescription = "Logo",
                     modifier = Modifier
                         .padding(bottom = 8.dp)

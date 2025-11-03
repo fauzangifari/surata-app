@@ -42,7 +42,6 @@ import com.fauzangifari.domain.model.ReqLetter
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -165,14 +164,13 @@ fun ProfileCard(email: String?) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+ @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuratSection(
     navController: NavHostController,
     viewModel: HomeViewModel,
 ) {
     val state by viewModel.letterState.collectAsStateWithLifecycle()
-    val pullToRefreshState = rememberPullToRefreshState()
 
     Column(modifier = Modifier.fillMaxSize()) {
         Text(
@@ -186,7 +184,6 @@ fun SuratSection(
         PullToRefreshBox(
             isRefreshing = state.isRefreshing,
             onRefresh = { viewModel.refreshLetters() },
-            state = pullToRefreshState,
             modifier = Modifier
                 .fillMaxSize()
         ) {

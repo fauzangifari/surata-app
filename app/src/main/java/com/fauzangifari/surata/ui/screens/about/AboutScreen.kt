@@ -112,7 +112,7 @@ fun AboutScreen(
                             modifier = Modifier.padding(20.dp)
                         ) {
                             Image(
-                                painter = painterResource(id = R.drawable.surata_logo),
+                                painter = painterResource(id = R.drawable.logo_surata),
                                 contentDescription = "Logo Surata",
                                 modifier = Modifier.size(60.dp)
                             )
