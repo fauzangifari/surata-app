@@ -2,6 +2,7 @@ package com.fauzangifari.surata.ui.components
 
 import android.app.TimePickerDialog
 import android.content.Context
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import com.fauzangifari.surata.R
@@ -16,18 +17,27 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fauzangifari.surata.ui.theme.Black
+import com.fauzangifari.surata.ui.theme.Blue800
+import com.fauzangifari.surata.ui.theme.Grey900
 import com.fauzangifari.surata.ui.theme.PlusJakartaSans
 import java.util.*
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimeInput(
     modifier: Modifier = Modifier,
     context: Context,
     label: String = "Time",
     placeHolder: String = "Pilih Waktu",
+    value: String = "",
+    error: String? = null,
     onTimeSelected: (String) -> Unit = {}
 ) {
-    var selectedTime by remember { mutableStateOf("") }
+    var selectedTime by remember { mutableStateOf(value) }
+
+    LaunchedEffect(value) {
+        selectedTime = value
+    }
 
     val calendar = Calendar.getInstance()
     val hour = calendar.get(Calendar.HOUR_OF_DAY)
@@ -39,6 +49,13 @@ fun TimeInput(
             selectedTime = String.format("%02d : %02d", selectedHour, selectedMinute)
             onTimeSelected(selectedTime)
         }, hour, minute, true
+    )
+
+    var isFocused by remember { mutableStateOf(false) }
+    val borderColor by animateColorAsState(
+        if (error != null) Color.Red
+        else if (isFocused) Blue800
+        else Grey900, label = "BorderColor"
     )
 
     Column(modifier = modifier.fillMaxWidth()) {
@@ -54,7 +71,8 @@ fun TimeInput(
             value = selectedTime,
             onValueChange = {},
             readOnly = true,
-            textStyle = TextStyle(fontSize = 16.sp, color = Color.Black),
+            isError = error != null,
+            textStyle = TextStyle(fontSize = 16.sp, color = Color.Black, fontFamily = PlusJakartaSans),
             trailingIcon = {
                 IconButton(onClick = { timePickerDialog.show() }) {
                     Icon(
@@ -67,7 +85,27 @@ fun TimeInput(
                 .fillMaxWidth()
                 .clickable { timePickerDialog.show() },
             placeholder = { Text(text = placeHolder, fontSize = 16.sp, color = Color.Gray, fontFamily = PlusJakartaSans) },
+            colors = TextFieldDefaults.colors(
+                disabledContainerColor = Color.LightGray,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                disabledIndicatorColor = borderColor,
+                unfocusedIndicatorColor = borderColor,
+                focusedIndicatorColor = borderColor,
+                errorContainerColor = Color.White,
+                errorIndicatorColor = Color.Red
+            )
         )
+
+        if (error != null) {
+            Text(
+                text = error,
+                fontSize = 12.sp,
+                color = Color.Red,
+                modifier = Modifier.padding(start = 16.dp, top = 4.dp),
+                fontFamily = PlusJakartaSans
+            )
+        }
     }
 }
 

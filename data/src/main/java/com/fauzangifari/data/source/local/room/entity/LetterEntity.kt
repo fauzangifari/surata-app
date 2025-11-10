@@ -12,7 +12,7 @@ data class LetterEntity(
     @PrimaryKey val id: String,
     val applicantName: String,
     val applicantEmail: String,
-    val letterDate: String,
+    val subject: String,
     val endDate: String,
     val letterContent: String,
     val isPrinted: Boolean,

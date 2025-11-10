@@ -1,8 +1,10 @@
 package com.fauzangifari.data.source.remote.retrofit
 
 import com.fauzangifari.data.source.remote.dto.request.LetterRequest
+import com.fauzangifari.data.source.remote.dto.request.PresignedRequest
 import com.fauzangifari.data.source.remote.dto.response.LetterDetailResponse
 import com.fauzangifari.data.source.remote.dto.response.LetterResponse
+import com.fauzangifari.data.source.remote.dto.response.PresignedResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -27,4 +29,9 @@ interface LetterApiService {
     suspend fun postLetter(
         @Body request: LetterRequest
     ) : LetterDetailResponse
+
+    @POST("/api/presigned")
+    suspend fun postPresignedUrl(
+        @Body request: PresignedRequest
+    ) : PresignedResponse
 }

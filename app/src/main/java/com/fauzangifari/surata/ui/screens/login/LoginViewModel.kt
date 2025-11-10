@@ -78,17 +78,31 @@ class LoginViewModel(
     }
 
     private fun validateEmail(email: String): Boolean {
-        return if (email.isBlank()) {
-            _emailError.value = "Email tidak boleh kosong"
-            false
-        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            _emailError.value = "Format email tidak valid"
-            false
-        } else {
-            _emailError.value = null
-            true
+        val emailRegex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$")
+
+        return when {
+            email.isBlank() -> {
+                _emailError.value = "Email tidak boleh kosong"
+                false
+            }
+
+            !emailRegex.matches(email) -> {
+                _emailError.value = "Format email tidak valid"
+                false
+            }
+
+//            !email.lowercase().endsWith("@sman1samarinda.sch.id") -> {
+//                _emailError.value = "Email harus menggunakan domain @sman1samarinda.sch.id"
+//                false
+//            }
+
+            else -> {
+                _emailError.value = null
+                true
+            }
         }
     }
+
 
     private fun validatePassword(password: String): Boolean {
         return if (password.isBlank()) {

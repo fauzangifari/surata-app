@@ -2,6 +2,7 @@ package com.fauzangifari.domain.model
 
 data class Student(
     val id: String? = null,
+    val userId: String? = null,
     val nik: String? = null,
     val nisn: String? = null,
     val nipd: String? = null,

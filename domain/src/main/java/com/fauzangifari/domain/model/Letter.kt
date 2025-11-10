@@ -4,7 +4,7 @@ data class Letter(
     val id: String,
     val applicantName: String,
     val applicantEmail: String,
-    val letterDate: String,
+    val subject: String,
     val endDate: String,
     val letterContent: String,
     val isPrinted: Boolean,
@@ -14,4 +14,6 @@ data class Letter(
     val letterType: String,
     val status: String,
     val letterNumber: String,
+    val cc: List<String> = emptyList(),
+    val reason: String? = null
 )

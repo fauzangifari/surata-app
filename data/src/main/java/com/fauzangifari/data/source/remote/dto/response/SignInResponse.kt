@@ -15,4 +15,3 @@ data class SignInResponse(
     @field:SerializedName("user")
     val user: UserResponse
 )
-

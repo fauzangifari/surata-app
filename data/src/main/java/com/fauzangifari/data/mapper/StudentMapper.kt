@@ -1,5 +1,6 @@
 package com.fauzangifari.data.mapper
 
+import android.util.Log
 import com.fauzangifari.data.source.remote.dto.response.Address
 import com.fauzangifari.data.source.remote.dto.response.ResultItemStudent
 import com.fauzangifari.domain.model.Student
@@ -7,6 +8,7 @@ import com.fauzangifari.domain.model.Student
 fun ResultItemStudent.toDomain(): Student {
     return Student(
         id = this.id.orEmpty(),
+        userId = this.userId.orEmpty(),
         nik = this.nik.orEmpty(),
         nisn = this.nisn.orEmpty(),
         nipd = this.nipd.orEmpty(),

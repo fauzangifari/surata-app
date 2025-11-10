@@ -129,10 +129,13 @@ fun CardSurat(
 
 fun getConvertStatus(status: String): String{
     return when (status.lowercase(Locale.ROOT)) {
-        "pending" -> "Diproses"
+        "pending" -> "Menunggu"
         "approved" -> "Disetujui"
         "rejected" -> "Ditolak"
-        else -> "Belum diproses"
+        "process" -> "Diproses"
+        "revision" -> "Revisi"
+        "cancelled" -> "Dibatalkan"
+        else -> "Menunggu"
     }
 }
 

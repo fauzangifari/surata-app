@@ -16,7 +16,7 @@ val databaseModule =  module {
     }
 
     factory {
-        get<Database>()
+        get<Database>().letterDao()
     }
 
 }

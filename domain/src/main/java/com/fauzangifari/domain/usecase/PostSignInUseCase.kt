@@ -4,7 +4,7 @@ import com.fauzangifari.domain.common.Resource
 import com.fauzangifari.domain.model.Auth
 import com.fauzangifari.domain.repository.AuthRepository
 
-class PostSignInUseCase(
+open class PostSignInUseCase(
     private val authRepository: AuthRepository
 ) {
     suspend operator fun invoke(

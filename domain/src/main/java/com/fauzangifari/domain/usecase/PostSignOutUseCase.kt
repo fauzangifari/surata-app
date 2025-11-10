@@ -3,7 +3,7 @@ package com.fauzangifari.domain.usecase
 import com.fauzangifari.domain.common.Resource
 import com.fauzangifari.domain.repository.AuthRepository
 
-class PostSignOutUseCase(
+open class PostSignOutUseCase(
     private val authRepository: AuthRepository
 ) {
     suspend operator fun invoke(

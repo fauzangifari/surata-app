@@ -238,30 +238,6 @@ fun LoginScreen(
                 )
 
                 Spacer(modifier = Modifier.height(24.dp))
-
-                HorizontalDivider(modifier = Modifier.fillMaxWidth())
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                ButtonCustom(
-                    value = "Masuk dengan Google",
-                    onClick = { /* TODO: Google Sign-In */ },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    textColor = Blue900,
-                    fontSize = 16,
-                    buttonType = ButtonType.REGULAR,
-                    buttonStyle = ButtonStyle.OUTLINED,
-                    leadingIcon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.google_icon),
-                            contentDescription = "Google Icon",
-                            modifier = Modifier.size(23.dp),
-                            tint = Color.Unspecified
-                        )
-                    }
-                )
             }
         }
 

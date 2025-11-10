@@ -14,8 +14,19 @@ interface LetterDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLetter(letter: LetterEntity)
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertLetters(letters: List<LetterEntity>)
+
     @Transaction
-    @Query("SELECT * FROM letters")
+    @Query("SELECT * FROM letters ORDER BY createdAt DESC")
     suspend fun getAllLetters(): List<LetterEntity>
 
+    @Query("SELECT * FROM letters WHERE id = :letterId LIMIT 1")
+    suspend fun getLetterById(letterId: String): LetterEntity?
+
+    @Query("DELETE FROM letters")
+    suspend fun deleteAllLetters()
+
+    @Query("DELETE FROM letters WHERE id = :letterId")
+    suspend fun deleteLetterById(letterId: String)
 }

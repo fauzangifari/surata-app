@@ -1,4 +1,4 @@
-package com.fauzangifari.data.source.remote.retrofit
+package com.fauzangifari.data.utils
 
 object AuthTokenProvider {
     @Volatile private var token: String? = null

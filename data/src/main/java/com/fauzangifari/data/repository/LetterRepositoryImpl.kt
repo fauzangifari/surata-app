@@ -1,15 +1,20 @@
 package com.fauzangifari.data.repository
 
 import android.util.Log
+import com.fauzangifari.data.source.local.room.dao.LetterDao
 import com.fauzangifari.data.source.remote.retrofit.LetterApiService
 import com.fauzangifari.data.mapper.toDomain
+import com.fauzangifari.data.mapper.toEntity
 import com.fauzangifari.data.mapper.toRequest
 import com.fauzangifari.domain.model.Letter
+import com.fauzangifari.domain.model.Presigned
 import com.fauzangifari.domain.model.ReqLetter
+import com.fauzangifari.domain.model.ReqPresigned
 import com.fauzangifari.domain.repository.LetterRepository
 
 class LetterRepositoryImpl(
-    private val letterApiService: LetterApiService
+    private val letterApiService: LetterApiService,
+    private val letterDao: LetterDao
 ) : LetterRepository {
 
     override suspend fun getLetters(): List<Letter> {
@@ -23,9 +28,17 @@ class LetterRepositoryImpl(
         return response.result?.mapNotNull { it?.toDomain() } ?: emptyList()
     }
 
+    override suspend fun getLettersByUserIdFromLocal(): List<Letter> {
+        return letterDao.getAllLetters().map { it.toDomain() }
+    }
+
     override suspend fun getLetterById(letterId: String): Letter {
         val response = letterApiService.getLetterById(letterId)
         return response.result?.toDomain() ?: throw Exception("Gagal memproses surat")
+    }
+
+    override suspend fun getLetterByIdFromLocal(letterId: String): Letter? {
+        return letterDao.getLetterById(letterId)?.toDomain()
     }
 
     override suspend fun postLetter(reqLetter: ReqLetter): Letter {
@@ -36,6 +49,28 @@ class LetterRepositoryImpl(
         } catch (e: Exception) {
             throw Exception("Gagal memproses surat: ${e.message}")
         }
+    }
+
+    override suspend fun postPresignedUrl(reqPresigned: ReqPresigned): Presigned {
+        return try {
+            val request = reqPresigned.toRequest()
+            val response = letterApiService.postPresignedUrl(request)
+            response.toDomain() ?: throw Exception("Gagal mendapatkan presigned URL")
+        } catch (e: Exception) {
+            throw Exception("Gagal mendapatkan presigned URL: ${e.message}")
+        }
+    }
+
+    override suspend fun saveLettersToLocal(letters: List<Letter>) {
+        letterDao.insertLetters(letters.map { it.toEntity() })
+    }
+
+    override suspend fun saveLetterToLocal(letter: Letter) {
+        letterDao.insertLetter(letter.toEntity())
+    }
+
+    override suspend fun clearLocalCache() {
+        letterDao.deleteAllLetters()
     }
 
 }

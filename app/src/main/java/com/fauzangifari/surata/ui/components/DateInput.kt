@@ -29,13 +29,23 @@ fun DateInput(
     modifier: Modifier = Modifier,
     label: String = "Date",
     placeholder: String = "MM/DD/YYYY",
+    value: String = "",
+    error: String? = null,
     onDateSelected: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
-    var selectedDate by remember { mutableStateOf("") }
+    var selectedDate by remember { mutableStateOf(value) }
+
+    LaunchedEffect(value) {
+        selectedDate = value
+    }
 
     var isFocused by remember { mutableStateOf(false) }
-    val borderColor by animateColorAsState(if (isFocused) Blue800 else Grey900, label = "BorderColor")
+    val borderColor by animateColorAsState(
+        if (error != null) Color.Red
+        else if (isFocused) Blue800
+        else Grey900, label = "BorderColor"
+    )
 
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
@@ -49,6 +59,7 @@ fun DateInput(
             value = selectedDate,
             onValueChange = {},
             readOnly = true,
+            isError = error != null,
             textStyle = TextStyle(
                 fontSize = 16.sp,
                 color = Color.Black,
@@ -73,15 +84,27 @@ fun DateInput(
                 unfocusedContainerColor = Color.White,
                 disabledIndicatorColor = borderColor,
                 unfocusedIndicatorColor = borderColor,
-                focusedIndicatorColor = borderColor
+                focusedIndicatorColor = borderColor,
+                errorContainerColor = Color.White,
+                errorIndicatorColor = Color.Red
             )
         )
+
+        if (error != null) {
+            Text(
+                text = error,
+                fontSize = 12.sp,
+                color = Color.Red,
+                modifier = Modifier.padding(start = 16.dp, top = 4.dp),
+                fontFamily = PlusJakartaSans
+            )
+        }
     }
 }
 
 fun showDatePicker(context: Context, onDateSelected: (String) -> Unit) {
     val calendar = Calendar.getInstance()
-    val dateFormat = SimpleDateFormat("MM/dd/yyyy", Locale.getDefault())
+    val dateFormat = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
 
     val datePicker = DatePickerDialog(
         context,

@@ -18,7 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -38,14 +37,13 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.style.TextAlign
 import coil3.compose.AsyncImage
-import com.fauzangifari.domain.model.ReqLetter
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel, modifier: Modifier = Modifier) {
+fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showSheet by remember { mutableStateOf(false) }
 
@@ -284,34 +282,17 @@ fun SuratForm(
     val context = LocalContext.current
     val postState by viewModel.postLetterState.collectAsStateWithLifecycle()
     val studentState by viewModel.studentState.collectAsStateWithLifecycle()
+    val formState by viewModel.formState.collectAsStateWithLifecycle()
+    val uploadState by viewModel.uploadState.collectAsStateWithLifecycle()
 
-    var description by remember { mutableStateOf("") }
-    var selectedSurat by remember { mutableStateOf("") }
-    var subject by remember { mutableStateOf("") }
-
-    var beginDate by remember { mutableStateOf("") }
-    var endDate by remember { mutableStateOf("") }
-    var beginTime by remember { mutableStateOf("") }
-    var endTime by remember { mutableStateOf("") }
-
-    var isChecked by remember { mutableStateOf(false) }
-    val selectedStudentIds = remember { mutableStateListOf<String>() }
+    // Determine if form should be disabled
+    val isFormDisabled = postState.isLoading || uploadState.isUploading
 
     LaunchedEffect(postState.isSuccess, postState.error) {
         when {
             postState.isSuccess -> {
                 onShowToast("Surat berhasil dibuat!", ToastType.SUCCESS)
-
-                description = ""
-                selectedSurat = ""
-                subject = ""
-                beginDate = ""
-                endDate = ""
-                beginTime = ""
-                endTime = ""
-                isChecked = false
-                selectedStudentIds.clear()
-
+                viewModel.resetForm()
                 kotlinx.coroutines.delay(100)
                 onClose()
             }
@@ -321,6 +302,11 @@ fun SuratForm(
         }
     }
 
+    LaunchedEffect(uploadState.error) {
+        if (!uploadState.error.isNullOrBlank()) {
+            onShowToast(uploadState.error ?: "Gagal upload file", ToastType.ERROR)
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -334,12 +320,14 @@ fun SuratForm(
             text = "Buat Surat",
             fontSize = 20.sp,
             fontWeight = FontWeight.Bold,
-            color = Grey900
+            color = Grey900,
+            fontFamily = PlusJakartaSans
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         SectionTitle("Informasi Surat")
+
         DropdownField(
             label = "Jenis Surat",
             items = listOf(
@@ -349,77 +337,90 @@ fun SuratForm(
                 "Surat Tugas"
             ),
             placeHolder = "Pilih Jenis Surat",
-            onItemSelected = { selectedSurat = it }
+            onItemSelected = { viewModel.updateFormField(FormField.SELECTED_LETTER, it) }
         )
 
-        AnimatedVisibility(visible = selectedSurat.isNotBlank()) {
+        AnimatedVisibility(visible = formState.selectedLetter.isNotBlank()) {
             Column {
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
                 TextInput(
                     label = "Judul Surat",
                     placeholder = "Masukkan judul surat",
-                    value = subject,
-                    onValueChange = { subject = it },
-                    singleLine = true
+                    value = formState.subject,
+                    onValueChange = { viewModel.updateFormField(FormField.SUBJECT, it) },
+                    singleLine = true,
+                    isEnabled = !isFormDisabled
                 )
             }
         }
 
-        if (selectedSurat == "Surat Dispensasi") {
+        if (formState.selectedLetter == "Surat Dispensasi") {
             Spacer(modifier = Modifier.height(16.dp))
-            SectionTitle("Pilih Siswa")
+            SectionTitle("Pilih Siswa (Opsional)")
 
             MultiPickedField(
                 students = studentState.data,
-                selectedStudentIds = selectedStudentIds,
+                selectedStudentIds = formState.selectedStudentIds,
                 isLoading = studentState.isLoading,
-                onSelectedChange = {
-                    selectedStudentIds.clear()
-                    selectedStudentIds.addAll(it)
-                }
+                onSelectedChange = { viewModel.updateFormField(FormField.SELECTED_STUDENTS, it) }
             )
-            if (selectedStudentIds.isNotEmpty()) {
+
+            if (formState.selectedStudentIds.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(6.dp))
                 val selectedNames = studentState.data
-                    .filter { it.id in selectedStudentIds }
+                    .filter { it.id in formState.selectedStudentIds }
                     .mapNotNull { it.name }
                 Text(
                     text = "Terpilih: ${selectedNames.joinToString(", ")}",
-                    fontSize = 13.sp,
-                    color = Grey700
+                    fontSize = 12.sp,
+                    color = Grey700,
+                    fontFamily = PlusJakartaSans
                 )
             }
         }
 
-        if (selectedSurat == "Surat Dispensasi" || selectedSurat == "Surat Tugas") {
+        if (formState.selectedLetter in listOf("Surat Dispensasi", "Surat Tugas")) {
             Spacer(modifier = Modifier.height(16.dp))
             SectionTitle("Tanggal & Waktu")
 
             DateInput(
                 label = "Tanggal Mulai",
-                onDateSelected = { beginDate = it },
+                value = formState.beginDate,
+                error = formState.beginDateError,
+                onDateSelected = { viewModel.updateFormField(FormField.BEGIN_DATE, it) },
                 placeholder = "Pilih Tanggal Mulai"
             )
-            Spacer(modifier = Modifier.height(8.dp))
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             TimeInput(
                 context = context,
                 label = "Waktu Mulai",
+                value = formState.beginTime,
+                error = formState.beginTimeError,
                 placeHolder = "Pilih Waktu Mulai",
-                onTimeSelected = { beginTime = it }
+                onTimeSelected = { viewModel.updateFormField(FormField.BEGIN_TIME, it) }
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
+
             DateInput(
                 label = "Tanggal Berakhir",
-                onDateSelected = { endDate = it },
+                value = formState.endDate,
+                error = formState.endDateError,
+                onDateSelected = { viewModel.updateFormField(FormField.END_DATE, it) },
                 placeholder = "Pilih Tanggal Berakhir"
             )
-            Spacer(modifier = Modifier.height(8.dp))
+
+            Spacer(modifier = Modifier.height(12.dp))
+
             TimeInput(
                 context = context,
                 label = "Waktu Selesai",
+                value = formState.endTime,
+                error = formState.endTimeError,
                 placeHolder = "Pilih Waktu Selesai",
-                onTimeSelected = { endTime = it }
+                onTimeSelected = { viewModel.updateFormField(FormField.END_TIME, it) }
             )
         }
 
@@ -429,81 +430,96 @@ fun SuratForm(
         DescriptionInput(
             label = "Keterangan (Opsional)",
             placeholder = "Masukkan keterangan surat",
-            value = description,
-            onValueChange = { description = it },
-            maxLines = 5
+            value = formState.description,
+            onValueChange = { viewModel.updateFormField(FormField.DESCRIPTION, it) },
+            maxLines = 5,
+            isEnabled = !isFormDisabled
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         SectionTitle("Dokumen Pendukung")
-        FileUpload(onFileSelected = { /* TODO: Upload ke Firebase nanti */ })
+        FileUpload(
+            onFileSelected = { fileData ->
+                if (fileData != null) {
+                    val maxSize = 5 * 1024 * 1024 // 5MB
+                    if (fileData.size > maxSize) {
+                        onShowToast("Ukuran file maksimal 5MB", ToastType.ERROR)
+                        return@FileUpload
+                    }
+                    viewModel.updateFormField(FormField.FILE_URI, fileData.uri)
+                    viewModel.uploadFile(
+                        context = context,
+                        uri = fileData.uri,
+                        fileName = fileData.name,
+                        fileSize = fileData.size,
+                        mimeType = fileData.mimeType
+                    )
+                }
+            },
+            isUploading = uploadState.isUploading,
+            uploadProgress = uploadState.progress,
+            errorMessage = formState.fileError
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
-        HorizontalDivider(color = Grey200, thickness = 1.dp, modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp))
+
+        HorizontalDivider(
+            color = Grey200,
+            thickness = 1.dp,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text("Ambil Surat di Tempat", fontSize = 14.sp, color = Grey900)
+            Text(
+                text = "Ambil Surat di Tempat",
+                fontSize = 14.sp,
+                color = if (isFormDisabled) Grey400 else Grey900,
+                fontFamily = PlusJakartaSans
+            )
             Switch(
-                checked = isChecked,
-                onCheckedChange = { isChecked = it },
-                modifier = Modifier.scale(0.75f),
+                checked = formState.isPrinted,
+                onCheckedChange = { viewModel.updateFormField(FormField.IS_PRINTED, it) },
+                enabled = !isFormDisabled,
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = Blue900,
-                    uncheckedThumbColor = Grey500
+                    checkedThumbColor = Blue800,
+                    checkedTrackColor = Blue800.copy(alpha = 0.5f),
+                    uncheckedThumbColor = Grey300,
+                    uncheckedTrackColor = Grey200,
+                    disabledCheckedThumbColor = Grey400,
+                    disabledCheckedTrackColor = Grey300,
+                    disabledUncheckedThumbColor = Grey300,
+                    disabledUncheckedTrackColor = Grey200
                 )
             )
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
         ButtonCustom(
             value = if (postState.isLoading) "Mengirim..." else "Buat Surat",
             fontSize = 14,
             buttonType = ButtonType.REGULAR,
             buttonStyle = ButtonStyle.FILLED,
-            backgroundColor = if (postState.isLoading) Grey500 else Blue800,
+            backgroundColor = if (isFormDisabled) Grey400 else Blue800,
             textColor = White,
             onClick = {
-                if (!postState.isLoading) {
-                    val beginIso = if (beginDate.isNotEmpty() && beginTime.isNotEmpty()) {
-                        toIsoDate(beginDate, beginTime)
-                    } else ""
-                    val endIso = if (endDate.isNotEmpty() && endTime.isNotEmpty()) {
-                        toIsoDate(endDate, endTime)
-                    } else ""
-
-                    val mappedLetterType = when (selectedSurat) {
-                        "Surat Dispensasi" -> "DISPENSATION"
-                        "Surat Rekomendasi" -> "RECOMMENDATION"
-                        "Surat Keterangan Aktif" -> "ACTIVE_STATEMENT"
-                        "Surat Tugas" -> "ASSIGNMENT"
-                        else -> selectedSurat
-                    }
-
-                    val req = ReqLetter(
-                        letterType = mappedLetterType,
-                        subject = subject,
-                        beginDate = if (beginIso.isNotBlank()) beginIso else null,
-                        endDate = if (endIso.isNotBlank()) endIso else null,
-                        reason = if (description.isNotBlank()) description else null,
-                        isPrinted = isChecked,
-                        cc = if (selectedStudentIds.isNotEmpty()) selectedStudentIds else emptyList(),
-                        attachment = "https://via.placeholder.com/570x589/a409d8/cf57ba.gif"
-                    )
-
-
-                    viewModel.postLetter(req)
+                if (!isFormDisabled) {
+                    viewModel.submitLetter()
                 }
             },
-            modifier = Modifier.fillMaxWidth().height(50.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp)
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -519,7 +535,6 @@ fun toIsoDate(date: String, time: String): String {
         ""
     }
 }
-
 
 @Composable
 fun SectionTitle(title: String) {

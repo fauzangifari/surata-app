@@ -130,6 +130,9 @@ data class ResultItemStudent(
 	@field:SerializedName("id")
 	val id: String? = null,
 
+	@field:SerializedName("userId")
+	val userId: String? = null,
+
 	@field:SerializedName("nipd")
 	val nipd: String? = null,
 

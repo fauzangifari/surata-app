@@ -1,9 +1,12 @@
 package com.fauzangifari.surata.ui.screens.detail
 
+import android.content.Intent
 import android.graphics.Bitmap
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -37,9 +40,21 @@ import com.fauzangifari.data.utils.savePdfToCache
 import com.fauzangifari.surata.ui.theme.BackgroundLight
 import com.fauzangifari.surata.ui.theme.Black
 import com.fauzangifari.surata.ui.theme.Blue900
+import com.fauzangifari.surata.ui.theme.Grey500
 import com.fauzangifari.surata.ui.theme.Grey700
+import com.fauzangifari.surata.ui.theme.Grey900
+import com.fauzangifari.surata.ui.theme.GreenDark
+import com.fauzangifari.surata.ui.theme.GreenLight
+import com.fauzangifari.surata.ui.theme.Grey200
+import com.fauzangifari.surata.ui.theme.RedDark
+import com.fauzangifari.surata.ui.theme.RedLight
+import com.fauzangifari.surata.ui.theme.YellowDark
+import com.fauzangifari.surata.ui.theme.YellowLight
 import org.koin.androidx.compose.koinViewModel
 import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Locale
+import java.util.TimeZone
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,6 +70,7 @@ fun DetailScreen(
 
     val viewModel: DetailViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val userName by viewModel.userNameState.collectAsStateWithLifecycle()
 
     // Load sample PDF untuk preview
     LaunchedEffect(Unit) {
@@ -163,18 +179,21 @@ fun DetailScreen(
             val data = state.data
             DataSurat(
                 image = "https://avatars.githubusercontent.com/u/77602702?v=4",
-                name = data?.applicantName ?: "-",
+                name = userName ?: data?.applicantName ?: "-",
                 dateCreated = data?.createdAt ?: "-",
                 letterType = letterMapper(data?.letterType ?: "-"),
                 letterNumber = data?.letterNumber ?: "-",
-                letterStatus = letterStatusToIndonesian(data?.status ?: "-")
+                letterStatus = letterStatusToIndonesian(data?.status ?: "-"),
+                ccList = data?.cc ?: emptyList(),
+                attachment = data?.attachment,
+                reason = data?.reason
             )
 
             Spacer(Modifier.height(20.dp))
 
-            StatusSurat(status = data?.status ?: "-")
-
-            Spacer(Modifier.height(20.dp))
+//            StatusSurat(status = data?.status ?: "-")
+//
+//            Spacer(Modifier.height(20.dp))
 
             Card(
                 shape = RoundedCornerShape(12.dp),
@@ -223,7 +242,10 @@ fun DataSurat(
     dateCreated: String,
     letterType: String,
     letterNumber: String,
-    letterStatus: String
+    letterStatus: String,
+    ccList: List<String>,
+    attachment: String?,
+    reason: String?
 ) {
     Card(
         shape = RoundedCornerShape(12.dp),
@@ -231,6 +253,7 @@ fun DataSurat(
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
+            // Profile Section
             Row(verticalAlignment = Alignment.CenterVertically) {
                 AsyncImage(
                     model = image,
@@ -244,41 +267,228 @@ fun DataSurat(
                 Spacer(modifier = Modifier.width(16.dp))
 
                 Column {
-                    Text(name.ifBlank { "-" }, fontWeight = FontWeight.Bold, fontSize = 15.sp)
-                    Text("Pembuat Surat", fontSize = 12.sp, color = Grey700)
+                    Text(
+                        name.ifBlank { "-" },
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp,
+                        fontFamily = PlusJakartaSans
+                    )
+                    Text(
+                        "Pembuat Surat",
+                        fontSize = 12.sp,
+                        color = Grey700,
+                        fontFamily = PlusJakartaSans
+                    )
                 }
             }
 
-            Divider(Modifier.padding(vertical = 12.dp))
+            HorizontalDivider(
+                modifier = Modifier.padding(vertical = 12.dp),
+                color = Color(0xFFE0E0E0)
+            )
 
-            InfoRow("Tanggal Dibuat", dateCreated)
+            // Info Section
+            InfoRow("Waktu dan Tanggal", formatDateTime(dateCreated))
             InfoRow("Jenis Surat", letterType)
             InfoRow("Nomor Surat", letterNumber)
-            InfoRow("Status", letterStatus)
 
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text("Lampiran", fontWeight = FontWeight.Medium, fontSize = 14.sp)
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Card(
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(containerColor = BackgroundLight),
-                modifier = Modifier.fillMaxWidth()
+            // Status Badge
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                Text(
+                    text = "Status",
+                    fontSize = 12.sp,
+                    fontFamily = PlusJakartaSans,
+                    color = Grey700,
+                    modifier = Modifier.weight(1f)
+                )
+
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = getStatusBackgroundColor(letterStatus).copy(alpha = 0.15f),
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = letterStatus.ifBlank { "-" },
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = getStatusColor(letterStatus),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                        fontFamily = PlusJakartaSans
+                    )
+                }
+            }
+
+            // Reason Section (if available)
+            if (!reason.isNullOrBlank()) {
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    "Alasan/Keterangan",
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 14.sp,
+                    fontFamily = PlusJakartaSans,
+                    color = Black
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Card(
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = BackgroundLight),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        text = reason,
+                        fontSize = 13.sp,
+                        color = Black,
+                        fontFamily = PlusJakartaSans,
+                        modifier = Modifier.padding(12.dp)
+                    )
+                }
+            }
+
+            // CC Section (only for Surat Dispensasi)
+            if (letterType == "Surat Dispensasi" && ccList.isNotEmpty()) {
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.padding(12.dp)
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        painter = painterResource(id = R.drawable.ic_pdf),
+                        painter = painterResource(id = R.drawable.ic_people),
                         contentDescription = null,
-                        tint = Color.Unspecified
+                        tint = Blue900,
+                        modifier = Modifier.size(20.dp)
                     )
-                    Spacer(Modifier.width(12.dp))
-                    Column {
-                        Text("Dokumen_Pendukung.pdf", fontSize = 14.sp)
-                        Text("2.4 MB", fontSize = 12.sp, color = Grey700)
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        "Penerima Tembusan (CC)",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        fontFamily = PlusJakartaSans,
+                        color = Black
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Card(
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = BackgroundLight),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        ccList.forEachIndexed { index, cc ->
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(6.dp)
+                                        .clip(CircleShape)
+                                        .background(Blue900)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = cc,
+                                    fontSize = 13.sp,
+                                    color = Black,
+                                    fontFamily = PlusJakartaSans
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Attachment Section
+            if (!attachment.isNullOrBlank()) {
+                val context = LocalContext.current
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_attachment),
+                        contentDescription = null,
+                        tint = Blue900,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        "Dokumen Pendukung",
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp,
+                        fontFamily = PlusJakartaSans,
+                        color = Black
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Card(
+                    shape = RoundedCornerShape(8.dp),
+                    colors = CardDefaults.cardColors(containerColor = BackgroundLight),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            try {
+                                val intent = Intent(Intent.ACTION_VIEW).apply {
+                                    data = Uri.parse(attachment)
+                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                                }
+                                context.startActivity(intent)
+                            } catch (e: Exception) {
+                                Toast.makeText(
+                                    context,
+                                    "Tidak dapat membuka dokumen",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        }
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(12.dp)
+                    ) {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_pdf),
+                            contentDescription = null,
+                            tint = Color.Unspecified,
+                            modifier = Modifier.size(40.dp)
+                        )
+                        Spacer(Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Lampiran",
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Medium,
+                                fontFamily = PlusJakartaSans,
+                                color = Black,
+                                maxLines = 2
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Tap untuk membuka",
+                                fontSize = 12.sp,
+                                color = Blue900,
+                                fontFamily = PlusJakartaSans
+                            )
+                        }
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_open_in_new),
+                            contentDescription = "Buka dokumen",
+                            tint = Blue900,
+                            modifier = Modifier.size(24.dp)
+                        )
                     }
                 }
             }
@@ -342,13 +552,23 @@ fun StatusSurat(status: String) {
 }
 
 fun getStatusColor(status: String): Color = when (status.lowercase()) {
-    "pending" -> Color(0xFFFFA500)
-    "approved" -> Color(0xFF4CAF50)
-    "rejected" -> Color(0xFFF44336)
-    "process" -> Color(0xFF2196F3)
-    "revision" -> Color(0xFFFFC107)
-    "cancelled" -> Color(0xFF9E9E9E)
-    else -> Grey700
+    "menunggu", "pending" -> Grey900
+    "disetujui", "approved" -> GreenDark
+    "ditolak", "rejected" -> RedDark
+    "diproses", "process" -> YellowDark
+    "revisi", "revision" -> YellowDark
+    "dibatalkan", "cancelled" -> Grey900
+    else -> Grey900
+}
+
+fun getStatusBackgroundColor(status: String): Color = when (status.lowercase()) {
+    "menunggu", "pending" -> Grey500
+    "disetujui", "approved" -> GreenLight
+    "ditolak", "rejected" -> RedLight
+    "diproses", "process" -> YellowLight
+    "revisi", "revision" -> YellowLight
+    "dibatalkan", "cancelled" -> Grey500
+    else -> Grey500
 }
 
 fun letterStatusToIndonesian(status: String): String = when (status.lowercase()) {
@@ -369,9 +589,51 @@ fun letterMapper(letterType: String): String = when (letterType.lowercase()) {
     else -> "-"
 }
 
+fun formatDateTime(isoDate: String): String {
+    return try {
+        if (isoDate.isBlank() || isoDate == "-") return "-"
+
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSXXX", Locale.getDefault())
+        inputFormat.timeZone = TimeZone.getTimeZone("Asia/Singapore")
+
+        val date = inputFormat.parse(isoDate)
+
+        if (date != null) {
+            val outputFormat = SimpleDateFormat("HH:mm, dd MMMM yyyy", Locale("id", "ID"))
+            outputFormat.timeZone = TimeZone.getTimeZone("Asia/Singapore")
+            outputFormat.format(date)
+        } else {
+            "-"
+        }
+    } catch (e: Exception) {
+        android.util.Log.e("DateFormat", "Error formatting date: ${e.message}")
+        "-"
+    }
+}
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewDetailScreen() {
 //    DetailScreen()
+}
+
+// Helper function to extract file name from URL
+fun extractFileName(url: String): String {
+    return try {
+        val uri = Uri.parse(url)
+        val path = uri.path ?: url
+        val fileName = path.split("/").lastOrNull() ?: "Dokumen"
+
+        // Decode URL encoded characters
+        Uri.decode(fileName).let {
+            // If file name is too generic or encoded, return a readable name
+            if (it.length > 50) {
+                it.take(47) + "..."
+            } else {
+                it
+            }
+        }
+    } catch (e: Exception) {
+        "Dokumen Pendukung"
+    }
 }

@@ -1,4 +1,4 @@
-package com.fauzangifari.data.source.remote.retrofit
+package com.fauzangifari.data.utils
 
 import android.util.Log
 import com.fauzangifari.data.source.local.datastore.AuthPreferences

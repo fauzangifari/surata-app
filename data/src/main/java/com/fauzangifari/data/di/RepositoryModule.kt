@@ -11,7 +11,7 @@ import org.koin.dsl.module
 val repositoryModule = module {
 
     single<LetterRepository> {
-        LetterRepositoryImpl(letterApiService = get())
+        LetterRepositoryImpl(letterApiService = get(), letterDao = get())
     }
 
     single<StudentRepository> {
@@ -19,6 +19,6 @@ val repositoryModule = module {
     }
 
     single<AuthRepository> {
-        AuthRepositoryImpl(authPreferences = get(), authApiService = get())
+        AuthRepositoryImpl(authApiService = get(), authPreferences = get(), letterDao = get())
     }
 }

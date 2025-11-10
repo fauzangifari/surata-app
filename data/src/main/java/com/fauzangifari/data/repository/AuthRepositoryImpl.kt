@@ -2,10 +2,11 @@ package com.fauzangifari.data.repository
 
 import com.fauzangifari.data.mapper.toDomain
 import com.fauzangifari.data.source.local.datastore.AuthPreferences
+import com.fauzangifari.data.source.local.room.dao.LetterDao
 import com.fauzangifari.data.source.remote.dto.request.SignInRequest
 import com.fauzangifari.data.source.remote.dto.request.SignOutRequest
 import com.fauzangifari.data.source.remote.retrofit.AuthApiService
-import com.fauzangifari.data.source.remote.retrofit.AuthTokenProvider
+import com.fauzangifari.data.utils.AuthTokenProvider
 import com.fauzangifari.domain.common.Resource
 import com.fauzangifari.domain.model.Auth
 import com.fauzangifari.domain.model.Session
@@ -15,7 +16,8 @@ import java.io.IOException
 
 class AuthRepositoryImpl(
     private val authApiService: AuthApiService,
-    private val authPreferences: AuthPreferences
+    private val authPreferences: AuthPreferences,
+    private val letterDao: LetterDao
 ) : AuthRepository {
     override suspend fun signIn(email: String, password: String): Resource<Auth> {
         return try {
@@ -50,8 +52,12 @@ class AuthRepositoryImpl(
             val isSuccess = response.success ?: false
             val message = response.message
 
+            // Clear preferences dan token
             authPreferences.clear()
             AuthTokenProvider.setToken(null)
+
+            // Clear local cache untuk keamanan data
+            letterDao.deleteAllLetters()
 
             if (isSuccess) {
                 Resource.Success(true)
@@ -59,7 +65,10 @@ class AuthRepositoryImpl(
                 Resource.Error(message ?: "Gagal keluar dari akun")
             }
         } catch (e: Exception) {
-            runCatching { authPreferences.clear() }
+            runCatching {
+                authPreferences.clear()
+                letterDao.deleteAllLetters()
+            }
             AuthTokenProvider.setToken(null)
             Resource.Error(e.localizedMessage ?: "An unexpected error occurred")
         }
