@@ -8,9 +8,12 @@ import com.fauzangifari.data.source.local.datastore.AuthPreferences
 import com.fauzangifari.domain.common.Resource
 import com.fauzangifari.domain.model.ReqLetter
 import com.fauzangifari.domain.model.ReqPresigned
-import com.fauzangifari.domain.model.Student
+import com.fauzangifari.domain.model.User
+import com.fauzangifari.domain.model.UserProfile
+import com.fauzangifari.domain.model.UserRole
+import com.fauzangifari.domain.usecase.GetAllUserUseCase
 import com.fauzangifari.domain.usecase.GetLetterByUserIdUseCase
-import com.fauzangifari.domain.usecase.GetStudentUseCase
+import com.fauzangifari.domain.usecase.GetUsersMeUseCase
 import com.fauzangifari.domain.usecase.PostLetterUseCase
 import com.fauzangifari.domain.usecase.PostPresignedUrlUseCase
 import kotlinx.coroutines.delay
@@ -28,8 +31,9 @@ import java.io.FileOutputStream
 class HomeViewModel(
     private val getLetterByUserIdUseCase: GetLetterByUserIdUseCase,
     private val postLetterUseCase: PostLetterUseCase,
-    private val getStudentUseCase: GetStudentUseCase,
     private val postPresignedUrlUseCase: PostPresignedUrlUseCase,
+    private val getUsersMeUseCase: GetUsersMeUseCase,
+    private val getAllUserUseCase: GetAllUserUseCase,
     private val authPreferences: AuthPreferences
 ) : ViewModel() {
 
@@ -45,14 +49,17 @@ class HomeViewModel(
     // endregion
 
     // region State Flows
+    private val _profile = MutableStateFlow(UserProfile())
+    val profile: StateFlow<UserProfile> = _profile
+
     private val _letterState = MutableStateFlow(LetterState())
     val letterState: StateFlow<LetterState> = _letterState.asStateFlow()
 
     private val _postLetterState = MutableStateFlow(PostLetterState())
     val postLetterState: StateFlow<PostLetterState> = _postLetterState.asStateFlow()
 
-    private val _studentState = MutableStateFlow(StudentState())
-    val studentState: StateFlow<StudentState> = _studentState.asStateFlow()
+    private val _userState = MutableStateFlow(UserState())
+    val userState: StateFlow<UserState> = _userState.asStateFlow()
 
     private val _formState = MutableStateFlow(LetterFormState())
     val formState: StateFlow<LetterFormState> = _formState.asStateFlow()
@@ -73,37 +80,103 @@ class HomeViewModel(
             started = SharingStarted.Eagerly,
             initialValue = null
         )
+
+    val userRoleState: StateFlow<String?> = authPreferences.userRole
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = null
+        )
     // endregion
 
     init {
         observeUserIdAndFetchLetters()
-        getStudents()
+        getAllUsers()
+        loadUserProfile()
     }
 
-    // region Student Management
-    private fun getStudents() {
+    // region Profile Management
+    private fun loadUserProfile() {
         viewModelScope.launch {
-            getStudentUseCase().collect { result ->
-                _studentState.update {
-                    when (result) {
-                        is Resource.Loading -> it.copy(isLoading = true, error = null)
-                        is Resource.Success -> it.copy(
-                            isLoading = false,
-                            data = result.data.orEmpty(),
-                            error = null
-                        )
-
-                        is Resource.Error -> it.copy(
-                            isLoading = false,
-                            error = result.message
-                        )
-                        else -> {}
-                    } as StudentState
+            when (val result = getUsersMeUseCase()) {
+                is Resource.Success -> {
+                    result.data?.let { userMe ->
+                        val userProfile = when (userMe.role) {
+                            UserRole.STUDENT -> {
+                                val student = userMe.student
+                                UserProfile(
+                                    name = userMe.name,
+                                    schoolEmail = userMe.email,
+                                    personalEmail = userMe.secondaryEmail ?: "",
+                                    placeOfBirth = student?.birthPlace ?: "",
+                                    dateOfBirth = student?.birthDate ?: "",
+                                    phone = student?.phoneNumber ?: "",
+                                    idNumber = student?.nisn ?: student?.nipd ?: "",
+                                    photoUrl = userMe.image
+                                )
+                            }
+                            UserRole.TEACHER -> {
+                                val teacher = userMe.teacher
+                                UserProfile(
+                                    name = userMe.name,
+                                    schoolEmail = userMe.email,
+                                    personalEmail = userMe.secondaryEmail ?: "",
+                                    placeOfBirth = teacher?.birthPlace ?: "",
+                                    dateOfBirth = teacher?.birthDate ?: "",
+                                    phone = teacher?.phone ?: "",
+                                    idNumber = teacher?.nip ?: "",
+                                    photoUrl = userMe.image
+                                )
+                            }
+                            else -> {
+                                UserProfile(
+                                    name = userMe.name,
+                                    schoolEmail = userMe.email,
+                                    personalEmail = userMe.secondaryEmail ?: "",
+                                    photoUrl = userMe.image
+                                )
+                            }
+                        }
+                        _profile.value = userProfile
+                    }
+                }
+                else -> {
+                    // Handle error or loading state if needed
                 }
             }
         }
     }
     // endregion
+
+    private fun getAllUsers() {
+        viewModelScope.launch {
+            _userState.update { it.copy(isLoading = true, error = null) }
+
+            when (val result = getAllUserUseCase()) {
+                is Resource.Loading -> {
+                    _userState.update { it.copy(isLoading = true, error = null) }
+                }
+                is Resource.Success -> {
+                    _userState.update {
+                        it.copy(
+                            isLoading = false,
+                            data = result.data.orEmpty(),
+                            error = null
+                        )
+                    }
+                }
+                is Resource.Error -> {
+                    _userState.update {
+                        it.copy(
+                            isLoading = false,
+                            error = result.message
+                        )
+                    }
+                }
+                else -> {}
+            }
+        }
+    }
 
     // region Letter Management
     private fun observeUserIdAndFetchLetters() {
@@ -158,7 +231,11 @@ class HomeViewModel(
                             it.copy(
                                 isLoading = false,
                                 isRefreshing = false,
-                                error = "Terjadi kesalahan: ${result.message}"
+                                error = if ("${result.message}".contains("HTTP 404 Not Found")) {
+                                    "Data surat tidak ditemukan."
+                                } else {
+                                    result.message ?: "Terjadi kesalahan tak terduga."
+                                }
                             )
                         }
                     }
@@ -475,7 +552,7 @@ class HomeViewModel(
         val beginIso = buildIsoDate(state.beginDate, state.beginTime)
         val endIso = buildIsoDate(state.endDate, state.endTime)
         val mappedLetterType = mapLetterTypeToEnum(state.selectedLetter)
-        val userIds = extractUserIds(state.selectedStudentIds, _studentState.value.data)
+        val userIds = extractUserIds(state.selectedStudentIds, _userState.value.data)
 
         val req = ReqLetter(
             letterType = mappedLetterType,
@@ -487,7 +564,6 @@ class HomeViewModel(
             cc = userIds,
             attachment = _uploadState.value.uploadedUrl
         )
-
         postLetter(req)
     }
 
@@ -556,9 +632,9 @@ class HomeViewModel(
     // endregion
 
     // region Helper Functions
-    private fun extractUserIds(selectedIds: List<String>, students: List<Student>): List<String> {
+    private fun extractUserIds(selectedIds: List<String>, user: List<User>): List<String> {
         return selectedIds.mapNotNull { selectedId ->
-            students.find { it.id == selectedId }?.userId?.takeIf { it.isNotBlank() }
+            user.find { it.id == selectedId }?.id?.takeIf { it.isNotBlank() }
         }
     }
 
@@ -581,7 +657,7 @@ class HomeViewModel(
             val month = parts[1].padStart(2, '0')
             val year = parts[2]
             val cleanTime = time.trim().replace(" ", "")
-            "${year}-${day}-${month}T${cleanTime}:00.000+08:00"
+            "${year}-${month}-${day}T${cleanTime}:00.000+08:00"
         } catch (_: Exception) {
             ""
         }
@@ -714,38 +790,4 @@ enum class FormField {
     FILE_URI
 }
 
-data class LetterFormState(
-    val description: String = "",
-    val selectedLetter: String = "",
-    val subject: String = "",
-    val beginDate: String = "",
-    val endDate: String = "",
-    val beginTime: String = "",
-    val endTime: String = "",
-    val isPrinted: Boolean = false,
-    val selectedStudentIds: List<String> = emptyList(),
-    val fileUri: Uri? = null,
-    val letterTypeError: String? = null,
-    val subjectError: String? = null,
-    val beginDateError: String? = null,
-    val endDateError: String? = null,
-    val beginTimeError: String? = null,
-    val endTimeError: String? = null,
-    val studentsError: String? = null,
-    val descriptionError: String? = null,
-    val fileError: String? = null
-)
 
-data class UploadState(
-    val isUploading: Boolean = false,
-    val uploadedUrl: String? = null,
-    val progress: Int = 0,
-    val error: String? = null
-)
-
-data class ValidationResult(
-    val beginDateError: String? = null,
-    val endDateError: String? = null,
-    val beginTimeError: String? = null,
-    val endTimeError: String? = null
-)

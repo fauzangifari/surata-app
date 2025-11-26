@@ -8,10 +8,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.IOException
 
-class PostLetterUseCase(
+open class PostLetterUseCase(
     private val letterRepository: LetterRepository
 ) {
-    operator fun invoke(reqLetter: ReqLetter): Flow<Resource<Letter>> = flow {
+    open operator fun invoke(reqLetter: ReqLetter): Flow<Resource<Letter>> = flow {
         try {
             emit(Resource.Loading())
             val safeReq = reqLetter.copy(

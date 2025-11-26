@@ -1,9 +1,11 @@
 package com.fauzangifari.data.di
 
 import com.fauzangifari.data.source.remote.retrofit.AuthApiService
+import com.fauzangifari.data.source.remote.retrofit.FCMApiService
 import com.fauzangifari.data.utils.AuthInterceptor
 import com.fauzangifari.data.source.remote.retrofit.LetterApiService
 import com.fauzangifari.data.source.remote.retrofit.StudentApiService
+import com.fauzangifari.data.source.remote.retrofit.UserApiService
 import com.fauzangifari.domain.common.Constant
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -52,5 +54,15 @@ val networkModule = module {
     single {
         get<Retrofit>(qualifier = named("retrofit"))
             .create(StudentApiService::class.java)
+    }
+
+    single {
+        get<Retrofit>(qualifier = named("retrofit"))
+            .create(UserApiService::class.java)
+    }
+
+    single {
+        get<Retrofit>(qualifier = named("retrofit"))
+            .create(FCMApiService::class.java)
     }
 }

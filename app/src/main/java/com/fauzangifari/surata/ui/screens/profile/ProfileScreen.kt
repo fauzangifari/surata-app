@@ -18,32 +18,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fauzangifari.domain.model.UserProfile
 import com.fauzangifari.surata.ui.components.*
 import com.fauzangifari.surata.ui.theme.Blue900
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
-
-data class UserProfile(
-    val name: String = "",
-    val schoolEmail: String = "",
-    val personalEmail: String = "",
-    val placeOfBirth: String = "",
-    val dateOfBirth: String = "",
-    val phone: String = "",
-    val idNumber: String = "",
-    val photoUrl: String? = null
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     modifier: Modifier = Modifier,
-    userProfileFlow: Flow<UserProfile> = flowOf(UserProfile()),
     onNavigateBack: () -> Unit = {},
     onUpdateProfile: (UserProfile) -> Unit = {},
     viewModel: ProfileViewModel = viewModel()
 ) {
-    val profile by userProfileFlow.collectAsState(initial = UserProfile())
+    val profile by viewModel.profile.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
     val editedPhone by viewModel.editedPhone.collectAsState()
@@ -55,12 +42,44 @@ fun ProfileScreen(
     val toastMessage by viewModel.toastMessage.collectAsState()
     val showToast by viewModel.showToast.collectAsState()
     val isSuccess by viewModel.isSuccess.collectAsState()
-    val profileState by viewModel.profile.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     val scrollState = rememberScrollState()
 
-    LaunchedEffect(profile) {
-        viewModel.loadProfile(profile)
+    // Show error state if there's an error loading profile
+    if (errorMessage != null && !isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier.padding(24.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = null,
+                    modifier = Modifier.size(64.dp),
+                    tint = MaterialTheme.colorScheme.error
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = errorMessage ?: "Terjadi kesalahan",
+                    style = MaterialTheme.typography.bodyLarge,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = { viewModel.retryLoadProfile() },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Blue900
+                    )
+                ) {
+                    Text("Coba Lagi")
+                }
+            }
+        }
+        return
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -72,7 +91,7 @@ fun ProfileScreen(
                 .background(MaterialTheme.colorScheme.background)
         ) {
             ProfileHeader(
-                profile = profileState,
+                profile = profile,
                 isEditMode = isEditMode,
                 onChangePhotoClick = { viewModel.onShowChangePhotoDialog() }
             )
@@ -80,7 +99,7 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             ProfileInfoCard(
-                profile = profileState,
+                profile = profile,
                 isEditMode = isEditMode,
                 editedPhone = editedPhone,
                 editedPersonalEmail = editedPersonalEmail,
@@ -170,6 +189,20 @@ fun ProfileScreen(
                 modifier = Modifier.align(Alignment.TopCenter)
             )
         }
+
+        // Loading overlay
+        if (isLoading && errorMessage == null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    color = Blue900
+                )
+            }
+        }
     }
 
     if (showSaveDialog) {
@@ -252,9 +285,9 @@ private fun ProfileHeader(
 ) {
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
-        elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = 2.dp
-        ),
+//        elevation = CardDefaults.elevatedCardElevation(
+//            defaultElevation = 2.dp
+//        ),
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )
@@ -301,40 +334,11 @@ private fun ProfileHeader(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = profile.idNumber.ifBlank { "-" },
+                text = profile.schoolEmail.ifBlank { "-" },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
-    }
-}
-
-@Composable
-private fun ProfileAvatar(
-    name: String,
-    photoUrl: String?,
-    modifier: Modifier = Modifier
-) {
-    val initials = name
-        .split("\\s+".toRegex())
-        .filter { it.isNotBlank() }
-        .take(2)
-        .joinToString("") { it.first().uppercase() }
-        .ifBlank { "U" }
-
-    Box(
-        modifier = modifier
-            .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.primaryContainer),
-        contentAlignment = Alignment.Center
-    ) {
-
-        Text(
-            text = initials,
-            style = MaterialTheme.typography.headlineLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
-        )
     }
 }
 
@@ -354,9 +358,9 @@ private fun ProfileInfoCard(
         modifier = modifier
             .fillMaxWidth()
             .animateContentSize(),
-        elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = 2.dp
-        ),
+//        elevation = CardDefaults.elevatedCardElevation(
+//            defaultElevation = 2.dp
+//        ),
         colors = CardDefaults.elevatedCardColors(
             containerColor = MaterialTheme.colorScheme.surface
         )

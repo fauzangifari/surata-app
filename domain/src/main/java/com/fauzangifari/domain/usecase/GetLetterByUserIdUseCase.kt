@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.IOException
 
-class GetLetterByUserIdUseCase (
+open class GetLetterByUserIdUseCase (
     private val letterRepository: LetterRepository
 ){
-    operator fun invoke(userId: String): Flow<Resource<List<Letter>>> = flow {
+    open operator fun invoke(userId: String): Flow<Resource<List<Letter>>> = flow {
         try {
             emit(Resource.Loading())
 

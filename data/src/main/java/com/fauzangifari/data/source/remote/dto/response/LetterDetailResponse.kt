@@ -26,6 +26,9 @@ data class LetterDetailResponse(
 @Parcelize
 data class Result(
 
+    @field:SerializedName("history")
+    val history: List<HistoryItem?>? = null,
+
 	@field:SerializedName("cc")
 	val cc: List<String?>? = null,
 
@@ -76,6 +79,24 @@ data class Result(
 
 	@field:SerializedName("updatedAt")
 	val updatedAt: String? = null
+) : Parcelable
+
+@Parcelize
+data class HistoryItem(
+    @field:SerializedName("status")
+    val status: String? = null,
+
+    @field:SerializedName("actorId")
+    val actorId: String? = null,
+
+    @field:SerializedName("actorName")
+    val actorName: String? = null,
+
+    @field:SerializedName("note")
+    val note: String? = null,
+
+    @field:SerializedName("timestamp")
+    val timestamp: String? = null,
 ) : Parcelable
 
 @Parcelize

@@ -1,6 +1,5 @@
 package com.fauzangifari.data.mapper
 
-import android.util.Log
 import com.fauzangifari.data.source.remote.dto.response.Address
 import com.fauzangifari.data.source.remote.dto.response.ResultItemStudent
 import com.fauzangifari.domain.model.Student

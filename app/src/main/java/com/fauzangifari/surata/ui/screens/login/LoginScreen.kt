@@ -52,7 +52,7 @@ fun LoginScreen(
     val isLoggedIn by viewModel.isLoggedIn.collectAsState()
 
     var toastMessage by remember { mutableStateOf<String?>(null) }
-    var toastType by remember { mutableStateOf<ToastType>(ToastType.SUCCESS) }
+    var toastType by remember { mutableStateOf(ToastType.SUCCESS) }
     var toastVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(isLoggedIn) {

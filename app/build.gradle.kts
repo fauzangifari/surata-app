@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.services)
     id("kotlin-parcelize")
 }
 
@@ -67,8 +68,12 @@ dependencies {
 
     // Testing
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation("io.mockk:mockk:1.14.6")
 //    testImplementation("org.robolectric:robolectric:4.11.1")
 //    testImplementation("androidx.test:core:1.5.0")
+
+    // Datastore
+    implementation(libs.androidx.datastore.preferences)
 
     // Coil
     implementation(libs.coil.compose)
@@ -82,5 +87,10 @@ dependencies {
     implementation(libs.koin.core)
     implementation(libs.koin.android)
     implementation(libs.koin.androidx.compose)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.analytics)
 
 }

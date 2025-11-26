@@ -7,7 +7,7 @@ import com.fauzangifari.domain.repository.LetterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class PostPresignedUrlUseCase(
+open class PostPresignedUrlUseCase(
     private val letterRepository: LetterRepository
 ) {
     operator fun invoke(reqPresigned: ReqPresigned): Flow<Resource<Presigned>> = flow {

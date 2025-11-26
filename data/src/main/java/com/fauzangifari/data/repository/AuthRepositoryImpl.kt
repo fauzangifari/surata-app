@@ -3,6 +3,7 @@ package com.fauzangifari.data.repository
 import com.fauzangifari.data.mapper.toDomain
 import com.fauzangifari.data.source.local.datastore.AuthPreferences
 import com.fauzangifari.data.source.local.room.dao.LetterDao
+import com.fauzangifari.data.source.local.room.dao.NotificationDao
 import com.fauzangifari.data.source.remote.dto.request.SignInRequest
 import com.fauzangifari.data.source.remote.dto.request.SignOutRequest
 import com.fauzangifari.data.source.remote.retrofit.AuthApiService
@@ -17,7 +18,8 @@ import java.io.IOException
 class AuthRepositoryImpl(
     private val authApiService: AuthApiService,
     private val authPreferences: AuthPreferences,
-    private val letterDao: LetterDao
+    private val letterDao: LetterDao,
+    private val notificationDao: NotificationDao
 ) : AuthRepository {
     override suspend fun signIn(email: String, password: String): Resource<Auth> {
         return try {
@@ -37,8 +39,16 @@ class AuthRepositoryImpl(
             AuthTokenProvider.setToken(token)
 
             Resource.Success(response.toDomain())
+        } catch (e: HttpException) {
+            when (e.code()) {
+                401 -> Resource.Error("Email atau password salah!")
+                403 -> Resource.Error("Akun tidak ditemukan!")
+                else -> Resource.Error(e.localizedMessage ?: "Terjadi kesalahan pada server")
+            }
+        } catch (e: IOException) {
+            Resource.Error("Tidak dapat terhubung ke server. Periksa koneksi internet Anda")
         } catch (e: Exception) {
-            Resource.Error(e.localizedMessage ?: "Unexpected error")
+            Resource.Error(e.localizedMessage ?: "Terjadi kesalahan yang tidak terduga")
         }
     }
 
@@ -52,12 +62,11 @@ class AuthRepositoryImpl(
             val isSuccess = response.success ?: false
             val message = response.message
 
-            // Clear preferences dan token
             authPreferences.clear()
             AuthTokenProvider.setToken(null)
 
-            // Clear local cache untuk keamanan data
             letterDao.deleteAllLetters()
+            notificationDao.deleteAllNotifications()
 
             if (isSuccess) {
                 Resource.Success(true)
@@ -68,11 +77,13 @@ class AuthRepositoryImpl(
             runCatching {
                 authPreferences.clear()
                 letterDao.deleteAllLetters()
+                notificationDao.deleteAllNotifications()
             }
             AuthTokenProvider.setToken(null)
             Resource.Error(e.localizedMessage ?: "An unexpected error occurred")
         }
     }
+
 
     override suspend fun getSession(): Resource<Session> {
         return try {

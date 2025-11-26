@@ -70,3 +70,59 @@ fun openPdfWithIntent(context: Context, file: File) {
         Toast.makeText(context, "Gagal membuka PDF", Toast.LENGTH_SHORT).show()
     }
 }
+
+suspend fun openPdfUrl(context: Context, url: String, fileName: String = "document.pdf") {
+    try {
+        val file = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+            downloadPdfFromUrl(context, url, fileName)
+        }
+        if (file != null && file.exists()) {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                val uri: Uri = FileProvider.getUriForFile(
+                    context,
+                    "${context.packageName}.provider",
+                    file
+                )
+
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    setDataAndType(uri, "application/pdf")
+                    addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+
+                context.startActivity(Intent.createChooser(intent, "Buka PDF dengan"))
+            }
+        } else {
+            kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+                Toast.makeText(context, "Gagal mengunduh PDF", Toast.LENGTH_SHORT).show()
+            }
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        Log.e("PdfUtils", "Failed to open PDF URL", e)
+        kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {
+            Toast.makeText(context, "Gagal membuka PDF", Toast.LENGTH_SHORT).show()
+        }
+    }
+}
+
+fun downloadPdfFromUrl(context: Context, url: String, fileName: String): File? {
+    return try {
+        val file = File(context.cacheDir, fileName)
+
+        val connection = java.net.URL(url).openConnection()
+        connection.connect()
+
+        connection.getInputStream().use { input ->
+            FileOutputStream(file).use { output ->
+                input.copyTo(output)
+            }
+        }
+        file
+    } catch (e: Exception) {
+        e.printStackTrace()
+        Log.e("PdfUtils", "Failed to download PDF", e)
+        null
+    }
+}
+

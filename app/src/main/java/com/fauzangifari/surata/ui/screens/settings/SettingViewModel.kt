@@ -1,9 +1,11 @@
 package com.fauzangifari.surata.ui.screens.settings
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fauzangifari.domain.common.Resource
 import com.fauzangifari.data.source.local.datastore.AuthPreferences
+import com.fauzangifari.domain.usecase.DeleteFCMTokenUseCase
 import com.fauzangifari.domain.usecase.PostSignOutUseCase
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,6 +18,7 @@ import kotlinx.coroutines.launch
 class SettingViewModel(
     private val authPreferences: AuthPreferences,
     private val postSignOutUseCase: PostSignOutUseCase,
+    private val deleteFCMTokenUseCase: DeleteFCMTokenUseCase,
 ) : ViewModel() {
 
     private val _logoutState = MutableStateFlow<Resource<Boolean>>(Resource.Idle())
@@ -43,6 +46,22 @@ class SettingViewModel(
 
         viewModelScope.launch {
             _logoutState.value = Resource.Loading()
+
+            val fcmTokenId = authPreferences.getFCMTokenId()
+            if (!fcmTokenId.isNullOrBlank()) {
+                Log.d(TAG, "Deleting FCM token: $fcmTokenId")
+                when (val deleteResult = deleteFCMTokenUseCase(fcmTokenId)) {
+                    is Resource.Success -> {
+                        Log.d(TAG, "FCM token deleted successfully")
+                    }
+                    is Resource.Error -> {
+                        Log.e(TAG, "Failed to delete FCM token: ${deleteResult.message}")
+                    }
+                    else -> {
+                        Log.w(TAG, "Unexpected result when deleting FCM token")
+                    }
+                }
+            }
 
             when (val result = postSignOutUseCase(true)) {
                 is Resource.Success -> {
@@ -82,5 +101,9 @@ class SettingViewModel(
 
     sealed class LogoutEvent {
         data object NavigateToLogin : LogoutEvent()
+    }
+
+    companion object {
+        private const val TAG = "SettingViewModel"
     }
 }

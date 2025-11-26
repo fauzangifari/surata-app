@@ -12,7 +12,7 @@ import retrofit2.http.Path
 
 interface LetterApiService {
 
-    @GET("/api/letters")
+    @GET("api/letters")
     suspend fun getLetters() : LetterResponse
 
     @GET("api/users/{userId}/letters")
@@ -20,17 +20,17 @@ interface LetterApiService {
         @Path("userId") userId: String
     ) : LetterResponse
 
-    @GET("/api/letters/{letterId}")
+    @GET("api/letters/{letterId}")
     suspend fun getLetterById(
         @Path("letterId") letterId: String
     ) : LetterDetailResponse
 
-    @POST("/api/letters")
+    @POST("api/letters")
     suspend fun postLetter(
         @Body request: LetterRequest
     ) : LetterDetailResponse
 
-    @POST("/api/presigned")
+    @POST("api/presigned")
     suspend fun postPresignedUrl(
         @Body request: PresignedRequest
     ) : PresignedResponse

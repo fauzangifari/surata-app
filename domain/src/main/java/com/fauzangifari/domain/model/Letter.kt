@@ -15,5 +15,6 @@ data class Letter(
     val status: String,
     val letterNumber: String,
     val cc: List<String> = emptyList(),
-    val reason: String? = null
+    val reason: String? = null,
+    val history: List<History> = emptyList()
 )

@@ -11,13 +11,15 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 
-class AuthPreferences(private val dataStore: DataStore<Preferences>) {
+open class AuthPreferences(private val dataStore: DataStore<Preferences>) {
 
     companion object {
         private val TOKEN_KEY = stringPreferencesKey("token_key")
         private val USER_ID_KEY = stringPreferencesKey("user_id_key")
         private val USER_NAME_KEY = stringPreferencesKey("user_name_key")
         private val USER_EMAIL_KEY = stringPreferencesKey("user_email_key")
+        private val USER_ROLE_KEY = stringPreferencesKey("user_role_key")
+        private val FCM_TOKEN_ID_KEY = stringPreferencesKey("fcm_token_id_key")
     }
 
     suspend fun saveToken(token: String) {
@@ -94,6 +96,44 @@ class AuthPreferences(private val dataStore: DataStore<Preferences>) {
         }
         .map { prefs ->
             prefs[USER_EMAIL_KEY]
+        }
+
+    suspend fun saveUserRole(role: String) {
+        dataStore.edit { prefs ->
+            prefs[USER_ROLE_KEY] = role
+        }
+    }
+
+    suspend fun getUserRole(): String? {
+        val prefs = dataStore.data.first()
+        return prefs[USER_ROLE_KEY]
+    }
+
+    val userRole: Flow<String?> = dataStore.data
+        .catch { e ->
+            if (e is IOException) emit(emptyPreferences()) else throw e
+        }
+        .map { prefs ->
+            prefs[USER_ROLE_KEY]
+        }
+
+    suspend fun saveFCMTokenId(tokenId: String) {
+        dataStore.edit { prefs ->
+            prefs[FCM_TOKEN_ID_KEY] = tokenId
+        }
+    }
+
+    suspend fun getFCMTokenId(): String? {
+        val prefs = dataStore.data.first()
+        return prefs[FCM_TOKEN_ID_KEY]
+    }
+
+    val fcmTokenId: Flow<String?> = dataStore.data
+        .catch { e ->
+            if (e is IOException) emit(emptyPreferences()) else throw e
+        }
+        .map { prefs ->
+            prefs[FCM_TOKEN_ID_KEY]
         }
 
     suspend fun clear() {

@@ -11,6 +11,7 @@ import com.fauzangifari.domain.model.Presigned
 import com.fauzangifari.domain.model.ReqLetter
 import com.fauzangifari.domain.model.ReqPresigned
 import com.fauzangifari.domain.repository.LetterRepository
+import retrofit2.HttpException
 
 class LetterRepositoryImpl(
     private val letterApiService: LetterApiService,
@@ -24,7 +25,6 @@ class LetterRepositoryImpl(
 
     override suspend fun getLettersByUserId(userId: String): List<Letter> {
         val response = letterApiService.getLettersByUserId(userId)
-        Log.d("LetterRepositoryImpl", "Fetched letters for userId $userId: ${response.result}")
         return response.result?.mapNotNull { it?.toDomain() } ?: emptyList()
     }
 
@@ -46,7 +46,10 @@ class LetterRepositoryImpl(
             val request = reqLetter.toRequest()
             val response = letterApiService.postLetter(request)
             response.result?.toDomain() ?: throw Exception("Gagal memproses surat")
-        } catch (e: Exception) {
+        } catch (e: HttpException) {
+            when(e.code()) {
+                400 -> throw Exception("Gagal memproses surat")
+            }
             throw Exception("Gagal memproses surat: ${e.message}")
         }
     }

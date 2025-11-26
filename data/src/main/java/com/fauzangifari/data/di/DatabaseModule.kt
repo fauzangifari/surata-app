@@ -12,11 +12,15 @@ val databaseModule =  module {
                 androidContext(),
                 Database::class.java,
                 "letter_db"
-            ).fallbackToDestructiveMigration(false).build()
+            ).fallbackToDestructiveMigration(true).build()
     }
 
     factory {
         get<Database>().letterDao()
+    }
+
+    factory {
+        get<Database>().notificationDao()
     }
 
 }

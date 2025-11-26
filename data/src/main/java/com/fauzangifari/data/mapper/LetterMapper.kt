@@ -6,10 +6,12 @@ import com.fauzangifari.data.source.remote.dto.request.PresignedRequest
 import com.fauzangifari.data.source.remote.dto.response.PresignedResponse
 import com.fauzangifari.data.source.remote.dto.response.Result
 import com.fauzangifari.data.source.remote.dto.response.ResultItem
+import com.fauzangifari.data.source.remote.dto.response.HistoryItem
 import com.fauzangifari.domain.model.Letter
 import com.fauzangifari.domain.model.Presigned
 import com.fauzangifari.domain.model.ReqLetter
 import com.fauzangifari.domain.model.ReqPresigned
+import com.fauzangifari.domain.model.History
 
 // Remote
 fun ResultItem.toDomain(): Letter {
@@ -28,7 +30,7 @@ fun ResultItem.toDomain(): Letter {
         applicantName = applicant?.name.orEmpty(),
         applicantEmail = applicant?.email.orEmpty(),
         cc = emptyList(),
-        reason = null
+        reason = this.reason
     )
 }
 
@@ -48,7 +50,8 @@ fun Result.toDomain(): Letter {
         applicantName = applicant?.name.orEmpty(),
         applicantEmail = applicant?.email.orEmpty(),
         cc = this.cc?.filterNotNull() ?: emptyList(),
-        reason = this.reason
+        reason = this.reason,
+        history = this.history?.filterNotNull()?.map { it.toDomain() } ?: emptyList()
     )
 }
 
@@ -117,3 +120,13 @@ fun Letter.toEntity() = LetterEntity(
     status = this.status,
     letterNumber = this.letterNumber
 )
+
+fun HistoryItem.toDomain(): History {
+    return History(
+        status = this.status,
+        actorId = this.actorId,
+        actorName = this.actorName,
+        note = this.note,
+        timestamp = this.timestamp
+    )
+}

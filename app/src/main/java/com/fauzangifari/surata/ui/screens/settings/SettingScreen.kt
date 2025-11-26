@@ -83,7 +83,6 @@ fun SettingScreen(
     navController: NavHostController,
     viewModel: SettingViewModel = koinViewModel()
 ) {
-    val context = LocalContext.current
     var showLogoutDialog by remember { mutableStateOf(false) }
     val logoutState by viewModel.logoutState.collectAsStateWithLifecycle()
 
@@ -91,7 +90,7 @@ fun SettingScreen(
     val userEmail by viewModel.userEmailState.collectAsStateWithLifecycle()
 
     var toastMessage by remember { mutableStateOf<String?>(null) }
-    var toastType by remember { mutableStateOf<ToastType>(ToastType.SUCCESS) }
+    var toastType by remember { mutableStateOf(ToastType.SUCCESS) }
     var toastVisible by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
@@ -143,7 +142,6 @@ fun SettingScreen(
             userEmail = userEmail.toString()
         )
 
-        // CustomToast overlay at top of the screen
         AnimatedVisibility(
             visible = toastVisible,
             enter = slideInVertically(initialOffsetY = { -it }) + fadeIn(),
@@ -375,11 +373,9 @@ private fun SettingScreenContent(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Menu Section
             Column(
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
-                // Account Section
                 Text(
                     text = "Akun",
                     fontSize = 13.sp,
@@ -401,13 +397,16 @@ private fun SettingScreenContent(
                         subtitle = "Lihat dan edit profil Anda",
                         iconBgColor = Blue100,
                         iconTint = Blue500,
-                        onClick = { /* TODO */ }
+                        onClick = {
+                            navController.navigate("main_with_bottom_nav?tab=profile") {
+                                popUpTo(Screen.Setting.route) { inclusive = true }
+                            }
+                        }
                     )
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Support Section
                 Text(
                     text = "Bantuan & Dukungan",
                     fontSize = 13.sp,

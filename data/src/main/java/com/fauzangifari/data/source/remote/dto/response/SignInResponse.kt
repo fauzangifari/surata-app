@@ -13,5 +13,5 @@ data class SignInResponse(
     val url: String?,
 
     @field:SerializedName("user")
-    val user: UserResponse
+    val user: ResultUsers
 )

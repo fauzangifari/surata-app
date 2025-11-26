@@ -41,14 +41,12 @@ fun CardSurat(
 ) {
     val convertStatus = getConvertStatus(status)
     val statusColor = getStatusColor(convertStatus)
-
-
     val (tanggal, waktu) = splitDateTime(isoDateTime)
 
     Card(
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = White),
-        elevation = CardDefaults.cardElevation(1.dp),
+//        elevation = CardDefaults.cardElevation(1.dp),
         modifier = modifier.fillMaxWidth(),
         onClick = onDetailClick
     ) {

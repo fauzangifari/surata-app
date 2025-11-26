@@ -13,21 +13,3 @@ data class Student(
     val gender: String? = null,
     val address: Address? = null,
 )
-
-data class Address(
-    val country: String? = null,
-    val rt: String? = null,
-    val province: String? = null,
-    val rw: String? = null,
-    val city: String? = null,
-    val street: String? = null,
-    val district: String? = null,
-    val postalCode: String? = null,
-    val location: Location? = null,
-    val subDistrict: String? = null
-)
-
-data class Location(
-    val coordinate: List<Double?>? = null,
-    val type: String? = null
-)

@@ -17,7 +17,7 @@ data class StudentResponse(
 	val message: String? = null,
 
 	@field:SerializedName("errors")
-	val errors: List<Any?>? = null
+	val errors: List<String?>? = null
 )
 
 data class Mother(
@@ -90,6 +90,9 @@ data class Father(
 )
 
 data class ResultItemStudent(
+
+	@field:SerializedName("classId")
+	val classId: String? = null,
 
 	@field:SerializedName("birthOrder")
 	val birthOrder: Int? = null,
@@ -175,7 +178,7 @@ data class ResultItemStudent(
 	@field:SerializedName("birthCertificateNumber")
 	val birthCertificateNumber: String? = null,
 
-	@field:SerializedName("phoneNumber")
+	@field:SerializedName("phone")
 	val phoneNumber: String? = null,
 
 	@field:SerializedName("name")

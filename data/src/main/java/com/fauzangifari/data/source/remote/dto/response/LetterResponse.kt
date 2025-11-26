@@ -94,6 +94,9 @@ data class ResultItem(
 	@field:SerializedName("status")
 	val status: String? = null,
 
+    @field:SerializedName("history")
+    val history: List<HistoryItem?>? = null,
+
 	@field:SerializedName("letterNumber")
 	val letterNumber: String? = null,
 

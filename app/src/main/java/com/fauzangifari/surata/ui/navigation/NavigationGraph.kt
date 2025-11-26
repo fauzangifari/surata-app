@@ -65,12 +65,20 @@ fun NavigationGraph(startDestination: String) {
         }
 
         composable(
-            route = "main_with_bottom_nav",
+            route = "main_with_bottom_nav?tab={tab}",
+            arguments = listOf(
+                navArgument("tab") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            ),
             enterTransition = {
                 fadeIn(animationSpec = tween(400))
             }
-        ) {
-            BottomBarLayout(navController)
+        ) { backStackEntry ->
+            val initialTab = backStackEntry.arguments?.getString("tab")
+            BottomBarLayout(navController, initialTab)
         }
 
         composable(
@@ -183,9 +191,15 @@ fun NavigationGraph(startDestination: String) {
 
 
 @Composable
-fun BottomBarLayout(rootNavController: NavHostController) {
+fun BottomBarLayout(rootNavController: NavHostController, initialTab: String? = null) {
     val navController = rememberNavController()
     val bottomBarScreens = listOf(Screen.Home, Screen.Notification, Screen.Profile)
+
+    val startDestination = when (initialTab) {
+        "profile" -> Screen.Profile.route
+        "notification" -> Screen.Notification.route
+        else -> Screen.Home.route
+    }
 
     val currentRoute = navController.currentBackStackEntryAsState().value?.destination?.route
 
@@ -207,7 +221,7 @@ fun BottomBarLayout(rootNavController: NavHostController) {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Screen.Home.route,
+            startDestination = startDestination,
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
@@ -274,7 +288,7 @@ fun BottomBarLayout(rootNavController: NavHostController) {
                     }
                 }
             ) {
-                NotificationScreen()
+                NotificationScreen(navController = rootNavController)
             }
 
             composable(
@@ -306,7 +320,9 @@ fun BottomBarLayout(rootNavController: NavHostController) {
                     }
                 }
             ) {
-                ProfileScreen()
+                ProfileScreen(
+                    viewModel = koinViewModel()
+                )
             }
         }
     }

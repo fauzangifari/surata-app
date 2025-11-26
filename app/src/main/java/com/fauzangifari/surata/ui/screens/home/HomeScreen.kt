@@ -10,7 +10,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -36,7 +35,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.style.TextAlign
-import coil3.compose.AsyncImage
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -51,14 +49,14 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel) {
     val userEmail by viewModel.userEmailState.collectAsStateWithLifecycle()
 
     var toastMessage by remember { mutableStateOf<String?>(null) }
-    var toastType by remember { mutableStateOf<ToastType>(ToastType.SUCCESS) }
+    var toastType by remember { mutableStateOf(ToastType.SUCCESS) }
     var toastVisible by remember { mutableStateOf(false) }
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { showSheet = true },
-                containerColor = Blue800,
+                 containerColor = Blue800,
                 shape = RoundedCornerShape(50.dp)
             ) {
                 Icon(
@@ -85,7 +83,7 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel) {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                ProfileCard(email = userEmail)
+                ProfileCard(email = userEmail, viewModel = viewModel)
 
                 Box(modifier = Modifier
                     .weight(1f)
@@ -135,34 +133,40 @@ fun HomeScreen(navController: NavHostController, viewModel: HomeViewModel) {
 }
 
 @Composable
-fun ProfileCard(email: String?) {
+fun ProfileCard(email: String?, viewModel: HomeViewModel) {
+    val userRole by viewModel.userRoleState.collectAsStateWithLifecycle()
+    val userName by viewModel.userNameState.collectAsStateWithLifecycle()
+    val profile by viewModel.profile.collectAsStateWithLifecycle()
+
+    val roleText = when (userRole) {
+        "STUDENT" -> "Siswa Aktif"
+        "TEACHER" -> "Guru Aktif"
+        else -> "Pengguna Aktif"
+    }
+
     Card(
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(containerColor = Blue800),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-
-            AsyncImage(
-                model = "https://avatars.githubusercontent.com/u/77602702?v=4",
-                contentDescription = "Profile Picture",
-                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
+            ProfileAvatar(
+                name = userName ?: "User",
+                photoUrl = profile.photoUrl,
+                modifier = Modifier.size(48.dp)
             )
 
             Spacer(modifier = Modifier.width(12.dp))
 
             Column {
-                Text("Siswa Aktif", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(roleText, color = Color.White, fontWeight = FontWeight.Bold, fontSize = 14.sp)
                 Text(email ?: "-", color = Color.White, fontSize = 12.sp)
             }
         }
     }
 }
 
- @OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SuratSection(
     navController: NavHostController,
@@ -281,12 +285,29 @@ fun SuratForm(
 ) {
     val context = LocalContext.current
     val postState by viewModel.postLetterState.collectAsStateWithLifecycle()
-    val studentState by viewModel.studentState.collectAsStateWithLifecycle()
+    val userState by viewModel.userState.collectAsStateWithLifecycle()
     val formState by viewModel.formState.collectAsStateWithLifecycle()
     val uploadState by viewModel.uploadState.collectAsStateWithLifecycle()
+    val userRole by viewModel.userRoleState.collectAsStateWithLifecycle()
 
     // Determine if form should be disabled
     val isFormDisabled = postState.isLoading || uploadState.isUploading
+
+    // Filter letter types based on user role
+    val availableLetterTypes = when (userRole) {
+        "TEACHER" -> listOf("Surat Tugas")
+        "STUDENT" -> listOf(
+            "Surat Dispensasi",
+            "Surat Rekomendasi",
+            "Surat Keterangan Aktif"
+        )
+        else -> listOf(
+            "Surat Dispensasi",
+            "Surat Rekomendasi",
+            "Surat Keterangan Aktif",
+            "Surat Tugas"
+        )
+    }
 
     LaunchedEffect(postState.isSuccess, postState.error) {
         when {
@@ -330,12 +351,7 @@ fun SuratForm(
 
         DropdownField(
             label = "Jenis Surat",
-            items = listOf(
-                "Surat Dispensasi",
-                "Surat Rekomendasi",
-                "Surat Keterangan Aktif",
-                "Surat Tugas"
-            ),
+            items = availableLetterTypes,
             placeHolder = "Pilih Jenis Surat",
             onItemSelected = { viewModel.updateFormField(FormField.SELECTED_LETTER, it) }
         )
@@ -344,7 +360,7 @@ fun SuratForm(
             Column {
                 Spacer(modifier = Modifier.height(12.dp))
                 TextInput(
-                    label = "Judul Surat",
+                    label = "Subjek",
                     placeholder = "Masukkan judul surat",
                     value = formState.subject,
                     onValueChange = { viewModel.updateFormField(FormField.SUBJECT, it) },
@@ -359,15 +375,15 @@ fun SuratForm(
             SectionTitle("Pilih Siswa (Opsional)")
 
             MultiPickedField(
-                students = studentState.data,
+                students = userState.data,
                 selectedStudentIds = formState.selectedStudentIds,
-                isLoading = studentState.isLoading,
+                isLoading = userState.isLoading,
                 onSelectedChange = { viewModel.updateFormField(FormField.SELECTED_STUDENTS, it) }
             )
 
             if (formState.selectedStudentIds.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(6.dp))
-                val selectedNames = studentState.data
+                val selectedNames = userState.data
                     .filter { it.id in formState.selectedStudentIds }
                     .mapNotNull { it.name }
                 Text(
@@ -388,7 +404,7 @@ fun SuratForm(
                 value = formState.beginDate,
                 error = formState.beginDateError,
                 onDateSelected = { viewModel.updateFormField(FormField.BEGIN_DATE, it) },
-                placeholder = "Pilih Tanggal Mulai"
+                placeholder = "Tanggal Mulai"
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -398,7 +414,7 @@ fun SuratForm(
                 label = "Waktu Mulai",
                 value = formState.beginTime,
                 error = formState.beginTimeError,
-                placeHolder = "Pilih Waktu Mulai",
+                placeHolder = "Waktu Mulai",
                 onTimeSelected = { viewModel.updateFormField(FormField.BEGIN_TIME, it) }
             )
 
@@ -409,7 +425,7 @@ fun SuratForm(
                 value = formState.endDate,
                 error = formState.endDateError,
                 onDateSelected = { viewModel.updateFormField(FormField.END_DATE, it) },
-                placeholder = "Pilih Tanggal Berakhir"
+                placeholder = "Tanggal Berakhir"
             )
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -419,7 +435,7 @@ fun SuratForm(
                 label = "Waktu Selesai",
                 value = formState.endTime,
                 error = formState.endTimeError,
-                placeHolder = "Pilih Waktu Selesai",
+                placeHolder = "Waktu Selesai",
                 onTimeSelected = { viewModel.updateFormField(FormField.END_TIME, it) }
             )
         }
@@ -520,19 +536,6 @@ fun SuratForm(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-    }
-}
-
-fun toIsoDate(date: String, time: String): String {
-    return try {
-        val parts = date.split("/")
-        val day = parts[0].padStart(2, '0')
-        val month = parts[1].padStart(2, '0')
-        val year = parts[2]
-        val cleanTime = time.trim().replace(" ", "")
-        "${year}-${day}-${month}T${cleanTime}:00.000+08:00"
-    } catch (_: Exception) {
-        ""
     }
 }
 

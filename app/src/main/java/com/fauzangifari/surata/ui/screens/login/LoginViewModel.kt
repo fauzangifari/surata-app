@@ -1,17 +1,28 @@
 package com.fauzangifari.surata.ui.screens.login
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fauzangifari.data.source.local.datastore.AuthPreferences
 import com.fauzangifari.domain.common.Resource
 import com.fauzangifari.domain.model.Auth
+import com.fauzangifari.domain.usecase.GetUsersMeUseCase
 import com.fauzangifari.domain.usecase.PostSignInUseCase
+import com.fauzangifari.domain.usecase.SaveFCMTokenUseCase
+import com.fauzangifari.surata.utils.FCMTokenManager
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 class LoginViewModel(
     private val signInUseCase: PostSignInUseCase,
+    private val getUsersMeUseCase: GetUsersMeUseCase,
+    private val authPreferences: AuthPreferences,
+    private val saveFCMTokenUseCase: SaveFCMTokenUseCase
 ) : ViewModel() {
+
+    companion object {
+        private const val TAG = "LoginViewModel"
+    }
 
     private val _email = MutableStateFlow("")
     val email: StateFlow<String> = _email
@@ -34,6 +45,7 @@ class LoginViewModel(
     private val _isLoggedIn = MutableStateFlow(false)
     val isLoggedIn: StateFlow<Boolean> = _isLoggedIn
 
+    private var authData: Auth? = null
 
     fun onEmailChange(newEmail: String) {
         _email.value = newEmail
@@ -63,8 +75,8 @@ class LoginViewModel(
 
             when (val result = signInUseCase(email, password)) {
                 is Resource.Success -> {
-                    _isLoggedIn.value = true
-                    _loginState.value = result
+                    authData = result.data
+                    fetchUserRole()
                 }
 
                 is Resource.Error -> {
@@ -73,6 +85,55 @@ class LoginViewModel(
                 }
 
                 else -> Unit
+            }
+        }
+    }
+
+    private fun fetchUserRole() {
+        viewModelScope.launch {
+            when (val result = getUsersMeUseCase()) {
+                is Resource.Success -> {
+                    val userMe = result.data
+                    if (userMe != null && authData != null) {
+                        authPreferences.saveUserRole(userMe.role.name)
+
+                        sendFCMToken()
+
+                        _isLoggedIn.value = true
+                        _loginState.value = Resource.Success(data = authData!!)
+                    } else {
+                        _isLoggedIn.value = false
+                        _loginState.value = Resource.Error("Gagal mengambil data pengguna")
+                    }
+                }
+                is Resource.Error -> {
+                    _isLoggedIn.value = false
+                    _loginState.value = Resource.Error(result.message ?: "Gagal mengambil data pengguna")
+                }
+                else -> Unit
+            }
+        }
+    }
+
+    private fun sendFCMToken() {
+        viewModelScope.launch {
+            try {
+                val token = FCMTokenManager.getToken()
+                if (token != null) {
+                    when (val result = saveFCMTokenUseCase(token)) {
+                        is Resource.Success -> {
+                            Log.d(TAG, "FCM token berhasil dikirim ke backend")
+                        }
+                        is Resource.Error -> {
+                            Log.e(TAG, "Gagal mengirim FCM token: ${result.message}")
+                        }
+                        else -> Unit
+                    }
+                } else {
+                    Log.e(TAG, "FCM token null, tidak dapat mengirim ke backend")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Error saat mengirim FCM token", e)
             }
         }
     }

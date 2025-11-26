@@ -2,7 +2,25 @@ package com.fauzangifari.data.source.remote.dto.response
 
 import com.google.gson.annotations.SerializedName
 
-data class UserResponse(
+data class UsersResponse(
+
+    @field:SerializedName("result")
+    val result: List<ResultUsers?>? = null,
+
+    @field:SerializedName("success")
+    val success: Boolean? = null,
+
+    @field:SerializedName("meta")
+    val meta: Meta? = null,
+
+    @field:SerializedName("message")
+    val message: String? = null,
+
+    @field:SerializedName("errors")
+    val errors: List<String?>? = null
+)
+
+data class ResultUsers(
 
     @field:SerializedName("id")
     val id: String,

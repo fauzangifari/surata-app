@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fauzangifari.domain.model.Student
+import com.fauzangifari.domain.model.User
 import com.fauzangifari.surata.ui.theme.SurataTheme
 import com.fauzangifari.surata.ui.theme.Blue800
 import com.fauzangifari.surata.ui.theme.Grey100
@@ -24,7 +25,7 @@ import com.fauzangifari.surata.ui.theme.Grey700
 @Composable
 fun MultiPickedField(
     modifier: Modifier = Modifier,
-    students: List<Student> = emptyList(),
+    students: List<User> = emptyList(),
     selectedStudentIds: List<String> = emptyList(),
     onSelectedChange: (List<String>) -> Unit = {},
     isLoading: Boolean = false
@@ -40,7 +41,7 @@ fun MultiPickedField(
         if (searchQuery.isBlank()) students
         else students.filter {
             it.name?.contains(searchQuery, ignoreCase = true) == true ||
-            it.nisn?.contains(searchQuery, ignoreCase = true) == true
+            it.email?.contains(searchQuery, ignoreCase = true) == true
         }
     }
 
@@ -218,9 +219,9 @@ fun MultiPickedField(
                                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                                             fontSize = 14.sp
                                         )
-                                        if (!student.nisn.isNullOrBlank()) {
+                                        if (!student.email.isNullOrBlank()) {
                                             Text(
-                                                text = "NISN: ${student.nisn}",
+                                                text = "NISN: ${student.email}",
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = Grey700,
                                                 fontSize = 12.sp
@@ -250,25 +251,6 @@ fun MultiPickedField(
                     }
                 }
             }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun MultiPickerFieldPreview() {
-    SurataTheme {
-        Surface(modifier = Modifier.padding(16.dp)) {
-            MultiPickedField(
-                students = listOf(
-                    Student(id = "1", name = "Ahmad Fauzan Gifari", nik = "0051234567"),
-                    Student(id = "2", name = "Siti Nurhaliza", nik = "0051234568"),
-                    Student(id = "3", name = "Budi Santoso", nik = "0051234569"),
-                    Student(id = "4", name = "Dewi Lestari", nik = "0051234570")
-                ),
-                selectedStudentIds = listOf("1", "2"),
-                onSelectedChange = {}
-            )
         }
     }
 }

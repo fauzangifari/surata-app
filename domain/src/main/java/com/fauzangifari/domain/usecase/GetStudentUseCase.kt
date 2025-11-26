@@ -7,10 +7,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import java.io.IOException
 
-class GetStudentUseCase(
+open class GetStudentUseCase(
     private val studentRepository: StudentRepository
 ) {
-    operator fun invoke(): Flow<Resource<List<Student>>> = flow {
+    open operator fun invoke(): Flow<Resource<List<Student>>> = flow {
         try {
             emit(Resource.Loading())
             val response = studentRepository.getStudents()

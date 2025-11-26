@@ -3,13 +3,17 @@ package com.fauzangifari.surata.ui.screens.profile
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fauzangifari.domain.common.Resource
+import com.fauzangifari.domain.model.UserProfile
+import com.fauzangifari.domain.model.UserRole
+import com.fauzangifari.domain.usecase.GetUsersMeUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(
-
+    private val getUsersMeUseCase: GetUsersMeUseCase
 ) : ViewModel() {
 
     private val _profile = MutableStateFlow(UserProfile())
@@ -47,6 +51,83 @@ class ProfileViewModel(
 
     private val _isSuccess = MutableStateFlow(true)
     val isSuccess: StateFlow<Boolean> = _isSuccess
+
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage
+
+    init {
+        loadUserProfile()
+    }
+
+    private fun loadUserProfile() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            _errorMessage.value = null
+
+            when (val result = getUsersMeUseCase()) {
+                is Resource.Loading -> {
+                    _isLoading.value = true
+                }
+                is Resource.Success -> {
+                    result.data?.let { userMe ->
+                        val userProfile = when (userMe.role) {
+                            UserRole.STUDENT -> {
+                                // Map data student
+                                val student = userMe.student
+                                UserProfile(
+                                    name = userMe.name,
+                                    schoolEmail = userMe.email,
+                                    personalEmail = userMe.secondaryEmail ?: "",
+                                    placeOfBirth = student?.birthPlace ?: "",
+                                    dateOfBirth = formatDate(student?.birthDate),
+                                    phone = student?.phoneNumber ?: "",
+                                    idNumber = student?.nisn ?: student?.nipd ?: "",
+                                    photoUrl = userMe.image
+                                )
+                            }
+                            UserRole.TEACHER -> {
+                                // Map data teacher
+                                val teacher = userMe.teacher
+                                UserProfile(
+                                    name = userMe.name,
+                                    schoolEmail = userMe.email,
+                                    personalEmail = userMe.secondaryEmail ?: "",
+                                    placeOfBirth = teacher?.birthPlace ?: "",
+                                    dateOfBirth = formatDate(teacher?.birthDate),
+                                    phone = teacher?.phone ?: "",
+                                    idNumber = teacher?.nip ?: "",
+                                    photoUrl = userMe.image
+                                )
+                            }
+                            else -> {
+                                UserProfile(
+                                    name = userMe.name,
+                                    schoolEmail = userMe.email,
+                                    personalEmail = userMe.secondaryEmail ?: "",
+                                    placeOfBirth = "",
+                                    dateOfBirth = "",
+                                    phone = "",
+                                    idNumber = "",
+                                    photoUrl = userMe.image
+                                )
+                            }
+                        }
+                        _profile.value = userProfile
+                        _editedPhone.value = userProfile.phone
+                        _editedPersonalEmail.value = userProfile.personalEmail
+                    }
+                    _isLoading.value = false
+                }
+                is Resource.Error -> {
+                    _errorMessage.value = result.message ?: "Gagal memuat data profil"
+                    _isLoading.value = false
+                }
+                else -> {
+                    _isLoading.value = false
+                }
+            }
+        }
+    }
 
     fun loadProfile(profile: UserProfile) {
         _profile.value = profile
@@ -141,6 +222,10 @@ class ProfileViewModel(
         }
     }
 
+    fun retryLoadProfile() {
+        loadUserProfile()
+    }
+
     private fun validatePhone(phone: String): Boolean {
         return when {
             phone.isBlank() -> {
@@ -185,5 +270,33 @@ class ProfileViewModel(
 
     fun onDismissToast() {
         _showToast.value = false
+    }
+
+    private fun formatDate(dateString: String?): String {
+        if (dateString.isNullOrBlank()) return ""
+
+        return try {
+            val inputFormats = listOf(
+                java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale("id", "ID")),
+                java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale("id", "ID")),
+                java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", java.util.Locale("id", "ID"))
+            )
+
+            val outputFormat = java.text.SimpleDateFormat("dd MMMM yyyy", java.util.Locale("id", "ID"))
+
+            var parsedDate: java.util.Date? = null
+            for (format in inputFormats) {
+                try {
+                    parsedDate = format.parse(dateString)
+                    break
+                } catch (e: Exception) {
+                    continue
+                }
+            }
+
+            parsedDate?.let { outputFormat.format(it) } ?: dateString
+        } catch (e: Exception) {
+            dateString
+        }
     }
 }
