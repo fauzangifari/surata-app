@@ -706,8 +706,8 @@ class HomeViewModel(
                 endYear, endMonth, endDay, endHour, endMinute
             ).toLong()
 
-            // Waktu selesai harus lebih besar atau sama dengan waktu mulai
-            endTimestamp >= beginTimestamp
+            // Waktu selesai harus lebih besar dari waktu mulai (tidak boleh sama)
+            endTimestamp > beginTimestamp
         } catch (e: Exception) {
             android.util.Log.e("DateValidation", "Error validating date range", e)
             true // Return true jika parsing gagal untuk tidak memblokir form

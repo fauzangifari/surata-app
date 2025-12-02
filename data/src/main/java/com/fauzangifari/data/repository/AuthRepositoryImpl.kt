@@ -1,5 +1,6 @@
 package com.fauzangifari.data.repository
 
+import android.util.Log
 import com.fauzangifari.data.mapper.toDomain
 import com.fauzangifari.data.source.local.datastore.AuthPreferences
 import com.fauzangifari.data.source.local.room.dao.LetterDao
@@ -46,6 +47,7 @@ class AuthRepositoryImpl(
                 else -> Resource.Error(e.localizedMessage ?: "Terjadi kesalahan pada server")
             }
         } catch (e: IOException) {
+            Log.e("AuthRepositoryImpl", "IOException: ${e.message}")
             Resource.Error("Tidak dapat terhubung ke server. Periksa koneksi internet Anda")
         } catch (e: Exception) {
             Resource.Error(e.localizedMessage ?: "Terjadi kesalahan yang tidak terduga")
