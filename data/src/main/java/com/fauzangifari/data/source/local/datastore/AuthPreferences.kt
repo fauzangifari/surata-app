@@ -20,12 +20,24 @@ open class AuthPreferences(private val dataStore: DataStore<Preferences>) {
         private val USER_EMAIL_KEY = stringPreferencesKey("user_email_key")
         private val USER_ROLE_KEY = stringPreferencesKey("user_role_key")
         private val FCM_TOKEN_ID_KEY = stringPreferencesKey("fcm_token_id_key")
+        private val FCM_TOKEN = stringPreferencesKey("fcm_token")
     }
 
     suspend fun saveToken(token: String) {
         dataStore.edit { prefs ->
             prefs[TOKEN_KEY] = token
         }
+    }
+
+    suspend fun saveFCMToken(token: String) {
+        dataStore.edit { prefs ->
+            prefs[FCM_TOKEN] = token
+        }
+    }
+
+    suspend fun getFCMToken(): String? {
+        val prefs = dataStore.data.first()
+        return prefs[FCM_TOKEN]
     }
 
     suspend fun getToken(): String? {

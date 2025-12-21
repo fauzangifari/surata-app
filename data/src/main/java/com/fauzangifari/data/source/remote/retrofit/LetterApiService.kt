@@ -7,6 +7,7 @@ import com.fauzangifari.data.source.remote.dto.response.LetterResponse
 import com.fauzangifari.data.source.remote.dto.response.PresignedResponse
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 
@@ -34,4 +35,16 @@ interface LetterApiService {
     suspend fun postPresignedUrl(
         @Body request: PresignedRequest
     ) : PresignedResponse
+
+    @PATCH("api/letters/{letterId}")
+    suspend fun patchLetter(
+        @Path("letterId") letterId: String,
+        @Body request: LetterRequest
+    ) : LetterDetailResponse
+
+    @POST("api/letters/{letterId}/resubmit")
+    suspend fun resubmitLetter(
+        @Path("letterId") letterId: String,
+        @Body body: Map<String, String> = emptyMap()
+    ) : LetterDetailResponse
 }

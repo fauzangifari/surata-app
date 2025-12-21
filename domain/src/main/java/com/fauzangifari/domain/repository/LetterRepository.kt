@@ -19,6 +19,10 @@ interface LetterRepository {
 
     suspend fun postLetter(reqLetter: ReqLetter) : Letter
 
+    suspend fun patchLetter(letterId: String, reqLetter: ReqLetter): Letter
+
+    suspend fun resubmitLetter(letterId: String): Letter
+
     suspend fun postPresignedUrl(reqPresigned: ReqPresigned): Presigned
 
     suspend fun saveLettersToLocal(letters: List<Letter>)

@@ -3,17 +3,21 @@ package com.fauzangifari.surata.ui.screens.profile
 import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fauzangifari.data.source.local.datastore.AuthPreferences
 import com.fauzangifari.domain.common.Resource
 import com.fauzangifari.domain.model.UserProfile
 import com.fauzangifari.domain.model.UserRole
 import com.fauzangifari.domain.usecase.GetUsersMeUseCase
+import com.fauzangifari.domain.usecase.UpdateUserUseCase
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(
-    private val getUsersMeUseCase: GetUsersMeUseCase
+    private val getUsersMeUseCase: GetUsersMeUseCase,
+    private val updateUserUseCase: UpdateUserUseCase,
+    private val authPreferences: AuthPreferences
 ) : ViewModel() {
 
     private val _profile = MutableStateFlow(UserProfile())
@@ -25,14 +29,14 @@ class ProfileViewModel(
     private val _isEditMode = MutableStateFlow(false)
     val isEditMode: StateFlow<Boolean> = _isEditMode
 
-    private val _editedPhone = MutableStateFlow("")
-    val editedPhone: StateFlow<String> = _editedPhone
+    private val _editedName = MutableStateFlow("")
+    val editedName: StateFlow<String> = _editedName
 
     private val _editedPersonalEmail = MutableStateFlow("")
     val editedPersonalEmail: StateFlow<String> = _editedPersonalEmail
 
-    private val _phoneError = MutableStateFlow<String?>(null)
-    val phoneError: StateFlow<String?> = _phoneError
+    private val _nameError = MutableStateFlow<String?>(null)
+    val nameError: StateFlow<String?> = _nameError
 
     private val _emailError = MutableStateFlow<String?>(null)
     val emailError: StateFlow<String?> = _emailError
@@ -113,7 +117,7 @@ class ProfileViewModel(
                             }
                         }
                         _profile.value = userProfile
-                        _editedPhone.value = userProfile.phone
+                        _editedName.value = userProfile.name
                         _editedPersonalEmail.value = userProfile.personalEmail
                     }
                     _isLoading.value = false
@@ -131,29 +135,29 @@ class ProfileViewModel(
 
     fun loadProfile(profile: UserProfile) {
         _profile.value = profile
-        _editedPhone.value = profile.phone
+        _editedName.value = profile.name
         _editedPersonalEmail.value = profile.personalEmail
     }
 
     fun onEditModeToggle(enable: Boolean) {
         _isEditMode.value = enable
         if (enable) {
-            _editedPhone.value = _profile.value.phone
+            _editedName.value = _profile.value.name
             _editedPersonalEmail.value = _profile.value.personalEmail
-            _phoneError.value = null
+            _nameError.value = null
             _emailError.value = null
         } else {
-            _editedPhone.value = _profile.value.phone
+            _editedName.value = _profile.value.name
             _editedPersonalEmail.value = _profile.value.personalEmail
-            _phoneError.value = null
+            _nameError.value = null
             _emailError.value = null
         }
     }
 
-    fun onPhoneChange(phone: String) {
-        _editedPhone.value = phone
-        if (_phoneError.value != null) {
-            validatePhone(phone)
+    fun onNameChange(name: String) {
+        _editedName.value = name
+        if (_nameError.value != null) {
+            validateName(name)
         }
     }
 
@@ -165,10 +169,10 @@ class ProfileViewModel(
     }
 
     fun onSaveClick() {
-        val isPhoneValid = validatePhone(_editedPhone.value)
+        val isNameValid = validateName(_editedName.value)
         val isEmailValid = validateEmail(_editedPersonalEmail.value)
 
-        if (isPhoneValid && isEmailValid) {
+        if (isNameValid && isEmailValid) {
             _showSaveDialog.value = true
         }
     }
@@ -188,24 +192,52 @@ class ProfileViewModel(
     fun saveProfile(onUpdateProfile: (UserProfile) -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
-
-            val updatedProfile = _profile.value.copy(
-                phone = _editedPhone.value,
-                personalEmail = _editedPersonalEmail.value
-            )
+            _showSaveDialog.value = false
 
             try {
-                onUpdateProfile(updatedProfile)
+                val userId = authPreferences.getUserId()
+                if (userId.isNullOrBlank()) {
+                    throw Exception("User ID tidak ditemukan")
+                }
 
-                _profile.value = updatedProfile
-                _isEditMode.value = false
-                _showSaveDialog.value = false
-                _phoneError.value = null
-                _emailError.value = null
+                val result = updateUserUseCase(
+                    usersId = userId,
+                    name = _editedName.value.takeIf { it.isNotBlank() },
+                    secondaryEmail = _editedPersonalEmail.value.takeIf { it.isNotBlank() }
+                )
+
+                when (result) {
+                    is Resource.Success -> {
+                        val updatedProfile = _profile.value.copy(
+                            name = _editedName.value,
+                            personalEmail = _editedPersonalEmail.value
+                        )
+
+                        result.data?.name?.let { newName ->
+                            authPreferences.saveUserName(newName)
+                        }
+
+                        _profile.value = updatedProfile
+                        _isEditMode.value = false
+                        _nameError.value = null
+                        _emailError.value = null
+                        _toastMessage.value = "Profil berhasil diperbarui"
+                        _isSuccess.value = true
+
+                        onUpdateProfile(updatedProfile)
+                    }
+                    is Resource.Error -> {
+                        _toastMessage.value = result.message ?: "Gagal memperbarui profil"
+                        _isSuccess.value = false
+                    }
+                    else -> {
+                        _toastMessage.value = "Terjadi kesalahan"
+                        _isSuccess.value = false
+                    }
+                }
+
                 _isLoading.value = false
-                _toastMessage.value = "Profil berhasil diperbarui"
                 _showToast.value = true
-                _isSuccess.value = true
 
                 delay(3000)
                 _showToast.value = false
@@ -226,26 +258,22 @@ class ProfileViewModel(
         loadUserProfile()
     }
 
-    private fun validatePhone(phone: String): Boolean {
+    private fun validateName(name: String): Boolean {
         return when {
-            phone.isBlank() -> {
-                _phoneError.value = null
-                true
-            }
-            phone.length < 10 -> {
-                _phoneError.value = "Nomor telepon minimal 10 digit"
+            name.isBlank() -> {
+                _nameError.value = "Nama tidak boleh kosong"
                 false
             }
-            phone.length > 15 -> {
-                _phoneError.value = "Nomor telepon maksimal 15 digit"
+            name.length < 3 -> {
+                _nameError.value = "Nama minimal 3 karakter"
                 false
             }
-            !phone.all { it.isDigit() || it == '+' || it == '-' || it == ' ' } -> {
-                _phoneError.value = "Format nomor tidak valid"
+            name.length > 100 -> {
+                _nameError.value = "Nama maksimal 100 karakter"
                 false
             }
             else -> {
-                _phoneError.value = null
+                _nameError.value = null
                 true
             }
         }

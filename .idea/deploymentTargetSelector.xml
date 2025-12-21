@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="surata.app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-11-09T03:13:17.195329500Z">
+        <DropdownSelection timestamp="2025-12-20T22:35:43.934701600Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=fe32e1f6" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\fauza\.android\avd\Pixel_9_Pro.avd" />
             </handle>
           </Target>
         </DropdownSelection>

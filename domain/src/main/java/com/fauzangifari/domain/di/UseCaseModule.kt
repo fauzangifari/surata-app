@@ -14,12 +14,15 @@ import com.fauzangifari.domain.usecase.GetStudentUseCase
 import com.fauzangifari.domain.usecase.GetUsersMeUseCase
 import com.fauzangifari.domain.usecase.MarkAllNotificationsAsReadUseCase
 import com.fauzangifari.domain.usecase.MarkNotificationAsReadUseCase
+import com.fauzangifari.domain.usecase.PatchLetterUseCase
 import com.fauzangifari.domain.usecase.PostLetterUseCase
 import com.fauzangifari.domain.usecase.PostPresignedUrlUseCase
 import com.fauzangifari.domain.usecase.PostSignInUseCase
 import com.fauzangifari.domain.usecase.PostSignOutUseCase
+import com.fauzangifari.domain.usecase.ResubmitLetterUseCase
 import com.fauzangifari.domain.usecase.SaveFCMTokenUseCase
 import com.fauzangifari.domain.usecase.SaveNotificationUseCase
+import com.fauzangifari.domain.usecase.UpdateUserUseCase
 import org.koin.dsl.module
 
 val useCaseModule = module {
@@ -40,6 +43,13 @@ val useCaseModule = module {
     factory { PostSignOutUseCase(get()) }
     factory { PostLetterUseCase(get()) }
     factory { PostPresignedUrlUseCase(get()) }
+
+    // Patch
+    factory { PatchLetterUseCase(get()) }
+    factory { ResubmitLetterUseCase(get()) }
+
+    // Update
+    factory { UpdateUserUseCase(get()) }
 
     // Clear
     factory { ClearLetterCacheUseCase(get()) }

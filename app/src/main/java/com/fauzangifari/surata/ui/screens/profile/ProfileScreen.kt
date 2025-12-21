@@ -4,7 +4,6 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -12,7 +11,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -33,9 +31,9 @@ fun ProfileScreen(
     val profile by viewModel.profile.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val isEditMode by viewModel.isEditMode.collectAsState()
-    val editedPhone by viewModel.editedPhone.collectAsState()
+    val editedName by viewModel.editedName.collectAsState()
     val editedPersonalEmail by viewModel.editedPersonalEmail.collectAsState()
-    val phoneError by viewModel.phoneError.collectAsState()
+    val nameError by viewModel.nameError.collectAsState()
     val emailError by viewModel.emailError.collectAsState()
     val showSaveDialog by viewModel.showSaveDialog.collectAsState()
     val showChangePhotoDialog by viewModel.showChangePhotoDialog.collectAsState()
@@ -101,11 +99,11 @@ fun ProfileScreen(
             ProfileInfoCard(
                 profile = profile,
                 isEditMode = isEditMode,
-                editedPhone = editedPhone,
+                editedName = editedName,
                 editedPersonalEmail = editedPersonalEmail,
-                phoneError = phoneError,
+                nameError = nameError,
                 emailError = emailError,
-                onPhoneChange = { viewModel.onPhoneChange(it) },
+                onNameChange = { viewModel.onNameChange(it) },
                 onPersonalEmailChange = { viewModel.onPersonalEmailChange(it) }
             )
 
@@ -346,11 +344,11 @@ private fun ProfileHeader(
 private fun ProfileInfoCard(
     profile: UserProfile,
     isEditMode: Boolean,
-    editedPhone: String,
+    editedName: String,
     editedPersonalEmail: String,
-    phoneError: String?,
+    nameError: String?,
     emailError: String?,
-    onPhoneChange: (String) -> Unit,
+    onNameChange: (String) -> Unit,
     onPersonalEmailChange: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -378,13 +376,24 @@ private fun ProfileInfoCard(
                 modifier = Modifier.padding(bottom = 20.dp)
             )
 
-            // Nama (Read-only)
-            ProfileInfoItem(
-                icon = Icons.Default.Person,
-                label = "Nama Lengkap",
-                value = profile.name.ifBlank { "-" },
-                isEditable = false
-            )
+            // Nama Lengkap (Editable)
+            if (isEditMode) {
+                EditableProfileField(
+                    icon = Icons.Default.Person,
+                    label = "Nama Lengkap",
+                    value = editedName,
+                    onValueChange = onNameChange,
+                    placeholder = "Masukkan nama lengkap",
+                    errorMessage = nameError
+                )
+            } else {
+                ProfileInfoItem(
+                    icon = Icons.Default.Person,
+                    label = "Nama Lengkap",
+                    value = profile.name.ifBlank { "-" },
+                    isEditable = true
+                )
+            }
 
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 12.dp),
@@ -427,7 +436,6 @@ private fun ProfileInfoCard(
                 color = MaterialTheme.colorScheme.outlineVariant
             )
 
-            // Tempat & Tanggal Lahir (Read-only)
             ProfileInfoItem(
                 icon = Icons.Default.DateRange,
                 label = "Tempat & Tanggal Lahir",
@@ -449,31 +457,18 @@ private fun ProfileInfoCard(
                 color = MaterialTheme.colorScheme.outlineVariant
             )
 
-            // No Telepon (Editable)
-            if (isEditMode) {
-                EditableProfileField(
-                    icon = Icons.Default.Phone,
-                    label = "No. Telepon",
-                    value = editedPhone,
-                    onValueChange = onPhoneChange,
-                    placeholder = "08xxxxxxxxxx",
-                    errorMessage = phoneError
-                )
-            } else {
-                ProfileInfoItem(
-                    icon = Icons.Default.Phone,
-                    label = "No. Telepon",
-                    value = profile.phone.ifBlank { "-" },
-                    isEditable = true
-                )
-            }
+            ProfileInfoItem(
+                icon = Icons.Default.Phone,
+                label = "No. Telepon",
+                value = profile.phone.ifBlank { "-" },
+                isEditable = false
+            )
 
             HorizontalDivider(
                 modifier = Modifier.padding(vertical = 12.dp),
                 color = MaterialTheme.colorScheme.outlineVariant
             )
 
-            // NISN/NIP (Read-only)
             ProfileInfoItem(
                 icon = Icons.Default.AccountCircle,
                 label = "NISN / NIP",

@@ -1,6 +1,5 @@
 package com.fauzangifari.data.repository
 
-import android.util.Log
 import com.fauzangifari.data.source.local.datastore.AuthPreferences
 import com.fauzangifari.data.source.remote.dto.request.SaveTokenRequest
 import com.fauzangifari.data.source.remote.retrofit.FCMApiService
@@ -17,10 +16,13 @@ class FCMRepositoryImpl(
             val request = SaveTokenRequest(token = token)
             val response = fcmApiService.saveToken(request)
 
-            if (response.success == true && response.result?.id != null) {
+            if (response.success == true && response.result?.id != null && response.result.token != null) {
                 val tokenId = response.result.id
+                val tokenFCM = response.result.token
                 authPreferences.saveFCMTokenId(tokenId)
+                authPreferences.saveFCMToken(tokenFCM)
                 Resource.Success(tokenId)
+                Resource.Success(tokenFCM)
             } else {
                 val errorMessage = response.errors?.firstOrNull() ?: response.message ?: "Failed to save token"
                 Resource.Error(errorMessage)

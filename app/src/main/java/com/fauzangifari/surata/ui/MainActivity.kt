@@ -10,12 +10,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
 import com.fauzangifari.surata.ui.navigation.NavigationGraph
 import com.fauzangifari.surata.ui.navigation.Screen
 import com.fauzangifari.surata.ui.theme.SurataTheme
 import com.fauzangifari.surata.viewmodel.FCMViewModel
-import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : ComponentActivity() {

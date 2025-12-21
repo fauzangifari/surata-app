@@ -8,5 +8,11 @@ interface UserRepository {
     suspend fun getUsersMe(): Resource<UserMe>
 
     suspend fun getAllUsers(): Resource<List<User>>
+
+    suspend fun updateUser(
+        usersId: String,
+        name: String?,
+        secondaryEmail: String?
+    ): Resource<UserMe>
 }
 

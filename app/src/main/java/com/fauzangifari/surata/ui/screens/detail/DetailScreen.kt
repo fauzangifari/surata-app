@@ -1380,7 +1380,9 @@ fun RevisionDialog(
                 },
                 isUploading = uploadState.isUploading,
                 uploadProgress = uploadState.progress,
-                errorMessage = formState.fileError
+                errorMessage = formState.fileError,
+                isUploadError = !uploadState.error.isNullOrBlank(),
+                isUploadSuccess = !uploadState.uploadedUrl.isNullOrBlank() && !uploadState.isUploading
             )
 
             Spacer(modifier = Modifier.height(16.dp))

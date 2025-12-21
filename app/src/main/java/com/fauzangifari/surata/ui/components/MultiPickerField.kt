@@ -101,7 +101,7 @@ fun MultiPickedField(
 
                 if (tempSelected.isNotEmpty()) {
                     Text(
-                        text = "Terpilih (${tempSelected.size}/5)",
+                        text = "Terpilih (${tempSelected.size})",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         color = Blue800,
@@ -185,7 +185,6 @@ fun MultiPickedField(
                         items(filteredStudents) { student ->
                             val studentId = student.id ?: return@items
                             val isSelected = tempSelected.contains(studentId)
-                            val enabled = isSelected || tempSelected.size < 5
 
                             Surface(
                                 modifier = Modifier
@@ -204,9 +203,8 @@ fun MultiPickedField(
                                         checked = isSelected,
                                         onCheckedChange = {
                                             if (isSelected) tempSelected.remove(studentId)
-                                            else if (enabled) tempSelected.add(studentId)
+                                            else tempSelected.add(studentId)
                                         },
-                                        enabled = enabled,
                                         colors = CheckboxDefaults.colors(
                                             checkedColor = Blue800
                                         )
@@ -219,35 +217,18 @@ fun MultiPickedField(
                                             fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
                                             fontSize = 14.sp
                                         )
-                                        if (!student.email.isNullOrBlank()) {
-                                            Text(
-                                                text = "NISN: ${student.email}",
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = Grey700,
-                                                fontSize = 12.sp
-                                            )
-                                        }
+//                                        if (!student.email.isNullOrBlank()) {
+//                                            Text(
+//                                                text = "NISN: ${student.id}",
+//                                                style = MaterialTheme.typography.bodySmall,
+//                                                color = Grey700,
+//                                                fontSize = 12.sp
+//                                            )
+//                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                }
-
-                if (tempSelected.size >= 5) {
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(8.dp),
-                        color = MaterialTheme.colorScheme.errorContainer
-                    ) {
-                        Text(
-                            text = "⚠️ Maksimal 5 siswa yang dapat dipilih",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            modifier = Modifier.padding(12.dp),
-                            fontSize = 12.sp
-                        )
                     }
                 }
             }

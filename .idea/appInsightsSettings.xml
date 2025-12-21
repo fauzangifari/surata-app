@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.fauzangifari.surata" />
+                  <option name="mobileSdkAppId" value="1:88176393132:android:4105f0ac2fabcaa7a31809" />
+                  <option name="projectId" value="surata-app" />
+                  <option name="projectNumber" value="88176393132" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

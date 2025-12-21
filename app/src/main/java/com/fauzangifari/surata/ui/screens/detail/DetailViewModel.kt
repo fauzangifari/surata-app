@@ -12,8 +12,10 @@ import com.fauzangifari.domain.model.User
 import com.fauzangifari.domain.model.UserProfile
 import com.fauzangifari.domain.usecase.GetAllUserUseCase
 import com.fauzangifari.domain.usecase.GetDetailLetterUseCase
+import com.fauzangifari.domain.usecase.PatchLetterUseCase
 import com.fauzangifari.domain.usecase.PostLetterUseCase
 import com.fauzangifari.domain.usecase.PostPresignedUrlUseCase
+import com.fauzangifari.domain.usecase.ResubmitLetterUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -35,6 +37,8 @@ import java.util.Locale
 class DetailViewModel(
     private val getDetailLetterUseCase: GetDetailLetterUseCase,
     private val postLetterUseCase: PostLetterUseCase,
+    private val patchLetterUseCase: PatchLetterUseCase,
+    private val resubmitLetterUseCase: ResubmitLetterUseCase,
     private val postPresignedUrlUseCase: PostPresignedUrlUseCase,
     private val getAllUserUseCase: GetAllUserUseCase,
     private val authPreferences: AuthPreferences
@@ -91,7 +95,7 @@ class DetailViewModel(
         }
     }
 
-    private fun postLetter(reqLetter: ReqLetter) {
+    private fun patchLetter(letterId: String, reqLetter: ReqLetter) {
         val validationError = validateLetterInput(reqLetter)
         if (validationError != null) {
             _state.update {
@@ -104,7 +108,34 @@ class DetailViewModel(
         }
 
         viewModelScope.launch {
-            postLetterUseCase(reqLetter).collect { result ->
+            patchLetterUseCase(letterId, reqLetter).collect { result ->
+                when (result) {
+                    is Resource.Loading -> {
+                        _state.update { it.copy(isSubmittingRevision = true, revisionError = null) }
+                    }
+
+                    is Resource.Success -> {
+                        resubmitLetter(letterId)
+                    }
+
+                    is Resource.Error -> {
+                        _state.update {
+                            it.copy(
+                                isSubmittingRevision = false,
+                                revisionError = result.message ?: "Gagal mengirim revisi"
+                            )
+                        }
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    private fun resubmitLetter(letterId: String) {
+        viewModelScope.launch {
+            resubmitLetterUseCase(letterId).collect { result ->
                 when (result) {
                     is Resource.Loading -> {
                         _state.update { it.copy(isSubmittingRevision = true, revisionError = null) }
@@ -125,7 +156,7 @@ class DetailViewModel(
                         _state.update {
                             it.copy(
                                 isSubmittingRevision = false,
-                                revisionError = result.message ?: "Gagal mengirim revisi"
+                                revisionError = result.message ?: "Gagal mengirim ulang surat"
                             )
                         }
                     }
@@ -424,29 +455,40 @@ class DetailViewModel(
     }
 
     fun submitRevision() {
-        val state = _formState.value
+        val formState = _formState.value
+        val letterId = _state.value.data?.id
 
-        if (!validateForm(state)) return
+        if (letterId.isNullOrBlank()) {
+            _state.update {
+                it.copy(
+                    isSubmittingRevision = false,
+                    revisionError = "ID surat tidak ditemukan"
+                )
+            }
+            return
+        }
+
+        if (!validateForm(formState)) return
 
         _state.update { it.copy(isSubmittingRevision = true, revisionError = null) }
 
-        val beginIso = buildIsoDate(state.beginDate, state.beginTime)
-        val endIso = buildIsoDate(state.endDate, state.endTime)
-        val mappedLetterType = mapLetterTypeToEnum(state.selectedLetter)
-        val userIds = extractUserIds(state.selectedStudentIds, _userState.value.data)
+        val beginIso = buildIsoDate(formState.beginDate, formState.beginTime)
+        val endIso = buildIsoDate(formState.endDate, formState.endTime)
+        val mappedLetterType = mapLetterTypeToEnum(formState.selectedLetter)
+        val userIds = extractUserIds(formState.selectedStudentIds, _userState.value.data)
 
         val req = ReqLetter(
             letterType = mappedLetterType,
-            subject = state.subject,
+            subject = formState.subject,
             beginDate = beginIso.takeIf { it.isNotBlank() },
             endDate = endIso.takeIf { it.isNotBlank() },
-            reason = state.description.takeIf { it.isNotBlank() },
-            isPrinted = state.isPrinted,
+            reason = formState.description.takeIf { it.isNotBlank() },
+            isPrinted = formState.isPrinted,
             cc = userIds,
             attachment = _uploadState.value.uploadedUrl
         )
 
-        postLetter(req)
+        patchLetter(letterId, req)
     }
 
     private fun validateForm(state: LetterFormState): Boolean {

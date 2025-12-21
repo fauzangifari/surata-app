@@ -43,10 +43,44 @@ fun FileUpload(
     onFileSelected: (FileData?) -> Unit,
     isUploading: Boolean = false,
     uploadProgress: Int = 0,
-    errorMessage: String? = null
+    errorMessage: String? = null,
+    isUploadError: Boolean = false,
+    isUploadSuccess: Boolean = false
 ) {
     val context = LocalContext.current
     var selectedFile by remember { mutableStateOf<FileData?>(null) }
+    var showSuccessToast by remember { mutableStateOf(false) }
+    var showErrorToast by remember { mutableStateOf(false) }
+
+    // Auto-hide success toast after delay
+    LaunchedEffect(showSuccessToast) {
+        if (showSuccessToast) {
+            kotlinx.coroutines.delay(2000)
+            showSuccessToast = false
+        }
+    }
+
+    // Auto-hide error toast after delay
+    LaunchedEffect(showErrorToast) {
+        if (showErrorToast) {
+            kotlinx.coroutines.delay(3000)
+            showErrorToast = false
+        }
+    }
+
+    // Show success toast when upload to server succeeds
+    LaunchedEffect(isUploadSuccess) {
+        if (isUploadSuccess) {
+            showSuccessToast = true
+        }
+    }
+
+    // Show error toast when upload fails
+    LaunchedEffect(isUploadError) {
+        if (isUploadError) {
+            showErrorToast = true
+        }
+    }
 
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -59,11 +93,13 @@ fun FileUpload(
             val fileData = FileData(uri, fileName, fileSize, mimeType)
             selectedFile = fileData
             onFileSelected(fileData)
+            // Toast sukses dihapus dari sini, akan ditampilkan berdasarkan isUploadSuccess
         }
     }
 
-    Column(modifier = modifier) {
-        Box(
+    Box(modifier = modifier) {
+        Column {
+            Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(150.dp)
@@ -179,6 +215,63 @@ fun FileUpload(
                 fontFamily = PlusJakartaSans
             )
         }
+
+        if (isUploadError && selectedFile != null) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        selectedFile?.let { onFileSelected(it) }
+                    },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = Blue800
+                    )
+                ) {
+                    Text(
+                        text = "Upload Ulang",
+                        fontFamily = PlusJakartaSans,
+                        fontSize = 12.sp
+                    )
+                }
+                OutlinedButton(
+                    onClick = {
+                        // Ganti file
+                        filePickerLauncher.launch("application/pdf")
+                    },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = Blue800
+                    )
+                ) {
+                    Text(
+                        text = "Ganti File",
+                        fontFamily = PlusJakartaSans,
+                        fontSize = 12.sp
+                    )
+                }
+            }
+        }
+    }
+
+        // Custom Toast Success
+        CustomToast(
+            message = "File berhasil di upload",
+            type = ToastType.SUCCESS,
+            visible = showSuccessToast,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
+
+        // Custom Toast Error
+        CustomToast(
+            message = "Gagal upload file. Silakan coba lagi.",
+            type = ToastType.ERROR,
+            visible = showErrorToast,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }
 

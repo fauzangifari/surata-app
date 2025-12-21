@@ -47,10 +47,10 @@ class SettingViewModel(
         viewModelScope.launch {
             _logoutState.value = Resource.Loading()
 
-            val fcmTokenId = authPreferences.getFCMTokenId()
-            if (!fcmTokenId.isNullOrBlank()) {
-                Log.d(TAG, "Deleting FCM token: $fcmTokenId")
-                when (val deleteResult = deleteFCMTokenUseCase(fcmTokenId)) {
+            val fcmToken = authPreferences.getFCMToken()
+            if (!fcmToken.isNullOrBlank()) {
+                Log.d(TAG, "Deleting FCM token: $fcmToken")
+                when (val deleteResult = deleteFCMTokenUseCase(fcmToken)) {
                     is Resource.Success -> {
                         Log.d(TAG, "FCM token deleted successfully")
                     }

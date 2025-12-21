@@ -54,6 +54,33 @@ class LetterRepositoryImpl(
         }
     }
 
+    override suspend fun patchLetter(letterId: String, reqLetter: ReqLetter): Letter {
+        return try {
+            val request = reqLetter.toRequest()
+            val response = letterApiService.patchLetter(letterId, request)
+            response.result?.toDomain() ?: throw Exception("Gagal memperbarui surat")
+        } catch (e: HttpException) {
+            when(e.code()) {
+                400 -> throw Exception("Gagal memperbarui surat")
+                404 -> throw Exception("Surat tidak ditemukan")
+            }
+            throw Exception("Gagal memperbarui surat: ${e.message}")
+        }
+    }
+
+    override suspend fun resubmitLetter(letterId: String): Letter {
+        return try {
+            val response = letterApiService.resubmitLetter(letterId)
+            response.result?.toDomain() ?: throw Exception("Gagal mengirim ulang surat")
+        } catch (e: HttpException) {
+            when(e.code()) {
+                400 -> throw Exception("Gagal mengirim ulang surat")
+                404 -> throw Exception("Surat tidak ditemukan")
+            }
+            throw Exception("Gagal mengirim ulang surat: ${e.message}")
+        }
+    }
+
     override suspend fun postPresignedUrl(reqPresigned: ReqPresigned): Presigned {
         return try {
             val request = reqPresigned.toRequest()

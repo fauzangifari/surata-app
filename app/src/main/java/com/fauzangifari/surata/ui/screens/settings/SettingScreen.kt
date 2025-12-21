@@ -43,8 +43,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -54,10 +52,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import coil3.compose.AsyncImage
 import com.fauzangifari.domain.common.Resource
 import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.components.CustomToast
+import com.fauzangifari.surata.ui.components.ProfileAvatar
 import com.fauzangifari.surata.ui.components.ToastType
 import com.fauzangifari.surata.ui.navigation.Screen
 import com.fauzangifari.surata.ui.theme.BackgroundLight
@@ -311,25 +309,11 @@ private fun SettingScreenContent(
                         .padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Surface(
-                        modifier = Modifier.size(120.dp),
-                        shape = CircleShape,
-                        color = Blue900
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier.padding(6.dp)
-                        ) {
-                            AsyncImage(
-                                model = "https://avatars.githubusercontent.com/u/77602702?v=4",
-                                contentDescription = "Profile Picture",
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(CircleShape)
-                            )
-                        }
-                    }
+                    ProfileAvatar(
+                        name = userName,
+                        photoUrl = null,
+                        modifier = Modifier.size(100.dp)
+                    )
 
                     Spacer(modifier = Modifier.height(16.dp))
 

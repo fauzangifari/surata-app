@@ -19,7 +19,7 @@ val viewModelModule = module {
     }
 
     viewModel {
-        DetailViewModel(get(), get(), get(), get(), get())
+        DetailViewModel(get(), get(), get(), get(), get(), get(), get())
     }
 
     viewModel {
@@ -39,7 +39,7 @@ val viewModelModule = module {
     }
 
     viewModel {
-        ProfileViewModel(get())
+        ProfileViewModel(get(), get(), get())
     }
 
     viewModel {
