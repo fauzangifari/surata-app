@@ -30,7 +30,7 @@ data class Result(
     val history: List<HistoryItem?>? = null,
 
 	@field:SerializedName("cc")
-	val cc: List<String?>? = null,
+	val cc: List<CcItem?>? = null,
 
 	@field:SerializedName("reason")
 	val reason: String? = null,
@@ -97,6 +97,15 @@ data class HistoryItem(
 
     @field:SerializedName("timestamp")
     val timestamp: String? = null,
+) : Parcelable
+
+@Parcelize
+data class CcItem(
+    @field:SerializedName("name")
+    val name: String? = null,
+
+    @field:SerializedName("id")
+    val id: String? = null
 ) : Parcelable
 
 @Parcelize

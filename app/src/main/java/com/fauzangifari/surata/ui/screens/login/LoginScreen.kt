@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -23,7 +22,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fauzangifari.surata.R
 import com.fauzangifari.surata.ui.components.ButtonCustom
-import com.fauzangifari.surata.ui.components.ButtonStyle
 import com.fauzangifari.surata.ui.components.ButtonType
 import com.fauzangifari.surata.ui.components.TextInput
 import com.fauzangifari.surata.ui.theme.*

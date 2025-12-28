@@ -15,13 +15,11 @@ open class GetDetailLetterUseCase (
         try {
             emit(Resource.Loading())
 
-            // 1. Ambil data dari local terlebih dahulu
             val localLetter = letterRepository.getLetterByIdFromLocal(letterId)
             if (localLetter != null) {
                 emit(Resource.Success(localLetter))
             }
 
-            // 2. Fetch dari remote dan update local
             try {
                 val remoteLetter = letterRepository.getLetterById(letterId)
                 letterRepository.saveLetterToLocal(remoteLetter)

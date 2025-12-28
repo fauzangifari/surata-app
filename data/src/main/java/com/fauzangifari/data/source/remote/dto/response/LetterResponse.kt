@@ -49,58 +49,58 @@ data class Applicant(
 @Parcelize
 data class ResultItem(
 
-	@field:SerializedName("cc")
+    @field:SerializedName("cc")
 	val cc: List<String?>? = null,
 
-	@field:SerializedName("reason")
+    @field:SerializedName("reason")
 	val reason: String? = null,
 
-	@field:SerializedName("letterDate")
+    @field:SerializedName("letterDate")
 	val letterDate: String? = null,
 
-	@field:SerializedName("endDate")
+    @field:SerializedName("endDate")
 	val endDate: String? = null,
 
-	@field:SerializedName("subject")
+    @field:SerializedName("subject")
 	val subject: String? = null,
 
-	@field:SerializedName("letterContent")
+    @field:SerializedName("letterContent")
 	val letterContent: String? = null,
 
-	@field:SerializedName("reviewer")
+    @field:SerializedName("reviewer")
 	val reviewer: Reviewer? = null,
 
-	@field:SerializedName("isPrinted")
+    @field:SerializedName("isPrinted")
 	val isPrinted: Boolean? = null,
 
-	@field:SerializedName("applicant")
+    @field:SerializedName("applicant")
 	val applicant: Applicant? = null,
 
-	@field:SerializedName("beginDate")
+    @field:SerializedName("beginDate")
 	val beginDate: String? = null,
 
-	@field:SerializedName("createdAt")
+    @field:SerializedName("createdAt")
 	val createdAt: String? = null,
 
-	@field:SerializedName("attachment")
+    @field:SerializedName("attachment")
 	val attachment: String? = null,
 
-	@field:SerializedName("id")
+    @field:SerializedName("id")
 	val id: String? = null,
 
-	@field:SerializedName("letterType")
+    @field:SerializedName("letterType")
 	val letterType: String? = null,
 
-	@field:SerializedName("status")
+    @field:SerializedName("status")
 	val status: String? = null,
 
     @field:SerializedName("history")
     val history: List<HistoryItem?>? = null,
 
-	@field:SerializedName("letterNumber")
+    @field:SerializedName("letterNumber")
 	val letterNumber: String? = null,
 
-	@field:SerializedName("updatedAt")
+    @field:SerializedName("updatedAt")
 	val updatedAt: String? = null
 ) : Parcelable
 

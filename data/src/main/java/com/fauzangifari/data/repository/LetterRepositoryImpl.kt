@@ -1,6 +1,5 @@
 package com.fauzangifari.data.repository
 
-import android.util.Log
 import com.fauzangifari.data.source.local.room.dao.LetterDao
 import com.fauzangifari.data.source.remote.retrofit.LetterApiService
 import com.fauzangifari.data.mapper.toDomain
@@ -34,7 +33,16 @@ class LetterRepositoryImpl(
 
     override suspend fun getLetterById(letterId: String): Letter {
         val response = letterApiService.getLetterById(letterId)
-        return response.result?.toDomain() ?: throw Exception("Gagal memproses surat")
+        val letter = response.result?.toDomain() ?: throw Exception("Gagal memproses surat")
+
+        // Debug logging
+        android.util.Log.d("LetterRepository", "Letter ID: ${letter.id}, Type: ${letter.letterType}")
+        android.util.Log.d("LetterRepository", "History count: ${letter.history.size}")
+        letter.history.forEachIndexed { index, history ->
+            android.util.Log.d("LetterRepository", "History[$index]: ${history.status} - ${history.actorName} - ${history.timestamp}")
+        }
+
+        return letter
     }
 
     override suspend fun getLetterByIdFromLocal(letterId: String): Letter? {

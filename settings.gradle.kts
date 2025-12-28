@@ -19,7 +19,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "surata"
+rootProject.name = "SurataApp"
 include(":app")
 include(":data")
 include(":domain")

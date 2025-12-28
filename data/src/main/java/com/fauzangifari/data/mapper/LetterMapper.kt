@@ -29,8 +29,9 @@ fun ResultItem.toDomain(): Letter {
         letterNumber = this.letterNumber.orEmpty(),
         applicantName = applicant?.name.orEmpty(),
         applicantEmail = applicant?.email.orEmpty(),
-        cc = emptyList(),
-        reason = this.reason
+        cc =  this.cc?.filterNotNull()?.map { it } ?: emptyList(),
+        reason = this.reason,
+        history = this.history?.filterNotNull()?.map { it.toDomain() } ?: emptyList()
     )
 }
 
@@ -49,7 +50,7 @@ fun Result.toDomain(): Letter {
         letterNumber = this.letterNumber.orEmpty(),
         applicantName = applicant?.name.orEmpty(),
         applicantEmail = applicant?.email.orEmpty(),
-        cc = this.cc?.filterNotNull() ?: emptyList(),
+        cc = this.cc?.filterNotNull()?.mapNotNull { it.name } ?: emptyList(),
         reason = this.reason,
         history = this.history?.filterNotNull()?.map { it.toDomain() } ?: emptyList()
     )
